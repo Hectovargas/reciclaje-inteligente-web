@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EventoClasificacion {
+  id         String   @id @default(uuid())
+  categoria  String
+  confianza  Float
+  zona       String
+  timestamp  DateTime @default(now())
+
+  @@map("eventos_clasificacion")
+}
+
+model QRToken {
+  id        String   @id @default(uuid())
+  codigo    String   @unique
+  categoria String
+  usado     Boolean  @default(false)
+  firma     String
+  timestamp DateTime @default(now())
+
+  @@map("qr_tokens")
+}

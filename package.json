@@ -1,0 +1,21 @@
+{
+  "name": "reciclaje-inteligente-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo para la plataforma de Reciclaje Inteligente Web",
+  "scripts": {
+    "dev:dashboard": "pnpm --filter dashboard dev",
+    "dev:pwa": "pnpm --filter pwa dev",
+    "dev:backend": "pnpm --filter backend start:dev",
+    "build:contracts": "pnpm --filter contracts compile",
+    "test:contracts": "pnpm --filter contracts test",
+    "build": "pnpm --filter \"./apps/*\" build && pnpm --filter \"./packages/*\" build"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
