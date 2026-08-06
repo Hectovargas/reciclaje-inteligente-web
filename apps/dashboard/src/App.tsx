@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
 import Login from './components/Login'
 import { ZoneDetailPage } from './components/dashboard/ZoneDetailPage'
+import { AIDetailsPage } from './components/dashboard/AIDetailsPage'
 import { APP_CONFIG } from './config/app'
 import { User } from './types/user'
 import './index.css'
@@ -294,6 +295,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
             <Route path="/" element={<Dashboard />} />
             <Route path="/estaciones" element={<Stations />} />
             <Route path="/zonas/:id" element={<ZoneDetailPage />} />
+            <Route path="/diagnostico-ia" element={<AIDetailsPage />} />
           </Routes>
         </main>
       </div>

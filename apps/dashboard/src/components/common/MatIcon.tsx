@@ -1,5 +1,5 @@
-export function MatIcon({ m, color }: { m: string; color: string }) {
-  const s = { width: 15, height: 15, fill: 'none' as const, stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+export function MatIcon({ m, color, size = 15 }: { m: string; color: string; size?: number }) {
+  const s = { width: size, height: size, fill: 'none' as const, stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   if (m === 'paper') return (
     <svg viewBox="0 0 24 24" {...s}>
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>

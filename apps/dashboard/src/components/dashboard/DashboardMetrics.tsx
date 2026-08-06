@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useCountUp } from '../../hooks/useCountUp'
 import { ConfRing } from '../common/ConfRing'
 import {
@@ -7,6 +8,7 @@ import {
 } from '../../mocks/data'
 
 export function DashboardMetrics() {
+  const navigate = useNavigate()
   const kgTotal = useCountUp(KPI_DATA.kgTotal)
   const kgSaved = useCountUp(KPI_DATA.kgSaved)
   const co2 = useCountUp(KPI_DATA.co2)
@@ -66,10 +68,32 @@ export function DashboardMetrics() {
       </div>
 
       {/* KPI · Rendimiento IA */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+      <div
+        className="glass-card"
+        onClick={() => navigate('/diagnostico-ia')}
+        style={{
+          padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start',
+          cursor: 'pointer', transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s',
+          position: 'relative'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = 'rgba(163,230,53,0.4)'
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = '0 8px 24px rgba(163,230,53,0.12)'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = ''
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = ''
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Rendimiento de Modelo IA
+          </span>
+          <span style={{ fontSize: 10, color: '#a3e635', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            Ver detalle
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </span>
         </div>
 
