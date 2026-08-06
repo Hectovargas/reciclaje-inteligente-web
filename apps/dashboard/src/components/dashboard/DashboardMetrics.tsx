@@ -113,9 +113,6 @@ export function DashboardMetrics() {
           <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Tiempo entre vaciados
           </span>
-          <span style={{ fontSize: 10, color: '#34d399', fontWeight: 600 }}>
-            ↓ {KPI_DATA.efficiencyGainPct}% más eficiente
-          </span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 14, alignItems: 'center', marginTop: 8 }}>
