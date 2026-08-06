@@ -16,7 +16,7 @@ export function DashboardMetrics() {
   return (
     <div style={{ flex: '1 1 320px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
       {/* KPI · Material reciclado */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -30,7 +30,7 @@ export function DashboardMetrics() {
         </div>
 
         {/* Material breakdown rows */}
-        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {MATERIAL_CLASSIFIED_BREAKDOWN.map(m => (
             <div key={m.name}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, marginBottom: 2 }}>
@@ -48,7 +48,7 @@ export function DashboardMetrics() {
       </div>
 
       {/* KPI · Contaminación cruzada */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'flex-start' }}>
         <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Contaminación cruzada evitada
         </span>
@@ -66,14 +66,14 @@ export function DashboardMetrics() {
       </div>
 
       {/* KPI · Rendimiento IA */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Rendimiento de Modelo IA
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, alignItems: 'center', marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, alignItems: 'center', marginTop: 16 }}>
           {/* Main Ring & Big Accuracy */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <ConfRing value={KPI_DATA.aiConf} />
@@ -108,14 +108,14 @@ export function DashboardMetrics() {
       </div>
 
       {/* KPI · Tiempo entre vaciados */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Tiempo entre vaciados
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 14, alignItems: 'center', marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 14, alignItems: 'center', marginTop: 16 }}>
           {/* Main Stat */}
           <div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>

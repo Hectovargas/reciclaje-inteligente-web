@@ -1,19 +1,10 @@
-import { useState } from 'react'
-import { ZONES } from '../mocks/data'
 import { DatePicker } from './common/DatePicker'
 import { DashboardMetrics } from './dashboard/DashboardMetrics'
 import { LiveFeed } from './dashboard/LiveFeed'
 import { HeatMap } from './dashboard/HeatMap'
 import { PeakHoursChart } from './dashboard/PeakHoursChart'
-import { ZoneDetailPage } from './dashboard/ZoneDetailPage'
 
 export default function Dashboard() {
-  const [selectedZone, setSelectedZone] = useState<typeof ZONES[0] | null>(null)
-
-  if (selectedZone) {
-    return <ZoneDetailPage zone={selectedZone} onClose={() => setSelectedZone(null)} />
-  }
-
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
@@ -44,15 +35,20 @@ export default function Dashboard() {
       {/* ─ Row 3: Heatmap full width ──────────────────────────────── */}
       <div className="glass-card" style={{ padding: 22 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.42)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Mapa de calor por zonas
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.42)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Mapa de calor por zonas
+            </span>
+            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.6)', fontWeight: 500 }}>
+              Volumen de actividad relativo (% sobre total de clasificaciones en la red hoy)
+            </span>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 9.5, color: 'rgba(240,253,244,0.55)' }}>
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
             Clic en zona para desglose
           </div>
         </div>
-        <HeatMap onZoneClick={setSelectedZone} />
+        <HeatMap />
       </div>
 
       {/* ─ Row 4: Peak hours ──────────────────────────────────────── */}

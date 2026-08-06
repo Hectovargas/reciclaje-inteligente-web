@@ -1,23 +1,24 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
 import Login from './components/Login'
+import { ZoneDetailPage } from './components/dashboard/ZoneDetailPage'
 import { APP_CONFIG } from './config/app'
 import { User } from './types/user'
 import './index.css'
 
 const TABS = [
-  { id: 'dashboard', label: 'Control de Misión' },
-  { id: 'stations', label: 'Estaciones' },
+  { id: 'dashboard', label: 'Control de Misión', path: '/' },
+  { id: 'stations', label: 'Estaciones', path: '/estaciones' },
 ]
-export default function App() {
-  const [user, setUser] = useState<User | null>(null)
-  const [activeTab, setActiveTab] = useState('dashboard')
+
+function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) => void }) {
+  const location = useLocation()
+  const activeTab = location.pathname.startsWith('/estaciones') ? 'stations' : 'dashboard'
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
-
-  if (!user) return <Login onAuth={setUser} />
 
   return (
     <div className="mesh-bg min-h-screen">
@@ -80,9 +81,10 @@ export default function App() {
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {TABS.map(tab => (
-            <button
+            <Link
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setMobileDrawerOpen(false); }}
+              to={tab.path}
+              onClick={() => setMobileDrawerOpen(false)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '12px 14px', borderRadius: 10, border: 'none',
@@ -90,12 +92,12 @@ export default function App() {
                 fontWeight: activeTab === tab.id ? 700 : 500,
                 color: activeTab === tab.id ? '#a3e635' : 'rgba(240,253,244,0.6)',
                 background: activeTab === tab.id ? 'rgba(163,230,53,0.12)' : 'transparent',
-                textAlign: 'left',
+                textAlign: 'left', textDecoration: 'none'
               }}
             >
               <span style={{ fontSize: 16 }}>{tab.id === 'dashboard' ? '⬡' : '◎'}</span>
               {tab.label}
-            </button>
+            </Link>
           ))}
         </nav>
 
@@ -179,9 +181,9 @@ export default function App() {
           {/* Nav */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {TABS.map(tab => (
-              <button
+              <Link
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                to={tab.path}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '10px 12px',
@@ -201,13 +203,14 @@ export default function App() {
                   textAlign: 'left',
                   transition: 'all 0.2s',
                   letterSpacing: '-0.01em',
+                  textDecoration: 'none'
                 }}
               >
                 <span style={{ fontSize: 15 }}>
                   {tab.id === 'dashboard' ? '⬡' : '◎'}
                 </span>
                 {tab.label}
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -287,8 +290,11 @@ export default function App() {
 
         {/* Main content */}
         <main style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'stations' && <Stations />}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/estaciones" element={<Stations />} />
+            <Route path="/zonas/:id" element={<ZoneDetailPage />} />
+          </Routes>
         </main>
       </div>
 
@@ -368,5 +374,17 @@ export default function App() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null)
+
+  if (!user) return <Login onAuth={setUser} />
+
+  return (
+    <Router>
+      <MainLayout user={user} setUser={setUser} />
+    </Router>
   )
 }

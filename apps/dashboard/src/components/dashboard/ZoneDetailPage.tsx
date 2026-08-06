@@ -1,10 +1,41 @@
-import { ZONES } from '../../mocks/data'
-import { StationCard } from './StationCard'
+import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ZONES, Station, getStationFromZoneItem } from '../../mocks/data'
+import { StationCard } from '../stations/StationCard'
+import { StationDetailPage } from '../stations/StationDetailPage'
 
-export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClose: () => void }) {
+export function ZoneDetailPage() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+  
+  const zone = ZONES.find(z => z.id === id)
+  if (!zone) return <div style={{ padding: 24, color: '#f0fdf4' }}>Zona no encontrada</div>
+
+  if (selectedStation) {
+    return (
+      <StationDetailPage
+        station={selectedStation}
+        onClose={() => setSelectedStation(null)}
+        onRevoke={() => {}}
+      />
+    )
+  }
+
   const zc = zone.value > 85 ? '#a3e635' : zone.value > 65 ? '#22d3ee' : '#a78bfa'
   const activeCount = zone.stations.filter(s => s.status === 'active').length
-  const avgFill = Math.round(zone.stations.reduce((a, s) => a + s.fill, 0) / zone.stations.length)
+  
+  const totalNetworkCount = ZONES.reduce((acc, z) => acc + (z.todayCount || 0), 0)
+  const participationPct = totalNetworkCount > 0 && zone.todayCount ? Math.round((zone.todayCount / totalNetworkCount) * 100) : 0
+  
+  const todayCount = zone.todayCount || 0
+  const prevCount = zone.prevCount || 1
+  const diffCount = todayCount - prevCount
+  const diffPct = Math.round((diffCount / prevCount) * 100)
+  const diffColor = diffPct >= 0 ? '#34d399' : '#ef4444'
+  const diffSign = diffPct >= 0 ? '+' : ''
+
+  const fullStations: Station[] = zone.stations.map(s => getStationFromZoneItem(s, zone.name))
 
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '100%' }}>
@@ -12,7 +43,7 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
       {/* Back + header */}
       <div>
         <button
-          onClick={onClose}
+          onClick={() => navigate('/')}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 7,
             padding: '7px 14px', borderRadius: 99, marginBottom: 20,
@@ -39,11 +70,29 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
           </div>
 
           {/* Zone summary pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, width: '100%', maxWidth: 420 }}>
             {[
-              { label: 'Eficiencia global', value: `${zone.value}%`, color: zc },
-              { label: 'Llenado promedio', value: `${avgFill}%`, color: avgFill > 75 ? '#ef4444' : '#34d399' },
-              { label: 'Estaciones activas', value: `${activeCount}/${zone.stations.length}`, color: '#22d3ee' },
+              { 
+                label: 'Volumen hoy', 
+                value: todayCount.toLocaleString(), 
+                color: zc,
+                subtext: `${diffSign}${diffPct}% vs ayer`,
+                subtextColor: diffColor
+              },
+              { 
+                label: 'Participación red', 
+                value: `${participationPct}%`, 
+                color: '#22d3ee',
+                subtext: 'del total',
+                subtextColor: 'rgba(240,253,244,0.35)'
+              },
+              { 
+                label: 'Estaciones activas', 
+                value: `${activeCount}/${zone.stations.length}`, 
+                color: '#a78bfa',
+                subtext: 'operativas',
+                subtextColor: 'rgba(240,253,244,0.35)'
+              },
             ].map(p => (
               <div key={p.label} style={{
                 padding: '10px 18px', borderRadius: 12,
@@ -51,7 +100,8 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
               }}>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 800, color: p.color, textShadow: `0 0 16px ${p.color}55` }}>{p.value}</span>
-                <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.35)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{p.label}</span>
+                <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.45)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{p.label}</span>
+                <span style={{ fontSize: 8.5, color: p.subtextColor, fontWeight: 500, marginTop: 2 }}>{p.subtext}</span>
               </div>
             ))}
           </div>
@@ -64,10 +114,11 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
         gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
         gap: 16,
       }}>
-        {zone.stations.map(s => (
-          <StationCard key={s.id} s={s} zc={zc} />
+        {fullStations.map(st => (
+          <StationCard key={st.id} station={st} onClick={() => setSelectedStation(st)} />
         ))}
       </div>
     </div>
   )
 }
+

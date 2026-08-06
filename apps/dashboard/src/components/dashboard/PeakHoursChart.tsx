@@ -7,7 +7,7 @@ export function PeakHoursChart() {
   const MAX = 100
 
   const W = 700, H = 160
-  const PAD = { top: 26, right: 12, bottom: 28, left: 36 }
+  const PAD = { top: 26, right: 28, bottom: 28, left: 36 }
   const cW = W - PAD.left - PAD.right
   const cH = H - PAD.top - PAD.bottom
   const barW = cW / 24
@@ -53,8 +53,8 @@ export function PeakHoursChart() {
       </div>
 
       {/* Chart */}
-      <div style={{ width: '100%', overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', minWidth: 460, height: 200, overflow: 'hidden' }}>
+      <div style={{ width: '100%' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 'auto', aspectRatio: '700/160', overflow: 'hidden', display: 'block' }}>
         <defs>
           <linearGradient id="pkgrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#a3e635" stopOpacity="0.28" />
@@ -126,8 +126,8 @@ export function PeakHoursChart() {
           })
         )}
 
-        {/* X axis hour labels — every 3h */}
-        {Array.from({ length: 9 }, (_, i) => i * 3).map(h => (
+        {/* X axis hour labels — every 3h + 23h */}
+        {[0, 3, 6, 9, 12, 15, 18, 21, 23].map(h => (
           <text key={h}
             x={PAD.left + h * barW + barW / 2}
             y={PAD.top + cH + 14}

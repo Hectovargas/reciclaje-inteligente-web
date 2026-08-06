@@ -14,7 +14,7 @@ export function AddStationModal({ onClose, onAdd }: { onClose: () => void; onAdd
     setGenerated(token)
     const newStation: Station = {
       id: 'ES-' + String(Math.floor(Math.random() * 900) + 100),
-      name, location: location || 'Ubicación pendiente',
+      name, location: location || 'Ubicación pendiente', zone: zona,
       status: 'offline', capacity: 0, today: 0, token,
     }
     onAdd(newStation)
