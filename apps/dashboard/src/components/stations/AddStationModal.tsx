@@ -16,7 +16,6 @@ export function AddStationModal({ onClose, onAdd }: { onClose: () => void; onAdd
       id: 'ES-' + String(Math.floor(Math.random() * 900) + 100),
       name, location: location || 'Ubicación pendiente',
       status: 'offline', capacity: 0, today: 0, token,
-      hardware: { cpu: 0, temp: 0, uptime: '—' },
     }
     onAdd(newStation)
   }

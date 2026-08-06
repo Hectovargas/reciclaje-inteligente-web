@@ -6,19 +6,6 @@ export type Station = {
   capacity: number
   today: number
   token: string
-  hardware: { cpu: number; temp: number; uptime: string }
-}
-
-export type Role = 'Admin' | 'Operador' | 'Usuario'
-
-export type User = {
-  id: number
-  name: string
-  email: string
-  role: Role
-  stations: number
-  lastActive: string
-  avatar: string
 }
 
 export const FEED_INIT = [
@@ -109,12 +96,12 @@ export const PEAK_RANGES = [
 ]
 
 export const INITIAL_STATIONS: Station[] = [
-  { id: 'ES-042', name: 'Parque Central', location: 'Av. Libertad 1240', status: 'active', capacity: 87, today: 234, token: 'tk_a9f2bc41e7d3', hardware: { cpu: 23, temp: 41, uptime: '14d 6h' } },
-  { id: 'ES-018', name: 'Metro Alameda', location: 'Estación Metro L2', status: 'active', capacity: 62, today: 189, token: 'tk_e3b1c90d4f82', hardware: { cpu: 31, temp: 38, uptime: '7d 2h' } },
-  { id: 'ES-091', name: 'Mercado Sur', location: 'Calle Marte 88', status: 'warning', capacity: 95, today: 312, token: 'tk_77d4a12fe6c3', hardware: { cpu: 78, temp: 67, uptime: '1d 4h' } },
-  { id: 'ES-055', name: 'Campus Universitario', location: 'Blvd. Educación 500', status: 'active', capacity: 41, today: 156, token: 'tk_c2f9e05b3a74', hardware: { cpu: 18, temp: 36, uptime: '30d 12h' } },
-  { id: 'ES-007', name: 'Plaza Norte', location: 'Centro Comercial N1', status: 'offline', capacity: 0, today: 0, token: 'tk_5e8b2d1f9c05', hardware: { cpu: 0, temp: 0, uptime: '—' } },
-  { id: 'ES-033', name: 'Aeropuerto T2', location: 'Terminal 2, Nivel P', status: 'active', capacity: 74, today: 408, token: 'tk_1a6d3e7f8b96', hardware: { cpu: 42, temp: 44, uptime: '21d 8h' } },
+  { id: 'ES-042', name: 'Parque Central', location: 'Av. Libertad 1240', status: 'active', capacity: 87, today: 234, token: 'tk_a9f2bc41e7d3' },
+  { id: 'ES-018', name: 'Metro Alameda', location: 'Estación Metro L2', status: 'active', capacity: 62, today: 189, token: 'tk_e3b1c90d4f82' },
+  { id: 'ES-091', name: 'Mercado Sur', location: 'Calle Marte 88', status: 'warning', capacity: 95, today: 312, token: 'tk_77d4a12fe6c3' },
+  { id: 'ES-055', name: 'Campus Universitario', location: 'Blvd. Educación 500', status: 'active', capacity: 41, today: 156, token: 'tk_c2f9e05b3a74' },
+  { id: 'ES-007', name: 'Plaza Norte', location: 'Centro Comercial N1', status: 'offline', capacity: 0, today: 0, token: 'tk_5e8b2d1f9c05' },
+  { id: 'ES-033', name: 'Aeropuerto T2', location: 'Terminal 2, Nivel P', status: 'active', capacity: 74, today: 408, token: 'tk_1a6d3e7f8b96' },
 ]
 
 export const STATUS_CONFIG = {
@@ -124,27 +111,6 @@ export const STATUS_CONFIG = {
 }
 
 export const ZONAS = ['Centro', 'Norte', 'Sur', 'Este', 'Oeste', 'Periferia']
-
-export const USERS: User[] = [
-  { id: 1, name: 'Valentina Cruz', email: 'v.cruz@ecogrid.io', role: 'Admin', stations: 47, lastActive: 'Ahora mismo', avatar: 'VC' },
-  { id: 2, name: 'Mateo Rodríguez', email: 'm.rodriguez@ecogrid.io', role: 'Operador', stations: 23, lastActive: 'hace 12 min', avatar: 'MR' },
-  { id: 3, name: 'Sofía Herrera', email: 's.herrera@ecogrid.io', role: 'Operador', stations: 18, lastActive: 'hace 1h', avatar: 'SH' },
-  { id: 4, name: 'Diego Morales', email: 'd.morales@ecogrid.io', role: 'Usuario', stations: 5, lastActive: 'hace 2h', avatar: 'DM' },
-  { id: 5, name: 'Camila Vargas', email: 'c.vargas@ecogrid.io', role: 'Admin', stations: 89, lastActive: 'hace 4h', avatar: 'CV' },
-  { id: 6, name: 'Andrés Jiménez', email: 'a.jimenez@ecogrid.io', role: 'Usuario', stations: 2, lastActive: 'hace 1d', avatar: 'AJ' },
-]
-
-export const PENDING_STATIONS = [
-  { id: 'ES-NEW-001', location: 'Centro Logístico Norte', initiated: 'hace 3 min', ready: false },
-  { id: 'ES-NEW-002', location: 'Parque Industrial Sur', initiated: 'hace 18 min', ready: true },
-  { id: 'ES-NEW-003', location: 'Mall Tecnológico', initiated: 'hace 42 min', ready: false },
-]
-
-export const ROLE_CONFIG: Record<Role, { color: string; bg: string }> = {
-  Admin: { color: '#a3e635', bg: 'rgba(163,230,53,0.12)' },
-  Operador: { color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
-  Usuario: { color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
-}
 
 export const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
@@ -162,5 +128,33 @@ export const SERIES = [
 
 export const MAX_VAL = 560
 export const Y_TICKS = [0, 140, 280, 420, 560]
+
+export const KPI_DATA = {
+  kgTotal: 18432,
+  kgSaved: 17104,
+  co2: 5201,
+  trees: 234,
+  accuracy: 983,
+  aiConf: 96,
+  timeBetweenEmptying: 6.2,
+  timeBetweenEmptyingPrev: 6.8,
+  efficiencyGainPct: 8,
+  frequency: "14 / sem",
+  minZoneTime: "2.4h",
+  maxZoneTime: "11.8h",
+  totalEst: "247 est."
+}
+
+export const MATERIAL_CLASSIFIED_BREAKDOWN = [
+  { name: 'Papel', count: 8520, pct: 46.2, color: '#a3e635' },
+  { name: 'Plástico', count: 5860, pct: 31.8, color: '#22d3ee' },
+  { name: 'Metal', count: 4052, pct: 22.0, color: '#a78bfa' },
+]
+
+export const IA_ACCURACY_BREAKDOWN = [
+  { label: 'Papel', color: '#a3e635', val: 99.1 },
+  { label: 'Plástico', color: '#22d3ee', val: 97.8 },
+  { label: 'Metal', color: '#a78bfa', val: 98.2 },
+]
 
 

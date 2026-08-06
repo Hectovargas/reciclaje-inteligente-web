@@ -11,10 +11,10 @@ export function StationCard({ s, zc }: { s: typeof ZONES[0]['stations'][0]; zc: 
   )
 
   const metrics = [
-    { label: 'Artículos hoy',    value: Math.round(s.fill * 4.2).toLocaleString('es-ES'), unit: 'items' },
+    { label: 'Artículos hoy',    value: Math.round(s.fill * 4.2).toLocaleString('es-ES'), unit: 'artículos' },
     { label: 'Precisión IA',     value: (92 + Math.round(s.fill / 20)).toString(),         unit: '%' },
     { label: 'Últ. vaciado',     value: `${Math.round((100 - s.fill) / 8)}h`,             unit: 'ago' },
-    { label: 'Temp. sensor',     value: (18 + Math.round(s.fill / 15)).toString(),         unit: '°C' },
+    { label: 'Eficiencia IA',    value: '98.5',                                           unit: '%' },
   ]
 
   return (
@@ -45,18 +45,17 @@ export function StationCard({ s, zc }: { s: typeof ZONES[0]['stations'][0]; zc: 
         </div>
       </div>
 
-      {/* Fill bar section */}
+      {/* Vaciado aproximado section */}
       <div style={{ padding: '14px 20px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-          <span style={{ fontSize: 10, color: 'rgba(240,253,244,0.38)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Nivel de llenado</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 800, color: fillColor, textShadow: `0 0 16px ${fillColor}60` }}>{s.fill}%</span>
-        </div>
-        <div style={{ height: 6, borderRadius: 3, background: 'rgba(240,253,244,0.06)', overflow: 'hidden', marginBottom: 14 }}>
-          <div style={{ height: '100%', borderRadius: 3, width: `${s.fill}%`, background: `linear-gradient(90deg, ${fillColor}99, ${fillColor})`, boxShadow: `0 0 10px ${fillColor}55`, transition: 'width 1s ease' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
+          <span style={{ fontSize: 10, color: 'rgba(240,253,244,0.38)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Vaciado aproximado</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 800, color: '#22d3ee', textShadow: '0 0 16px rgba(34,211,238,0.5)' }}>
+            {s.status === 'offline' ? 'N/A' : `~${Math.max(1, Math.round((100 - s.fill) / 10))}h`}
+          </span>
         </div>
 
         {/* Sparkline */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 36, marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32, marginBottom: 10 }}>
           {bars.map((h, i) => (
             <div key={i} style={{
               flex: 1, borderRadius: 3,
@@ -68,6 +67,31 @@ export function StationCard({ s, zc }: { s: typeof ZONES[0]['stations'][0]; zc: 
               transition: 'height 0.8s ease',
             }} />
           ))}
+        </div>
+
+        {/* Material Breakdown per station */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(240,253,244,0.35)', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 6 }}>
+            Clasificado hoy por material
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
+            {[
+              { label: 'Papel', count: Math.round(s.fill * 1.9), color: '#a3e635' },
+              { label: 'Plástico', count: Math.round(s.fill * 1.5), color: '#22d3ee' },
+              { label: 'Metal', count: Math.round(s.fill * 0.8), color: '#a78bfa' },
+            ].map(m => (
+              <div key={m.label} style={{
+                padding: '4px 6px', borderRadius: 6,
+                background: 'rgba(11,16,26,0.5)', border: `1px solid ${m.color}20`,
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+              }}>
+                <span style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.45)', fontWeight: 600 }}>{m.label}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700, color: m.color }}>
+                  {m.count}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

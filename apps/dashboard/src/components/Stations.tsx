@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Station, INITIAL_STATIONS } from '../mocks/data'
 import { StationCard } from './stations/StationCard'
 import { AddStationModal } from './stations/AddStationModal'
+import { StationDetailPage } from './stations/StationDetailPage'
 
 export default function Stations() {
   const [stations, setStations] = useState<Station[]>(INITIAL_STATIONS)
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'active' | 'offline' | 'warning'>('all')
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
 
   const filtered = filter === 'all' ? stations : stations.filter(s => s.status === filter)
 
@@ -25,6 +27,18 @@ export default function Stations() {
     active: stations.filter(s => s.status === 'active').length,
     offline: stations.filter(s => s.status === 'offline').length,
     warning: stations.filter(s => s.status === 'warning').length,
+  }
+
+  // If a station is selected, show detail view
+  if (selectedStation) {
+    const current = stations.find(s => s.id === selectedStation.id) || selectedStation
+    return (
+      <StationDetailPage
+        station={current}
+        onClose={() => setSelectedStation(null)}
+        onRevoke={handleRevoke}
+      />
+    )
   }
 
   return (
@@ -85,7 +99,7 @@ export default function Stations() {
         gap: 16,
       }}>
         {filtered.map(s => (
-          <StationCard key={s.id} station={s} onRevoke={handleRevoke} />
+          <StationCard key={s.id} station={s} onClick={() => setSelectedStation(s)} />
         ))}
       </div>
     </div>

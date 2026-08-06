@@ -1,9 +1,6 @@
-import { useState } from 'react'
 import { Station, STATUS_CONFIG } from '../../mocks/data'
-import { TokenDisplay } from './TokenDisplay'
 
-export function StationCard({ station, onRevoke }: { station: Station; onRevoke: (id: string) => void }) {
-  const [expanded, setExpanded] = useState(false)
+export function StationCard({ station, onClick }: { station: Station; onClick: () => void }) {
   const s = STATUS_CONFIG[station.status]
 
   return (
@@ -14,7 +11,7 @@ export function StationCard({ station, onRevoke }: { station: Station; onRevoke:
         cursor: 'pointer',
         transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
       }}
-      onClick={() => setExpanded(!expanded)}
+      onClick={onClick}
     >
       {/* Card header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -43,80 +40,95 @@ export function StationCard({ station, onRevoke }: { station: Station; onRevoke:
         </div>
       </div>
 
-      {/* Fill forecast bar */}
-      {station.status !== 'offline' && (() => {
-        const ratePerHour = station.today / 24
-        const projected = Math.min(100, Math.round(station.capacity + ratePerHour * 5))
-        const color = projected > 90 ? '#ef4444' : projected > 75 ? '#fbbf24' : '#34d399'
+      {/* Vaciado aproximado */}
+      {station.status !== 'offline' ? (() => {
+        const estHours = Math.max(1, Math.round((100 - station.capacity) / 8))
+        const estMinutes = (station.capacity * 7) % 60
         return (
-          <div style={{ marginTop: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-              <span style={{ fontSize: 10.5, color: 'rgba(240,253,244,0.4)' }}>Llenado aprox. en 5h</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color, fontWeight: 700 }}>
-                {projected}%
-              </span>
-            </div>
-            <div style={{ height: 4, borderRadius: 2, background: 'rgba(240,253,244,0.07)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', borderRadius: 2, width: `${station.capacity}%`, background: 'rgba(240,253,244,0.15)', transition: 'width 0.8s ease', position: 'relative' }}>
+          <div style={{
+            marginTop: 16,
+            padding: '12px 14px',
+            borderRadius: 10,
+            background: 'rgba(34,211,238,0.05)',
+            border: '1px solid rgba(34,211,238,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+                Vaciado aproximado
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(240,253,244,0.6)', marginTop: 2 }}>
+                Próxima recolección estimada
               </div>
             </div>
-            <div style={{ height: 4, borderRadius: 2, background: 'rgba(240,253,244,0.04)', overflow: 'hidden', marginTop: 2 }}>
-              <div style={{ height: '100%', borderRadius: 2, width: `${projected}%`, background: color, boxShadow: `0 0 8px ${color}55`, transition: 'width 0.8s ease' }} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
-              <span style={{ fontSize: 9, color: 'rgba(240,253,244,0.25)', fontFamily: 'var(--font-mono)' }}>ahora {station.capacity}%</span>
-              <span style={{ fontSize: 9, color: 'rgba(240,253,244,0.25)', fontFamily: 'var(--font-mono)' }}>+5h proyectado</span>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 800, color: '#22d3ee', textShadow: '0 0 12px rgba(34,211,238,0.4)' }}>
+              ~{estHours}h {estMinutes > 0 ? `${estMinutes}m` : ''}
             </div>
           </div>
         )
-      })()}
-
-      <div style={{ display: 'flex', gap: 16, marginTop: 14 }}>
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#22d3ee', fontFamily: 'var(--font-sans)', letterSpacing: '-0.03em', textShadow: '0 0 16px rgba(34,211,238,0.4)' }}>
-            {station.today.toLocaleString('es-ES')}
+      })() : (
+        <div style={{
+          marginTop: 16,
+          padding: '12px 14px',
+          borderRadius: 10,
+          background: 'rgba(239,68,68,0.05)',
+          border: '1px solid rgba(239,68,68,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(239,68,68,0.6)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+              Vaciado aproximado
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(240,253,244,0.4)', marginTop: 2 }}>
+              Estación sin conexión
+            </div>
           </div>
-          <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.35)', marginTop: 2 }}>clasificaciones hoy</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: '#ef4444' }}>
+            N/A
+          </div>
+        </div>
+      )}
+
+      {/* Material Breakdown */}
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(99,231,182,0.08)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+            Desglose por Material Hoy
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 800, color: '#22d3ee' }}>
+            {station.today.toLocaleString('es-ES')} artículos
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+          {[
+            { label: 'Papel', count: Math.round(station.today * 0.45), color: '#a3e635' },
+            { label: 'Plástico', count: Math.round(station.today * 0.35), color: '#22d3ee' },
+            { label: 'Metal', count: Math.round(station.today * 0.20), color: '#a78bfa' },
+          ].map(m => (
+            <div key={m.label} style={{
+              padding: '6px 8px', borderRadius: 8,
+              background: 'rgba(11,16,26,0.5)', border: `1px solid ${m.color}25`,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+            }}>
+              <span style={{ fontSize: 9, color: 'rgba(240,253,244,0.45)', fontWeight: 600 }}>{m.label}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: m.color }}>
+                {m.count}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Expanded mini-dashboard */}
-      {expanded && (
-        <div
-          onClick={e => e.stopPropagation()}
-          style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: '1px solid rgba(99,231,182,0.1)',
-          }}
-        >
-          <TokenDisplay token={station.token} />
-
-          <button
-            onClick={() => onRevoke(station.id)}
-            style={{
-              marginTop: 12, width: '100%', padding: '8px 0',
-              border: '1px solid rgba(239,68,68,0.3)',
-              borderRadius: 8, background: 'rgba(239,68,68,0.06)',
-              color: '#ef4444', fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'var(--font-sans)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              const t = e.currentTarget
-              t.style.background = 'rgba(239,68,68,0.12)'
-              t.style.boxShadow = '0 0 16px rgba(239,68,68,0.2)'
-            }}
-            onMouseLeave={e => {
-              const t = e.currentTarget
-              t.style.background = 'rgba(239,68,68,0.06)'
-              t.style.boxShadow = 'none'
-            }}
-          >
-            Revocar token
-          </button>
-        </div>
-      )}
+      {/* Footer hint */}
+      <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <span style={{ fontSize: 10, color: '#22d3ee', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+          Ver detalles completos →
+        </span>
+      </div>
     </div>
   )
 }

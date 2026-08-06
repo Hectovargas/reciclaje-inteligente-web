@@ -1,27 +1,49 @@
 import { useCountUp } from '../../hooks/useCountUp'
 import { ConfRing } from '../common/ConfRing'
+import {
+  KPI_DATA,
+  MATERIAL_CLASSIFIED_BREAKDOWN,
+  IA_ACCURACY_BREAKDOWN,
+} from '../../mocks/data'
 
 export function DashboardMetrics() {
-  const kgTotal    = useCountUp(18432)
-  const kgSaved    = useCountUp(17104)
-  const co2        = useCountUp(5201)
-  const trees      = useCountUp(234)
-  const accuracy   = useCountUp(983)   // /10 → 98.3
-  const aiConf     = 96
+  const kgTotal = useCountUp(KPI_DATA.kgTotal)
+  const kgSaved = useCountUp(KPI_DATA.kgSaved)
+  const co2 = useCountUp(KPI_DATA.co2)
+  const trees = useCountUp(KPI_DATA.trees)
+  const accuracy = useCountUp(KPI_DATA.accuracy)
 
   return (
     <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 14 }}>
       {/* KPI · Material reciclado */}
-      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Material reciclado
-        </span>
+      <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#a3e635', textShadow: '0 0 32px rgba(163,230,53,0.45)' }}>
-            {kgTotal.toLocaleString('es-ES')}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Material Clasificado
+            </span>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(163,230,53,0.5)', marginTop: 2, display: 'block' }}>artículos</span>
-          <p style={{ margin: '6px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>↑ 12.4% vs. período anterior</p>
+          <div style={{ fontSize: 38, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#a3e635', textShadow: '0 0 24px rgba(163,230,53,0.45)', marginTop: 6 }}>
+            {kgTotal.toLocaleString('es-ES')}
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(163,230,53,0.6)', marginLeft: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>artículos</span>
+          </div>
+        </div>
+
+        {/* Material breakdown rows */}
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {MATERIAL_CLASSIFIED_BREAKDOWN.map(m => (
+            <div key={m.name}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, marginBottom: 2 }}>
+                <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.name}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: m.color, fontWeight: 700 }}>
+                  {m.count.toLocaleString('es-ES')} ({m.pct}%)
+                </span>
+              </div>
+              <div style={{ height: 3, borderRadius: 1.5, background: 'rgba(240,253,244,0.06)' }}>
+                <div style={{ height: '100%', borderRadius: 1.5, width: `${m.pct}%`, background: m.color, boxShadow: `0 0 6px ${m.color}60` }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -45,21 +67,40 @@ export function DashboardMetrics() {
 
       {/* KPI · Rendimiento IA */}
       <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Rendimiento IA
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <ConfRing value={aiConf} />
-          <div>
-            <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.04em', color: '#a3e635', textShadow: '0 0 24px rgba(163,230,53,0.4)', lineHeight: 1 }}>
-              {(accuracy / 10).toFixed(1)}%
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Rendimiento de Modelo IA
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.4fr', gap: 16, alignItems: 'center', marginTop: 8 }}>
+          {/* Main Ring & Big Accuracy */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <ConfRing value={KPI_DATA.aiConf} />
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', color: '#a3e635', textShadow: '0 0 24px rgba(163,230,53,0.4)', lineHeight: 1 }}>
+                {(accuracy / 10).toFixed(1)}%
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,253,244,0.6)', marginTop: 4 }}>
+                Precisión global
+              </div>
+              <div style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.35)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
+                Conf. Media: {KPI_DATA.aiConf}%
+              </div>
             </div>
-            <p style={{ margin: '4px 0 10px', fontSize: 10, color: 'rgba(240,253,244,0.5)' }}>precisión real</p>
-            {[['Papel','#a3e635',99.1],['Plástico','#22d3ee',97.8],['Metal','#a78bfa',98.2]].map(([l,c,v]) => (
-              <div key={String(l)} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                <div style={{ width: 5, height: 5, borderRadius: '50%', background: String(c), flexShrink: 0 }} />
-                <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.5)', width: 44 }}>{String(l)}</span>
-                <span style={{ fontSize: 9.5, fontFamily: 'var(--font-mono)', color: String(c), fontWeight: 700 }}>{Number(v).toFixed(1)}%</span>
+          </div>
+
+          {/* Breakdown per material with progress bars */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
+            {IA_ACCURACY_BREAKDOWN.map(m => (
+              <div key={m.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
+                  <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.label}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', color: m.color, fontWeight: 700 }}>{m.val}%</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 2, background: 'rgba(240,253,244,0.06)' }}>
+                  <div style={{ height: '100%', borderRadius: 2, width: `${m.val}%`, background: m.color, boxShadow: `0 0 6px ${m.color}50` }} />
+                </div>
               </div>
             ))}
           </div>
@@ -68,19 +109,51 @@ export function DashboardMetrics() {
 
       {/* KPI · Tiempo entre vaciados */}
       <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Tiempo entre vaciados
-        </span>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#34d399', textShadow: '0 0 32px rgba(52,211,153,0.45)' }}>
-              6.2
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Tiempo entre vaciados
+          </span>
+          <span style={{ fontSize: 10, color: '#34d399', fontWeight: 600 }}>
+            ↓ {KPI_DATA.efficiencyGainPct}% más eficiente
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 14, alignItems: 'center', marginTop: 8 }}>
+          {/* Main Stat */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+              <div style={{ fontSize: 44, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#34d399', textShadow: '0 0 32px rgba(52,211,153,0.45)' }}>
+                {KPI_DATA.timeBetweenEmptying}
+              </div>
+              <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(52,211,153,0.7)', letterSpacing: '-0.02em' }}>h</span>
             </div>
-            <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(52,211,153,0.7)', letterSpacing: '-0.02em' }}>h</span>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(52,211,153,0.6)', marginTop: 4 }}>
+              Promedio Red
+            </div>
+            <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.35)', marginTop: 2 }}>
+              vs. {KPI_DATA.timeBetweenEmptyingPrev}h mes anterior
+            </div>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(52,211,153,0.5)', marginTop: 2, display: 'block' }}>promedio red</span>
-          <p style={{ margin: '6px 0 4px', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>↓ 8% más eficiente</p>
-          <p style={{ margin: 0, fontSize: 11, color: 'rgba(240,253,244,0.5)', fontFamily: 'var(--font-mono)' }}>≈14 vaciados/semana</p>
+
+          {/* Sub-metrics Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
+            <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Frecuencia</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#f0fdf4', marginTop: 2 }}>{KPI_DATA.frequency}</div>
+            </div>
+            <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Mín. Zona</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#22d3ee', marginTop: 2 }}>{KPI_DATA.minZoneTime}</div>
+            </div>
+            <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Máx. Zona</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a78bfa', marginTop: 2 }}>{KPI_DATA.maxZoneTime}</div>
+            </div>
+            <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Red Total</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a3e635', marginTop: 2 }}>{KPI_DATA.totalEst}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
