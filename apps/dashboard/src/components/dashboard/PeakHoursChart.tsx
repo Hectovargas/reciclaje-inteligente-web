@@ -30,7 +30,7 @@ export function PeakHoursChart() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#f0fdf4' }}>Horas pico de uso</span>
           <span style={{ marginLeft: 10, fontSize: 10, color: 'rgba(240,253,244,0.35)', fontFamily: 'var(--font-mono)' }}>actividad por hora · red completa</span>
@@ -53,7 +53,8 @@ export function PeakHoursChart() {
       </div>
 
       {/* Chart */}
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 220, overflow: 'hidden' }}>
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', minWidth: 460, height: 200, overflow: 'hidden' }}>
         <defs>
           <linearGradient id="pkgrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#a3e635" stopOpacity="0.28" />
@@ -140,6 +141,7 @@ export function PeakHoursChart() {
         {/* Axis line */}
         <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + cH} stroke="rgba(240,253,244,0.07)" strokeWidth={1} />
       </svg>
+      </div>
     </div>
   )
 }

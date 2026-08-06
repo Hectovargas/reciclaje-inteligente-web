@@ -32,7 +32,7 @@ export function AddStationModal({ onClose, onAdd }: { onClose: () => void; onAdd
         className="glass-card"
         onClick={e => e.stopPropagation()}
         style={{
-          padding: 32, width: 440,
+          padding: '28px 24px', width: 440, maxWidth: 'calc(100vw - 32px)', maxHeight: '90vh', overflowY: 'auto',
           background: 'rgba(15,22,36,0.95)',
           border: '1px solid rgba(99,231,182,0.2)',
         }}

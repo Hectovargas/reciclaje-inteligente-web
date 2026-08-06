@@ -15,15 +15,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
       {/* ─ Header ─────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.04em', margin: 0, color: '#f0fdf4' }}>Centro de Control</h1>
           <p style={{ margin: '3px 0 0', fontSize: 12.5, color: 'rgba(240,253,244,0.38)' }}>Red de reciclaje inteligente · Tiempo real</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 99,
             background: 'rgba(163,230,53,0.07)', border: '1px solid rgba(163,230,53,0.22)',
@@ -36,7 +36,7 @@ export default function Dashboard() {
       </div>
 
       {/* ─ KPIs 2×2 + Feed ───────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 14, alignItems: 'stretch', isolation: 'isolate' }}>
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'stretch', isolation: 'isolate' }}>
         <DashboardMetrics />
         <LiveFeed />
       </div>

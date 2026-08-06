@@ -14,7 +14,7 @@ export function DashboardMetrics() {
   const accuracy = useCountUp(KPI_DATA.accuracy)
 
   return (
-    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 14 }}>
+    <div style={{ flex: '1 1 320px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
       {/* KPI · Material reciclado */}
       <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
@@ -58,7 +58,7 @@ export function DashboardMetrics() {
           </div>
           <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>artículos</span>
           <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados correctamente</p>
-          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', gap: 14 }}>
+          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', flexWrap: 'wrap', gap: 14 }}>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{co2.toLocaleString('es-ES')} clasificaciones IA</span>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{trees} estaciones</span>
           </div>
@@ -73,7 +73,7 @@ export function DashboardMetrics() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.4fr', gap: 16, alignItems: 'center', marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, alignItems: 'center', marginTop: 8 }}>
           {/* Main Ring & Big Accuracy */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <ConfRing value={KPI_DATA.aiConf} />
@@ -115,7 +115,7 @@ export function DashboardMetrics() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 14, alignItems: 'center', marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 14, alignItems: 'center', marginTop: 8 }}>
           {/* Main Stat */}
           <div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>

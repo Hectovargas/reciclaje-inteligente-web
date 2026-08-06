@@ -19,7 +19,7 @@ export function LiveFeed() {
   }, [])
 
   return (
-    <div className="glass-card" style={{ width: 260, height: 420, flexShrink: 0, padding: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="glass-card" style={{ flex: '1 1 260px', minWidth: 260, height: 420, padding: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexShrink: 0 }}>
         <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Feed en Vivo</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>

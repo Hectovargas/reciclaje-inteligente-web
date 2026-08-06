@@ -42,10 +42,10 @@ export default function Stations() {
   }
 
   return (
-    <div style={{ padding: '32px 28px' }}>
+    <div style={{ padding: '24px 16px' }}>
       {showModal && <AddStationModal onClose={() => setShowModal(false)} onAdd={handleAdd} />}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.04em', margin: 0, color: '#f0fdf4' }}>
             Gestión de Estaciones
@@ -72,7 +72,7 @@ export default function Stations() {
       </div>
 
       {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
         {([['all', 'Todas', stations.length], ['active', 'Activas', counts.active], ['warning', 'Alerta', counts.warning], ['offline', 'Desconectadas', counts.offline]] as const).map(([id, label, count]) => (
           <button
             key={id}
@@ -95,7 +95,7 @@ export default function Stations() {
       {/* Station grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
         gap: 16,
       }}>
         {filtered.map(s => (

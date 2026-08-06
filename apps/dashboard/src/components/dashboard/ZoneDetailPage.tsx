@@ -7,7 +7,7 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
   const avgFill = Math.round(zone.stations.reduce((a, s) => a + s.fill, 0) / zone.stations.length)
 
   return (
-    <div style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '100%' }}>
+    <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '100%' }}>
 
       {/* Back + header */}
       <div>
@@ -39,7 +39,7 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
           </div>
 
           {/* Zone summary pills */}
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {[
               { label: 'Eficiencia global', value: `${zone.value}%`, color: zc },
               { label: 'Llenado promedio', value: `${avgFill}%`, color: avgFill > 75 ? '#ef4444' : '#34d399' },
@@ -61,7 +61,7 @@ export function ZoneDetailPage({ zone, onClose }: { zone: typeof ZONES[0]; onClo
       {/* Station cards grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
         gap: 16,
       }}>
         {zone.stations.map(s => (

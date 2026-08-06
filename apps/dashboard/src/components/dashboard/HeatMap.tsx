@@ -3,7 +3,7 @@ import { ZONES } from '../../mocks/data'
 export function HeatMap({ onZoneClick }: { onZoneClick: (z: typeof ZONES[0]) => void }) {
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
         {ZONES.map(z => {
           const intensity = z.value > 85 ? { bg: 'rgba(163,230,53,0.18)', border: 'rgba(163,230,53,0.45)', text: '#a3e635' }
             : z.value > 65 ? { bg: 'rgba(34,211,238,0.14)', border: 'rgba(34,211,238,0.38)', text: '#22d3ee' }
