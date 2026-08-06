@@ -11,8 +11,6 @@ export function DashboardMetrics() {
   const navigate = useNavigate()
   const kgTotal = useCountUp(KPI_DATA.kgTotal)
   const kgSaved = useCountUp(KPI_DATA.kgSaved)
-  const co2 = useCountUp(KPI_DATA.co2)
-  const trees = useCountUp(KPI_DATA.trees)
   const accuracy = useCountUp(KPI_DATA.accuracy)
 
   return (
@@ -61,8 +59,8 @@ export function DashboardMetrics() {
           <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>artículos</span>
           <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados correctamente</p>
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{co2.toLocaleString('es-ES')} clasificaciones IA</span>
-            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{trees} estaciones</span>
+            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~5.2 kg CO₂ evitado</span>
+            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>{KPI_DATA.totalEst}</span>
           </div>
         </div>
       </div>

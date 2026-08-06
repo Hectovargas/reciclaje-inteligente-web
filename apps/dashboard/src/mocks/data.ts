@@ -162,7 +162,7 @@ export const KPI_DATA = {
   frequency: "14 / sem",
   minZoneTime: "2.4h",
   maxZoneTime: "11.8h",
-  totalEst: "247 est."
+  totalEst: "7 est."
 }
 
 export const MATERIAL_CLASSIFIED_BREAKDOWN = [

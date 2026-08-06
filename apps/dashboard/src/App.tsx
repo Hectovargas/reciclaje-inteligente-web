@@ -10,7 +10,7 @@ import { User } from './types/user'
 import './index.css'
 
 const TABS = [
-  { id: 'dashboard', label: 'Control de Misión', path: '/' },
+  { id: 'dashboard', label: 'Dashboard', path: '/' },
   { id: 'stations', label: 'Estaciones', path: '/estaciones' },
 ]
 
