@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
-import Admin from './components/Admin'
 import Login from './components/Login'
 import './index.css'
 
 const TABS = [
   { id: 'dashboard', label: 'Control de Misión' },
   { id: 'stations', label: 'Estaciones' },
-  { id: 'admin', label: 'Administrador' },
 ]
 
 export default function App() {
@@ -79,8 +77,7 @@ export default function App() {
                 }}
               >
                 <span style={{ fontSize: 15 }}>
-                  {tab.id === 'dashboard' ? '⬡' :
-                   tab.id === 'stations' ? '◎' : '⊞'}
+                  {tab.id === 'dashboard' ? '⬡' : '◎'}
                 </span>
                 {tab.label}
               </button>
@@ -93,7 +90,6 @@ export default function App() {
         <main style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'stations' && <Stations />}
-          {activeTab === 'admin' && <Admin />}
         </main>
       </div>
     </div>
