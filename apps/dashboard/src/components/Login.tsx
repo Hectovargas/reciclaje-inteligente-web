@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { APP_CONFIG } from '../config/app'
 
 type Phase = 'idle' | 'loading' | 'success'
 
@@ -260,20 +261,15 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
             background: 'linear-gradient(135deg, #a3e635, #22d3ee)',
             boxShadow: '0 0 16px rgba(163,230,53,0.4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14,
-          }}>♻</div>
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d1117" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+          </div>
           <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em', color: '#f0fdf4' }}>
-            EcoGrid<span style={{ color: '#a3e635' }}>AI</span>
+            {APP_CONFIG.logoText}<span style={{ color: '#a3e635' }}> {APP_CONFIG.logoSubtext}</span>
           </span>
         </div>
-      </div>
-
-      <div style={{
-        position: 'absolute', bottom: 28, right: 36,
-        fontFamily: 'var(--font-mono)', fontSize: 10,
-        color: 'rgba(240,253,244,0.2)', letterSpacing: '0.06em',
-      }}>
-        RED INTELIGENTE DE RECICLAJE · v2.4.1
       </div>
 
       {/* Floating scan lines — top/bottom edge */}
@@ -368,20 +364,21 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
               background: 'linear-gradient(135deg, rgba(163,230,53,0.15), rgba(34,211,238,0.15))',
               border: '1px solid rgba(99,231,182,0.25)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 26,
               animation: 'logoFloat 3s ease-in-out infinite',
               boxShadow: '0 0 24px rgba(163,230,53,0.15)',
             }}>
-              ♻
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a3e635" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 8px rgba(163,230,53,0.6))' }}>
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
             </div>
             <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.03em', color: '#f0fdf4' }}>
-              EcoGrid<span style={{ color: '#a3e635' }}>AI</span>
+              {APP_CONFIG.logoText}<span style={{ color: '#a3e635' }}> {APP_CONFIG.logoSubtext}</span>
             </div>
             <div style={{
               fontSize: 12, color: 'rgba(240,253,244,0.35)', marginTop: 4,
               fontFamily: 'var(--font-mono)', letterSpacing: '0.05em',
             }}>
-              CONTROL CENTER ACCESS
+              ACCESO AL SISTEMA
             </div>
           </div>
 
@@ -408,9 +405,9 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
               />
             </div>
 
-            {/* Remember + forgot */}
+            {/* Remember */}
             <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              display: 'flex', alignItems: 'center',
               animation: 'fadeInUp 0.5s 0.3s both',
             }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
@@ -424,16 +421,6 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
                 </div>
                 <span style={{ fontSize: 12, color: 'rgba(240,253,244,0.45)', fontWeight: 500 }}>Mantener sesión</span>
               </label>
-              <button type="button" style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 12, color: '#22d3ee',
-                fontFamily: 'var(--font-sans)', fontWeight: 600,
-                textShadow: '0 0 12px rgba(34,211,238,0.4)',
-                transition: 'text-shadow 0.2s',
-                padding: 0,
-              }}>
-                ¿Olvidaste el acceso?
-              </button>
             </div>
 
             {/* Submit button */}
@@ -498,37 +485,7 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
               </button>
             </div>
           </form>
-
-          {/* Footer divider */}
-          <div style={{
-            marginTop: 28, paddingTop: 20,
-            borderTop: '1px solid rgba(99,231,182,0.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            animation: 'fadeInUp 0.5s 0.45s both',
-          }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px rgba(52,211,153,0.6)' }} />
-            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.28)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
-              CONEXIÓN CIFRADA · TLS 1.3
-            </span>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px rgba(52,211,153,0.6)' }} />
-          </div>
         </div>
-      </div>
-
-      {/* Stat strip bottom center */}
-      <div style={{
-        position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', alignItems: 'center', gap: 28,
-        fontFamily: 'var(--font-mono)', fontSize: 10,
-        color: 'rgba(240,253,244,0.22)', letterSpacing: '0.05em',
-        whiteSpace: 'nowrap',
-      }}>
-        {[['247', 'ESTACIONES'], ['18.4T', 'RECICLADO'], ['98.3%', 'PRECISIÓN IA']].map(([v, l]) => (
-          <div key={l} style={{ display: 'flex', gap: 6 }}>
-            <span style={{ color: 'rgba(163,230,53,0.5)', fontWeight: 600 }}>{v}</span>
-            <span>{l}</span>
-          </div>
-        ))}
       </div>
     </div>
   )
