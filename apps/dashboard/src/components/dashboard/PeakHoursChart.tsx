@@ -7,7 +7,7 @@ export function PeakHoursChart() {
   const MAX = 100
 
   const W = 700, H = 160
-  const PAD = { top: 26, right: 12, bottom: 28, left: 36 }
+  const PAD = { top: 26, right: 28, bottom: 28, left: 36 }
   const cW = W - PAD.left - PAD.right
   const cH = H - PAD.top - PAD.bottom
   const barW = cW / 24
@@ -30,7 +30,7 @@ export function PeakHoursChart() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#f0fdf4' }}>Horas pico de uso</span>
           <span style={{ marginLeft: 10, fontSize: 10, color: 'rgba(240,253,244,0.35)', fontFamily: 'var(--font-mono)' }}>actividad por hora · red completa</span>
@@ -53,7 +53,8 @@ export function PeakHoursChart() {
       </div>
 
       {/* Chart */}
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 220, overflow: 'hidden' }}>
+      <div style={{ width: '100%' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 'auto', aspectRatio: '700/160', overflow: 'hidden', display: 'block' }}>
         <defs>
           <linearGradient id="pkgrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#a3e635" stopOpacity="0.28" />
@@ -125,8 +126,8 @@ export function PeakHoursChart() {
           })
         )}
 
-        {/* X axis hour labels — every 3h */}
-        {Array.from({ length: 9 }, (_, i) => i * 3).map(h => (
+        {/* X axis hour labels — every 3h + 23h */}
+        {[0, 3, 6, 9, 12, 15, 18, 21, 23].map(h => (
           <text key={h}
             x={PAD.left + h * barW + barW / 2}
             y={PAD.top + cH + 14}
@@ -140,6 +141,7 @@ export function PeakHoursChart() {
         {/* Axis line */}
         <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + cH} stroke="rgba(240,253,244,0.07)" strokeWidth={1} />
       </svg>
+      </div>
     </div>
   )
 }

@@ -30,7 +30,7 @@ export function StationDetailPage({
   const estMinutes = (station.capacity * 7) % 60
 
   return (
-    <div style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: 24, minHeight: '100%' }}>
+    <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 24, minHeight: '100%' }}>
       {/* Top Navigation */}
       <div>
         <button
@@ -48,7 +48,7 @@ export function StationDetailPage({
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Volver a Estaciones
+          Volver
         </button>
 
         {/* Station Title & Status Header */}
@@ -118,7 +118,7 @@ export function StationDetailPage({
       </div>
 
       {/* Main Content Rows */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
         {/* Left Column: Material Breakdown */}
         <div className="glass-card" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

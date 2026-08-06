@@ -1,5 +1,31 @@
 import { useState, useEffect, useRef } from 'react'
 import { APP_CONFIG } from '../config/app'
+import { User } from '../types/user'
+
+const MOCK_USERS: Record<string, User> = {
+  'admin@ecogrid.io': {
+    name: 'Héctor Vargas',
+    email: 'h.vargas@ecogrid.io',
+    role: 'Super Administrador',
+    accessLevel: 'Acceso Total del Sistema (Nivel 3)',
+    initials: 'HV'
+  },
+  'operator@ecogrid.io': {
+    name: 'Ana Martínez',
+    email: 'operator@ecogrid.io',
+    role: 'Operadora de Red',
+    accessLevel: 'Acceso Básico (Nivel 1)',
+    initials: 'AM'
+  },
+  'manager@ecogrid.io': {
+    name: 'Carlos Ruiz',
+    email: 'manager@ecogrid.io',
+    role: 'Gerente de Zona',
+    accessLevel: 'Acceso de Coordinación (Nivel 2)',
+    initials: 'CR'
+  }
+}
+
 
 type Phase = 'idle' | 'loading' | 'success'
 
@@ -213,7 +239,7 @@ function SuccessBurst() {
 }
 
 /* ── Main Login component ── */
-export default function Login({ onAuth }: { onAuth: () => void }) {
+export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [phase, setPhase] = useState<Phase>('idle')
@@ -230,10 +256,44 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
       setShowBurst(true)
       setTimeout(() => {
         setCardExpanding(true)
-        setTimeout(() => onAuth(), 650)
+        setTimeout(() => {
+          const emailLower = email.trim().toLowerCase()
+          let authenticatedUser = MOCK_USERS[emailLower]
+
+          if (!authenticatedUser) {
+            // Generate a dynamic user based on email
+            const emailParts = emailLower.split('@')
+            const namePart = emailParts[0]
+
+            // Format name: e.g. "john.doe" -> "John Doe"
+            const name = namePart
+              .split(/[._\-+]/)
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')
+
+            // Initials: JD
+            const initials = name
+              .split(' ')
+              .map(word => word.charAt(0))
+              .join('')
+              .toUpperCase()
+              .slice(0, 2) || 'US'
+
+            authenticatedUser = {
+              name,
+              email: email.trim(),
+              role: 'Operador de Red',
+              accessLevel: 'Acceso Básico (Nivel 1)',
+              initials
+            }
+          }
+
+          onAuth(authenticatedUser)
+        }, 650)
       }, 600)
     }, 1800)
   }
+
 
   const canSubmit = email.length > 0 && password.length > 0 && phase === 'idle'
 
@@ -339,12 +399,13 @@ export default function Login({ onAuth }: { onAuth: () => void }) {
           WebkitBackdropFilter: 'blur(32px)',
           border: `1px solid ${phase === 'success' ? 'rgba(52,211,153,0.45)' : 'rgba(99,231,182,0.18)'}`,
           borderRadius: 20,
-          padding: '40px 36px 36px',
+          padding: '32px 24px 28px',
+          maxHeight: '92vh',
+          overflowY: 'auto',
           boxShadow: phase === 'success'
             ? '0 0 60px rgba(52,211,153,0.2), 0 32px 80px rgba(0,0,0,0.6)'
             : '0 0 40px rgba(34,211,238,0.08), 0 32px 80px rgba(0,0,0,0.6)',
           transition: 'border-color 0.4s, box-shadow 0.4s',
-          overflow: 'hidden',
         }}>
           {showBurst && <SuccessBurst />}
 

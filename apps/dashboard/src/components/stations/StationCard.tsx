@@ -52,10 +52,12 @@ export function StationCard({ station, onClick }: { station: Station; onClick: (
             background: 'rgba(34,211,238,0.05)',
             border: '1px solid rgba(34,211,238,0.15)',
             display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <div>
+            <div style={{ flex: '1 1 120px' }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
                 Vaciado aproximado
               </div>
@@ -76,10 +78,12 @@ export function StationCard({ station, onClick }: { station: Station; onClick: (
           background: 'rgba(239,68,68,0.05)',
           border: '1px solid rgba(239,68,68,0.15)',
           display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div>
+          <div style={{ flex: '1 1 120px' }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(239,68,68,0.6)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Vaciado aproximado
             </div>
@@ -95,15 +99,15 @@ export function StationCard({ station, onClick }: { station: Station; onClick: (
 
       {/* Material Breakdown */}
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(99,231,182,0.08)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ flex: '1 1 120px', fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>
             Desglose por Material Hoy
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 800, color: '#22d3ee' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 800, color: '#22d3ee', whiteSpace: 'nowrap' }}>
             {station.today.toLocaleString('es-ES')} artículos
           </span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))', gap: 6 }}>
           {[
             { label: 'Papel', count: Math.round(station.today * 0.45), color: '#a3e635' },
             { label: 'Plástico', count: Math.round(station.today * 0.35), color: '#22d3ee' },

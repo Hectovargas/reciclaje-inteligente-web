@@ -1,18 +1,27 @@
+import { useNavigate } from 'react-router-dom'
 import { ZONES } from '../../mocks/data'
 
-export function HeatMap({ onZoneClick }: { onZoneClick: (z: typeof ZONES[0]) => void }) {
+export function HeatMap() {
+  const navigate = useNavigate()
+  const maxVal = Math.max(...ZONES.map(z => z.value), 1)
+
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
         {ZONES.map(z => {
-          const intensity = z.value > 85 ? { bg: 'rgba(163,230,53,0.18)', border: 'rgba(163,230,53,0.45)', text: '#a3e635' }
-            : z.value > 65 ? { bg: 'rgba(34,211,238,0.14)', border: 'rgba(34,211,238,0.38)', text: '#22d3ee' }
-            : z.value > 45 ? { bg: 'rgba(34,211,238,0.09)', border: 'rgba(34,211,238,0.22)', text: '#22d3ee' }
-            : { bg: 'rgba(167,139,250,0.09)', border: 'rgba(167,139,250,0.22)', text: '#a78bfa' }
+          const ratio = z.value / maxVal
+          const intensity = ratio >= 0.85
+            ? { bg: 'rgba(163,230,53,0.18)', border: 'rgba(163,230,53,0.5)', text: '#a3e635', tag: 'Muy Alta' }
+            : ratio >= 0.55
+            ? { bg: 'rgba(34,211,238,0.14)', border: 'rgba(34,211,238,0.4)', text: '#22d3ee', tag: 'Alta' }
+            : ratio >= 0.3
+            ? { bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.38)', text: '#fbbf24', tag: 'Media' }
+            : { bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.3)', text: '#a78bfa', tag: 'Baja' }
+
           return (
             <button
               key={z.id}
-              onClick={() => onZoneClick(z)}
+              onClick={() => navigate(`/zonas/${z.id}`)}
               style={{
                 padding: '14px 8px', borderRadius: 10, border: `1px solid ${intensity.border}`,
                 background: intensity.bg, cursor: 'pointer',
@@ -23,9 +32,14 @@ export function HeatMap({ onZoneClick }: { onZoneClick: (z: typeof ZONES[0]) => 
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 0 24px ${intensity.border}55` }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = `0 0 12px ${intensity.border}30` }}
             >
-              <span style={{ fontSize: 16, fontWeight: 800, color: intensity.text, textShadow: `0 0 14px ${intensity.text}70`, letterSpacing: '-0.02em' }}>{z.value}%</span>
-              <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.45)', fontWeight: 600 }}>{z.name}</span>
-              <span style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.22)', fontFamily: 'var(--font-mono)' }}>{z.stations.length} est.</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: intensity.text, textShadow: `0 0 14px ${intensity.text}70`, letterSpacing: '-0.02em', lineHeight: 1 }}>{z.value}%</span>
+                <span style={{ fontSize: 7.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', marginTop: 2, letterSpacing: '0.04em' }}>% actividad</span>
+              </div>
+              <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.7)', fontWeight: 700, marginTop: 4 }}>{z.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.3)', fontFamily: 'var(--font-mono)' }}>{z.stations.length} est.</span>
+              </div>
             </button>
           )
         })}

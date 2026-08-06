@@ -2,10 +2,29 @@ export type Station = {
   id: string
   name: string
   location: string
+  zone: string
   status: 'active' | 'offline' | 'warning'
   capacity: number
   today: number
   token: string
+}
+
+export function getStationFromZoneItem(s: { id: string; name: string; fill?: number; status: string; last?: string }, zoneName: string): Station {
+  const existing = INITIAL_STATIONS.find(item => item.id === s.id)
+  if (existing) return existing
+
+  const cap = s.fill ?? 60
+  const validStatus = (s.status === 'active' || s.status === 'offline' || s.status === 'warning') ? s.status : 'active'
+  return {
+    id: s.id,
+    name: s.name,
+    location: `${zoneName}`,
+    zone: zoneName,
+    status: validStatus,
+    capacity: cap,
+    today: Math.round(cap * 4.2),
+    token: `tk_${s.id.toLowerCase().replace(/[^a-z0-9]/g, '')}_auth`,
+  }
 }
 
 export const FEED_INIT = [
@@ -31,53 +50,53 @@ export const MAT: Record<string, string> = {
 
 export const ZONES = [
   {
-    id: 'centro', name: 'Centro', value: 94,
+    id: 'unitec', name: 'UNITEC', value: 34, todayCount: 6266, prevCount: 5800,
     stations: [
-      { id: 'ES-042', name: 'Parque Central',    fill: 94, status: 'active',  last: 'Papel' },
-      { id: 'ES-018', name: 'Metro Alameda',     fill: 78, status: 'active',  last: 'Plástico' },
-      { id: 'ES-055', name: 'Plaza Mayor',       fill: 61, status: 'active',  last: 'Metal' },
+      { id: 'ES-042', name: 'Plaza Principal UNITEC', fill: 94, status: 'active',  last: 'Papel' },
+      { id: 'ES-018', name: 'Edificio 2 UNITEC',     fill: 78, status: 'active',  last: 'Plástico' },
+      { id: 'ES-055', name: 'Cafetería UNITEC',      fill: 61, status: 'active',  last: 'Metal' },
     ],
   },
   {
-    id: 'norte', name: 'Norte', value: 78,
+    id: 'altara', name: 'Altara', value: 22, todayCount: 4055, prevCount: 3900,
     stations: [
-      { id: 'ES-011', name: 'Av. Reforma Norte', fill: 78, status: 'active',  last: 'Papel' },
-      { id: 'ES-022', name: 'Parque Industria',  fill: 52, status: 'active',  last: 'Metal' },
+      { id: 'ES-011', name: 'Entrada Altara',        fill: 78, status: 'active',  last: 'Papel' },
+      { id: 'ES-022', name: 'Food Court Altara',     fill: 52, status: 'active',  last: 'Metal' },
     ],
   },
   {
-    id: 'sur', name: 'Sur', value: 61,
+    id: 'altia', name: 'Altia', value: 18, todayCount: 3317, prevCount: 3450,
     stations: [
-      { id: 'ES-033', name: 'Mercado Sur',       fill: 61, status: 'active',  last: 'Plástico' },
-      { id: 'ES-044', name: 'Terminal Bus',      fill: 39, status: 'active',  last: 'Papel' },
+      { id: 'ES-033', name: 'Torre 1 Altia',         fill: 61, status: 'active',  last: 'Plástico' },
+      { id: 'ES-044', name: 'Plaza Altia',           fill: 39, status: 'active',  last: 'Papel' },
     ],
   },
   {
-    id: 'este', name: 'Este', value: 85,
+    id: 'city-mall', name: 'City Mall', value: 15, todayCount: 2764, prevCount: 2600,
     stations: [
-      { id: 'ES-077', name: 'Campus Univ.',      fill: 85, status: 'active',  last: 'Plástico' },
-      { id: 'ES-088', name: 'Tecnológico',       fill: 71, status: 'warning', last: 'Metal' },
+      { id: 'ES-077', name: 'Nivel 1 City Mall',     fill: 85, status: 'active',  last: 'Plástico' },
+      { id: 'ES-088', name: 'Cines City Mall',       fill: 71, status: 'warning', last: 'Metal' },
     ],
   },
   {
-    id: 'oeste', name: 'Oeste', value: 43,
+    id: 'mall-galerias', name: 'Mall Galerias', value: 7, todayCount: 1290, prevCount: 1100,
     stations: [
-      { id: 'ES-099', name: 'Centro Cívico',     fill: 43, status: 'active',  last: 'Papel' },
-      { id: 'ES-101', name: 'Av. Libertad',      fill: 12, status: 'offline', last: '—' },
+      { id: 'ES-099', name: 'Acceso Galerias',       fill: 43, status: 'active',  last: 'Papel' },
+      { id: 'ES-101', name: 'Comidas Galerias',      fill: 12, status: 'offline', last: '—' },
     ],
   },
   {
-    id: 'peri', name: 'Periferia', value: 29,
+    id: 'mega-mall', name: 'Mega Mall', value: 4, todayCount: 740, prevCount: 700,
     stations: [
-      { id: 'ES-112', name: 'Zona Industrial',   fill: 29, status: 'active',  last: 'Metal' },
+      { id: 'ES-112', name: 'Sótano Mega Mall',      fill: 29, status: 'active',  last: 'Metal' },
     ],
   },
 ]
 
 export const TOP3 = [
-  { id: 'ES-042', name: 'Parque Central', fill: 94 },
-  { id: 'ES-077', name: 'Campus Univ.',   fill: 85 },
-  { id: 'ES-011', name: 'Av. Reforma N.', fill: 78 },
+  { id: 'ES-042', name: 'Plaza Principal UNITEC', fill: 94 },
+  { id: 'ES-077', name: 'Nivel 1 City Mall',      fill: 85 },
+  { id: 'ES-011', name: 'Entrada Altara',         fill: 78 },
 ]
 
 export const STATUS_DOT: Record<string, string> = {
@@ -96,12 +115,13 @@ export const PEAK_RANGES = [
 ]
 
 export const INITIAL_STATIONS: Station[] = [
-  { id: 'ES-042', name: 'Parque Central', location: 'Av. Libertad 1240', status: 'active', capacity: 87, today: 234, token: 'tk_a9f2bc41e7d3' },
-  { id: 'ES-018', name: 'Metro Alameda', location: 'Estación Metro L2', status: 'active', capacity: 62, today: 189, token: 'tk_e3b1c90d4f82' },
-  { id: 'ES-091', name: 'Mercado Sur', location: 'Calle Marte 88', status: 'warning', capacity: 95, today: 312, token: 'tk_77d4a12fe6c3' },
-  { id: 'ES-055', name: 'Campus Universitario', location: 'Blvd. Educación 500', status: 'active', capacity: 41, today: 156, token: 'tk_c2f9e05b3a74' },
-  { id: 'ES-007', name: 'Plaza Norte', location: 'Centro Comercial N1', status: 'offline', capacity: 0, today: 0, token: 'tk_5e8b2d1f9c05' },
-  { id: 'ES-033', name: 'Aeropuerto T2', location: 'Terminal 2, Nivel P', status: 'active', capacity: 74, today: 408, token: 'tk_1a6d3e7f8b96' },
+  { id: 'ES-042', name: 'Plaza Principal UNITEC', zone: 'UNITEC', location: 'Campus UNITEC', status: 'active', capacity: 87, today: 234, token: 'tk_a9f2bc41e7d3' },
+  { id: 'ES-018', name: 'Edificio 2 UNITEC', zone: 'UNITEC', location: 'Campus UNITEC', status: 'active', capacity: 62, today: 189, token: 'tk_e3b1c90d4f82' },
+  { id: 'ES-091', name: 'Food Court Altara', zone: 'Altara', location: 'Comedores Nivel 2', status: 'warning', capacity: 95, today: 312, token: 'tk_77d4a12fe6c3' },
+  { id: 'ES-055', name: 'Torre 1 Altia', zone: 'Altia', location: 'Lobby Principal', status: 'active', capacity: 41, today: 156, token: 'tk_c2f9e05b3a74' },
+  { id: 'ES-007', name: 'Nivel 1 City Mall', zone: 'City Mall', location: 'Entrada Sur', status: 'offline', capacity: 0, today: 0, token: 'tk_5e8b2d1f9c05' },
+  { id: 'ES-033', name: 'Acceso Galerias', zone: 'Mall Galerias', location: 'Nivel 3', status: 'active', capacity: 74, today: 408, token: 'tk_1a6d3e7f8b96' },
+  { id: 'ES-112', name: 'Sótano Mega Mall', zone: 'Mega Mall', location: 'Estacionamiento P1', status: 'active', capacity: 58, today: 195, token: 'tk_9f3d2e1a8c04' },
 ]
 
 export const STATUS_CONFIG = {
@@ -110,7 +130,7 @@ export const STATUS_CONFIG = {
   warning: { label: 'Alerta', color: '#fbbf24', ring: 'status-ring-warning' },
 }
 
-export const ZONAS = ['Centro', 'Norte', 'Sur', 'Este', 'Oeste', 'Periferia']
+export const ZONAS = ['UNITEC', 'Altara', 'Altia', 'City Mall', 'Mall Galerias', 'Mega Mall']
 
 export const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 

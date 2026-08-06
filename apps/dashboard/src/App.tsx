@@ -1,28 +1,151 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
 import Login from './components/Login'
+import { ZoneDetailPage } from './components/dashboard/ZoneDetailPage'
 import { APP_CONFIG } from './config/app'
+import { User } from './types/user'
 import './index.css'
 
 const TABS = [
-  { id: 'dashboard', label: 'Control de Misión' },
-  { id: 'stations', label: 'Estaciones' },
+  { id: 'dashboard', label: 'Control de Misión', path: '/' },
+  { id: 'stations', label: 'Estaciones', path: '/estaciones' },
 ]
 
-export default function App() {
-  const [authed, setAuthed] = useState(false)
-  const [activeTab, setActiveTab] = useState('dashboard')
+function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) => void }) {
+  const location = useLocation()
+  const activeTab = location.pathname.startsWith('/estaciones') ? 'stations' : 'dashboard'
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-
-  if (!authed) return <Login onAuth={() => setAuthed(true)} />
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   return (
     <div className="mesh-bg min-h-screen">
-      {/* Sidebar */}
+      {/* Mobile Top Navigation Header */}
+      <header className="mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 7,
+            background: 'linear-gradient(135deg, #a3e635, #22d3ee)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 12px rgba(163,230,53,0.3)',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d1117" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 14, color: '#f0fdf4' }}>
+            {APP_CONFIG.logoText}<span style={{ color: '#a3e635' }}> {APP_CONFIG.logoSubtext}</span>
+          </span>
+        </div>
+        <button
+          onClick={() => setMobileDrawerOpen(true)}
+          style={{
+            border: 'none', background: 'transparent', color: '#f0fdf4', fontSize: 22, cursor: 'pointer', padding: '4px 8px'
+          }}
+          aria-label="Abrir menú"
+        >
+          ☰
+        </button>
+      </header>
+
+      {/* Mobile Drawer Overlay */}
+      <div
+        className={`mobile-drawer-overlay ${mobileDrawerOpen ? 'open' : ''}`}
+        onClick={() => setMobileDrawerOpen(false)}
+      />
+
+      {/* Mobile Drawer */}
+      <aside className={`mobile-drawer ${mobileDrawerOpen ? 'open' : ''}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 7,
+              background: 'linear-gradient(135deg, #a3e635, #22d3ee)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d1117" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
+            </div>
+            <span style={{ fontWeight: 800, fontSize: 14, color: '#f0fdf4' }}>
+              {APP_CONFIG.logoText}<span style={{ color: '#a3e635' }}> {APP_CONFIG.logoSubtext}</span>
+            </span>
+          </div>
+          <button
+            onClick={() => setMobileDrawerOpen(false)}
+            style={{ border: 'none', background: 'transparent', color: 'rgba(240,253,244,0.5)', fontSize: 18, cursor: 'pointer', padding: 4 }}
+          >✕</button>
+        </div>
+
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {TABS.map(tab => (
+            <Link
+              key={tab.id}
+              to={tab.path}
+              onClick={() => setMobileDrawerOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '12px 14px', borderRadius: 10, border: 'none',
+                cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: 14,
+                fontWeight: activeTab === tab.id ? 700 : 500,
+                color: activeTab === tab.id ? '#a3e635' : 'rgba(240,253,244,0.6)',
+                background: activeTab === tab.id ? 'rgba(163,230,53,0.12)' : 'transparent',
+                textAlign: 'left', textDecoration: 'none'
+              }}
+            >
+              <span style={{ fontSize: 16 }}>{tab.id === 'dashboard' ? '⬡' : '◎'}</span>
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(99,231,182,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #a3e635, #22d3ee)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#0d1117', fontSize: 12,
+            }}>
+              {user.initials}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f0fdf4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+              <div style={{ fontSize: 9.5, color: '#a3e635', fontWeight: 600, textTransform: 'uppercase' }}>{user.role}</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button
+              onClick={() => { setShowProfileModal(true); setMobileDrawerOpen(false); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(99,231,182,0.15)',
+                background: 'rgba(99,231,182,0.05)', color: '#f0fdf4', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              Mi Perfil
+            </button>
+            <button
+              onClick={() => { setUser(null); setMobileDrawerOpen(false); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.2)',
+                background: 'rgba(239,68,68,0.08)', color: '#ef4444', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Container */}
       <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <aside style={{
+        {/* Desktop Sidebar */}
+        <aside className="desktop-only" style={{
           width: 220,
           minHeight: '100vh',
           background: 'rgba(13,17,23,0.85)',
@@ -58,9 +181,9 @@ export default function App() {
           {/* Nav */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {TABS.map(tab => (
-              <button
+              <Link
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                to={tab.path}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '10px 12px',
@@ -80,13 +203,14 @@ export default function App() {
                   textAlign: 'left',
                   transition: 'all 0.2s',
                   letterSpacing: '-0.01em',
+                  textDecoration: 'none'
                 }}
               >
                 <span style={{ fontSize: 15 }}>
                   {tab.id === 'dashboard' ? '⬡' : '◎'}
                 </span>
                 {tab.label}
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -118,7 +242,7 @@ export default function App() {
                   Mi Perfil
                 </button>
                 <button
-                  onClick={() => { setAuthed(false); setShowUserMenu(false) }}
+                  onClick={() => { setUser(null); setShowUserMenu(false) }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                     padding: '8px 10px', borderRadius: 8, border: 'none', background: 'transparent',
@@ -152,11 +276,11 @@ export default function App() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#0d1117',
                 fontSize: 12, boxShadow: '0 0 12px rgba(163,230,53,0.3)'
               }}>
-                HV
+                {user.initials}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f0fdf4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Héctor Vargas</div>
-                <div style={{ fontSize: 9.5, color: '#a3e635', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Administrador</div>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#f0fdf4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+                <div style={{ fontSize: 9.5, color: '#a3e635', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{user.role}</div>
               </div>
               <span style={{ fontSize: 10, color: 'rgba(240,253,244,0.3)' }}>{showUserMenu ? '▲' : '▼'}</span>
             </div>
@@ -166,8 +290,11 @@ export default function App() {
 
         {/* Main content */}
         <main style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'stations' && <Stations />}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/estaciones" element={<Stations />} />
+            <Route path="/zonas/:id" element={<ZoneDetailPage />} />
+          </Routes>
         </main>
       </div>
 
@@ -176,10 +303,11 @@ export default function App() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(11,16,26,0.75)', backdropFilter: 'blur(10px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+          padding: 16,
         }}>
           <div className="glass-card" style={{
-            width: 400, padding: 28, position: 'relative', display: 'flex', flexDirection: 'column', gap: 20,
+            width: 400, maxWidth: 'calc(100vw - 32px)', maxHeight: '90vh', overflowY: 'auto', padding: 28, position: 'relative', display: 'flex', flexDirection: 'column', gap: 20,
             border: '1px solid rgba(99,231,182,0.18)', boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -201,12 +329,12 @@ export default function App() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#0d1117',
                 fontSize: 22, boxShadow: '0 0 20px rgba(163,230,53,0.4)'
               }}>
-                HV
+                {user.initials}
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#f0fdf4' }}>Héctor Vargas</h2>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#f0fdf4' }}>{user.name}</h2>
                 <div style={{ fontSize: 11, color: '#a3e635', fontWeight: 700, marginTop: 2, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                  Super Administrador
+                  {user.role}
                 </div>
               </div>
             </div>
@@ -214,12 +342,12 @@ export default function App() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 14, borderRadius: 12, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
               <div>
                 <div style={{ fontSize: 9, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Correo Electrónico</div>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f0fdf4', marginTop: 2 }}>h.vargas@ecogrid.io</div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: '#f0fdf4', marginTop: 2 }}>{user.email}</div>
               </div>
               <div style={{ height: 1, background: 'rgba(99,231,182,0.06)' }} />
               <div>
                 <div style={{ fontSize: 9, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Nivel de Acceso</div>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: '#22d3ee', marginTop: 2 }}>Acceso Total del Sistema (Nivel 3)</div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: '#22d3ee', marginTop: 2 }}>{user.accessLevel}</div>
               </div>
             </div>
 
@@ -246,5 +374,17 @@ export default function App() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null)
+
+  if (!user) return <Login onAuth={setUser} />
+
+  return (
+    <Router>
+      <MainLayout user={user} setUser={setUser} />
+    </Router>
   )
 }
