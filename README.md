@@ -58,30 +58,60 @@ reciclaje-inteligente-web/
 
 ---
 
-## 💻 Comandos de Desarrollo
+## 💻 Comandos para Ejecutar el Proyecto
 
-Puedes ejecutar cada servicio individualmente usando los scripts configurados en el `package.json` raíz:
+### 1. Instalación de Dependencias e Inicialización
 
-### 1. Panel Dashboard (`apps/dashboard`)
-Servidor de desarrollo Vite en `http://localhost:3001`:
+```bash
+# 1. Instalar todas las dependencias del monorepo
+pnpm install
+
+# 2. Generar el cliente de Prisma para el backend
+pnpm --filter backend exec prisma generate
+
+# 3. (Opcional) Ejecutar migraciones de base de datos en desarrollo
+pnpm --filter backend exec prisma migrate dev
+```
+
+---
+
+### 2. Ejecución en Modo Desarrollo (`dev`)
+
+Puedes iniciar cada aplicación de forma individual desde la raíz del proyecto:
+
+#### 📊 Dashboard (Panel de Administración)
+Ejecuta el servidor de desarrollo con Vite en `http://localhost:3001`:
 ```bash
 pnpm dev:dashboard
 ```
 
-### 2. Aplicación PWA (`apps/pwa`)
-Servidor de desarrollo Next.js en `http://localhost:3002`:
+#### 📱 PWA (Aplicación de Usuarios)
+Ejecuta el servidor de desarrollo con Next.js en `http://localhost:3002`:
 ```bash
 pnpm dev:pwa
 ```
 
-### 3. Backend NestJS (`apps/backend`)
-Servidor de desarrollo NestJS en `http://localhost:3000`:
+#### ⚙️ Backend (API NestJS)
+Ejecuta el servidor backend NestJS en modo watch en `http://localhost:3000`:
 ```bash
 pnpm dev:backend
 ```
 
+---
+
+### 3. Construcción para Producción (`build`)
+
+Para compilar todas las aplicaciones y paquetes del monorepo:
+```bash
+pnpm build
+```
+
+---
+
 ### 4. Smart Contracts (`packages/contracts`)
-Comprar y probar contratos inteligentes:
+
+Comandos para compilar, probar y desplegar los contratos inteligentes:
+
 ```bash
 # Compilar contratos Solidity
 pnpm build:contracts
@@ -89,7 +119,7 @@ pnpm build:contracts
 # Ejecutar pruebas unitarias Hardhat
 pnpm test:contracts
 
-# Desplegar a Ethereum Sepolia testnet
+# Desplegar contrato a la testnet Sepolia de Ethereum
 pnpm --filter contracts deploy:sepolia
 ```
 
