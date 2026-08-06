@@ -35,7 +35,15 @@ reciclaje-inteligente-web/
 ## 🛠️ Requisitos Previos
 
 - **Node.js**: `v18.x` o superior (se recomienda v20+)
-- **Gestor de paquetes**: `pnpm` (`npm install -g pnpm` o vía `corepack enable`)
+- **Gestor de paquetes**: `pnpm`
+  * Si no lo tienes instalado, puedes activarlo con Node.js usando **Corepack** (no requiere `sudo`):
+    ```bash
+    corepack enable
+    ```
+  * O instalándolo globalmente con permisos de administrador:
+    ```bash
+    sudo npm install -g pnpm
+    ```
 - **Base de Datos**: PostgreSQL para el backend NestJS/Prisma
 
 ---
