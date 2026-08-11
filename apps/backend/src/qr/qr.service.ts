@@ -8,11 +8,12 @@ export class QrService {
   async generarQR(categoria: string) {
     const timestamp = new Date().toISOString();
     const codigo = `QR-${categoria.toUpperCase()}-${Date.now()}`;
-    
-    // Generar firma criptográfica usando ethers.js wallet
-    const messageHash = ethers.solidityPackedKeystore 
-      ? ethers.solidityPackedKeystore(['string', 'string', 'string'], [codigo, categoria, timestamp])
-      : ethers.keccak256(ethers.toUtf8Bytes(`${codigo}:${categoria}:${timestamp}`));
+
+    // Correct ethers v6 API: solidityPackedKeccak256
+    const messageHash = ethers.solidityPackedKeccak256(
+      ['string', 'string', 'string'],
+      [codigo, categoria, timestamp],
+    );
 
     const wallet = new ethers.Wallet(this.privateKey);
     const firma = await wallet.signMessage(ethers.getBytes(messageHash));
@@ -34,3 +35,4 @@ export class QrService {
     };
   }
 }
+

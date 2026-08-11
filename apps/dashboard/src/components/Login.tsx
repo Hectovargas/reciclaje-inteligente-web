@@ -246,52 +246,71 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
   const [showBurst, setShowBurst] = useState(false)
   const [cardExpanding, setCardExpanding] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loginError, setLoginError] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (phase !== 'idle') return
     setPhase('loading')
+    setLoginError('')
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.message || 'Credenciales incorrectas')
+      }
+
+      const data = await res.json()
+      // Store token so useApi hooks can use it without re-logging in
+      sessionStorage.setItem('auth_token', data.access_token)
+
+      const apiUser = data.user
+      const emailLower = apiUser.email.toLowerCase()
+
+      // Map backend role enum to display role
+      const roleDisplay: Record<string, string> = {
+        ADMIN: 'Super Administrador',
+        MANAGER: 'Gerente de Zona',
+        VIEWER: 'Operador de Red',
+      }
+      const accessLevelDisplay: Record<string, string> = {
+        ADMIN: 'Acceso Total del Sistema (Nivel 3)',
+        MANAGER: 'Acceso de Coordinación (Nivel 2)',
+        VIEWER: 'Acceso Básico (Nivel 1)',
+      }
+
+      // Prefer pre-defined mock display data if email matches, else use API data
+      let authenticatedUser = MOCK_USERS[emailLower] ?? {
+        name: apiUser.name,
+        email: apiUser.email,
+        role: roleDisplay[apiUser.role] ?? apiUser.role,
+        accessLevel: accessLevelDisplay[apiUser.role] ?? 'Acceso Básico (Nivel 1)',
+        initials: apiUser.name
+          .split(' ')
+          .map((w: string) => w[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2) || 'US',
+      }
+
       setPhase('success')
       setShowBurst(true)
       setTimeout(() => {
         setCardExpanding(true)
         setTimeout(() => {
-          const emailLower = email.trim().toLowerCase()
-          let authenticatedUser = MOCK_USERS[emailLower]
-
-          if (!authenticatedUser) {
-            // Generate a dynamic user based on email
-            const emailParts = emailLower.split('@')
-            const namePart = emailParts[0]
-
-            // Format name: e.g. "john.doe" -> "John Doe"
-            const name = namePart
-              .split(/[._\-+]/)
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ')
-
-            // Initials: JD
-            const initials = name
-              .split(' ')
-              .map(word => word.charAt(0))
-              .join('')
-              .toUpperCase()
-              .slice(0, 2) || 'US'
-
-            authenticatedUser = {
-              name,
-              email: email.trim(),
-              role: 'Operador de Red',
-              accessLevel: 'Acceso Básico (Nivel 1)',
-              initials
-            }
-          }
-
           onAuth(authenticatedUser)
         }, 650)
       }, 600)
-    }, 1800)
+    } catch (err: any) {
+      setLoginError(err.message || 'Error de conexión con el servidor')
+      setPhase('idle')
+    }
   }
 
 
@@ -483,6 +502,19 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
                 <span style={{ fontSize: 12, color: 'rgba(240,253,244,0.45)', fontWeight: 500 }}>Mantener sesión</span>
               </label>
             </div>
+
+            {/* Error message */}
+            {loginError && (
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                color: '#f87171', fontSize: 12.5, fontWeight: 500,
+                animation: 'fadeInUp 0.3s both',
+              }}>
+                ⚠ {loginError}
+              </div>
+            )}
 
             {/* Submit button */}
             <div style={{ animation: 'fadeInUp 0.5s 0.35s both', marginTop: 6 }}>

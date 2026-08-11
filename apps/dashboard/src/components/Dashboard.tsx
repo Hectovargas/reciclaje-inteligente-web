@@ -3,11 +3,13 @@ import { DashboardMetrics } from './dashboard/DashboardMetrics'
 import { LiveFeed } from './dashboard/LiveFeed'
 import { HeatMap } from './dashboard/HeatMap'
 import { PeakHoursChart } from './dashboard/PeakHoursChart'
-import { INITIAL_STATIONS } from '../mocks/data'
+import { useApi, Station } from '../config/api'
 
 export default function Dashboard() {
-  const activeCount = INITIAL_STATIONS.filter(s => s.status === 'active' || s.status === 'warning').length
-  const totalCount = INITIAL_STATIONS.length
+  const { data: stations } = useApi<Station[]>('/dashboard/stations')
+  
+  const activeCount = (stations || []).filter(s => s.status === 'active' || s.status === 'warning').length
+  const totalCount = (stations || []).length
 
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>

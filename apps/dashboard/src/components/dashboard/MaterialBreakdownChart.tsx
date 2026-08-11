@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DATA, SERIES, MONTHS, MAX_VAL, Y_TICKS } from '../../mocks/data'
+import { DATA, SERIES, MONTHS, MAX_VAL, Y_TICKS } from '../../config/api'
 
 export function MaterialBreakdownChart() {
   const [activeSeries, setActiveSeries] = useState<string | null>(null)

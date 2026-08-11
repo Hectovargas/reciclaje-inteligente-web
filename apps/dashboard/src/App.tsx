@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import Dashboard from './components/Dashboard'
 import Stations from './components/Stations'
 import Login from './components/Login'
-import { ZoneDetailPage } from './components/dashboard/ZoneDetailPage'
+import ZoneDetailPage from './components/dashboard/ZoneDetailPage'
 import { AIDetailsPage } from './components/dashboard/AIDetailsPage'
 import { APP_CONFIG } from './config/app'
 import { User } from './types/user'
@@ -129,7 +129,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
               Mi Perfil
             </button>
             <button
-              onClick={() => { setUser(null); setMobileDrawerOpen(false); }}
+              onClick={() => { sessionStorage.removeItem('auth_token'); setUser(null); setMobileDrawerOpen(false); }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                 padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.2)',
@@ -243,7 +243,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
                   Mi Perfil
                 </button>
                 <button
-                  onClick={() => { setUser(null); setShowUserMenu(false) }}
+                  onClick={() => { sessionStorage.removeItem('auth_token'); setUser(null); setShowUserMenu(false) }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                     padding: '8px 10px', borderRadius: 8, border: 'none', background: 'transparent',

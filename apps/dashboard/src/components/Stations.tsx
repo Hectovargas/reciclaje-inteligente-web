@@ -1,11 +1,17 @@
-import { useState } from 'react'
-import { Station, INITIAL_STATIONS, ZONAS } from '../mocks/data'
+import { useState, useEffect } from 'react'
+import { Station, ZONAS, useApi } from '../config/api'
 import { StationCard } from './stations/StationCard'
 import { AddStationModal } from './stations/AddStationModal'
 import { StationDetailPage } from './stations/StationDetailPage'
 
 export default function Stations() {
-  const [stations, setStations] = useState<Station[]>(INITIAL_STATIONS)
+  const { data: apiStations, loading } = useApi<Station[]>('/dashboard/stations')
+  const [stations, setStations] = useState<Station[]>([])
+
+  useEffect(() => {
+    if (apiStations) setStations(apiStations)
+  }, [apiStations])
+
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'active' | 'offline' | 'warning'>('all')
   const [zoneFilter, setZoneFilter] = useState<string>('all')

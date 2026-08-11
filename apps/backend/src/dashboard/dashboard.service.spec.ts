@@ -1,0 +1,40 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { DashboardService } from './dashboard.service';
+import { PrismaService } from '../prisma/prisma.service';
+
+describe('DashboardService', () => {
+  let service: DashboardService;
+  let prisma: PrismaService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        DashboardService,
+        {
+          provide: PrismaService,
+          useValue: {
+            eventoClasificacion: { 
+              count: jest.fn().mockResolvedValue(10),
+              findMany: jest.fn().mockResolvedValue([])
+            },
+            station: { findMany: jest.fn().mockResolvedValue([]) },
+            zone: { findMany: jest.fn().mockResolvedValue([]) },
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<DashboardService>(DashboardService);
+    prisma = module.get<PrismaService>(PrismaService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('should return aggregated metrics', async () => {
+    const metrics = await service.obtenerMetricasAgregadas();
+    expect(metrics.kgTotal).toBe(15);
+    expect(metrics.kgSaved).toBe(13);
+  });
+});

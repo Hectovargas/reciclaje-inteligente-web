@@ -1,11 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { FEED_INIT, POOL, MAT } from '../../mocks/data'
+import { POOL, MAT, useApi } from '../../config/api'
 import { MatIcon } from '../common/MatIcon'
 
 export function LiveFeed() {
-  const [feed, setFeed] = useState(FEED_INIT)
+  const { data: metrics } = useApi<any>('/dashboard/metrics')
+  const [feed, setFeed] = useState<any[]>([])
   const [flashId, setFlashId] = useState<number | null>(null)
   const nextId = useRef(100)
+
+  useEffect(() => {
+    if (metrics?.feedInit) {
+      setFeed(metrics.feedInit)
+    }
+  }, [metrics])
 
   useEffect(() => {
     const id = setInterval(() => {

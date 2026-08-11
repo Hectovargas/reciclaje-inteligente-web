@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { KPI_DATA, IA_ACCURACY_BREAKDOWN, MAT } from '../../mocks/data'
+import { ConfRing } from '../common/ConfRing'
+import { MAT, useApi } from '../../config/api'
 import { MatIcon } from '../common/MatIcon'
 
 export type AIIdentificationEvent = {
@@ -152,6 +153,8 @@ export function AIDetailsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [minConfidence, setMinConfidence] = useState<number>(0)
 
+  const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
+
   const filteredEvents = useMemo(() => {
     return MOCK_AI_DETAILED_FEED.filter(evt => {
       const matchMat = selectedMaterial === 'all' || evt.material === selectedMaterial
@@ -164,6 +167,11 @@ export function AIDetailsPage() {
       return matchMat && matchSearch && matchConf
     })
   }, [selectedMaterial, searchQuery, minConfidence])
+
+  if (loading || !metrics) return <div style={{ color: 'white', padding: 20 }}>Cargando datos IA...</div>
+
+  const KPI_DATA = metrics || {}
+  const IA_ACCURACY_BREAKDOWN = metrics.iaAccuracyBreakdown || []
 
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '100%' }}>
@@ -216,7 +224,7 @@ export function AIDetailsPage() {
               </span>
             </div>
 
-            {IA_ACCURACY_BREAKDOWN.map(item => (
+            {IA_ACCURACY_BREAKDOWN.map((item: any) => (
               <div key={item.label} style={{
                 padding: '10px 14px', borderRadius: 12,
                 background: `${item.color}0a`, border: `1px solid ${item.color}25`,

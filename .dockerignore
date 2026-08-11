@@ -1,0 +1,28 @@
+# Exclude git and socket files
+.git
+.gitignore
+
+# Exclude all node_modules (they'll be installed fresh inside Docker)
+node_modules
+**/node_modules
+
+# Exclude local build artifacts
+**/dist
+**/.cache
+
+# Exclude local env files
+.env
+**/.env
+
+# Exclude editor and OS files
+.vscode
+.idea
+*.DS_Store
+*.log
+
+# Exclude test directories
+**/test
+**/coverage
+
+# Exclude pnpm debug logs
+pnpm-debug.log

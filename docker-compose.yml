@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: recicla_db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: recicla_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d recicla_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: recicla_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://root:rootpassword@db:5432/recicla_db?schema=public
+      - JWT_SECRET=super-secret-jwt-key-change-in-prod
+      - PORT=3000
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    # Runs prisma migrations then seeds initial data (admin user, zones, stations), then starts the app.
+    # The seed uses upsert so it's idempotent — safe to run on every startup.
+    command: sh -c "npx prisma migrate deploy && node dist/prisma/seed.js && node dist/main"
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    container_name: recicla_dashboard
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+

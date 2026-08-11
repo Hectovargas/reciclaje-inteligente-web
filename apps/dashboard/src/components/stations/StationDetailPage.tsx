@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Station, STATUS_CONFIG } from '../../mocks/data'
+import { Station, STATUS_CONFIG } from '../../config/api'
 import { TokenDisplay } from './TokenDisplay'
 
 export function StationDetailPage({

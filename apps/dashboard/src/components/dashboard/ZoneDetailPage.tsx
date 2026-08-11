@@ -1,15 +1,20 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ZONES, Station, getStationFromZoneItem } from '../../mocks/data'
+import { Station, getStationFromZoneItem, useApi } from '../../config/api'
 import { StationCard } from '../stations/StationCard'
 import { StationDetailPage } from '../stations/StationDetailPage'
 
-export function ZoneDetailPage() {
+export default function ZoneDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+
+  const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
   
-  const zone = ZONES.find(z => z.id === id)
+  if (loading || !metrics) return <div style={{ color: 'white', padding: 20 }}>Cargando zona...</div>
+
+  const ZONES = metrics.zonesData || []
+  const zone = ZONES.find((z: any) => z.id === id)
   if (!zone) return <div style={{ padding: 24, color: '#f0fdf4' }}>Zona no encontrada</div>
 
   if (selectedStation) {
@@ -23,9 +28,9 @@ export function ZoneDetailPage() {
   }
 
   const zc = zone.value > 85 ? '#a3e635' : zone.value > 65 ? '#22d3ee' : '#a78bfa'
-  const activeCount = zone.stations.filter(s => s.status === 'active').length
+  const activeCount = zone.stations.filter((s: any) => s.status === 'active').length
   
-  const totalNetworkCount = ZONES.reduce((acc, z) => acc + (z.todayCount || 0), 0)
+  const totalNetworkCount = ZONES.reduce((acc: number, z: any) => acc + (z.todayCount || 0), 0)
   const participationPct = totalNetworkCount > 0 && zone.todayCount ? Math.round((zone.todayCount / totalNetworkCount) * 100) : 0
   
   const todayCount = zone.todayCount || 0
@@ -35,7 +40,7 @@ export function ZoneDetailPage() {
   const diffColor = diffPct >= 0 ? '#34d399' : '#ef4444'
   const diffSign = diffPct >= 0 ? '+' : ''
 
-  const fullStations: Station[] = zone.stations.map(s => getStationFromZoneItem(s, zone.name))
+  const fullStations: Station[] = zone.stations.map((s: any) => getStationFromZoneItem(s, zone.name))
 
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: '100%' }}>

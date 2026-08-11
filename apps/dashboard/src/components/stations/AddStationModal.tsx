@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Station, ZONAS } from '../../mocks/data'
+import { Station, ZONAS } from '../../config/api'
 
 export function AddStationModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: Station) => void }) {
   const [name, setName] = useState('')

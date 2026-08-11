@@ -1,14 +1,22 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ZONES } from '../../mocks/data'
+import { useApi } from '../../config/api'
 
 export function HeatMap() {
   const navigate = useNavigate()
-  const maxVal = Math.max(...ZONES.map(z => z.value), 1)
+  const [hovered, setHovered] = useState<string | null>(null)
+  
+  const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
+  const ZONES = metrics?.zonesData || []
+
+  if (loading) return <div style={{ color: 'white', padding: 20 }}>Cargando datos...</div>
+
+  const maxVal = Math.max(...ZONES.map((z: any) => z.value), 1)
 
   return (
     <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 }}>
-        {ZONES.map(z => {
+        {ZONES.map((z: any) => {
           const ratio = z.value / maxVal
           const intensity = ratio >= 0.85
             ? { bg: 'rgba(163,230,53,0.18)', border: 'rgba(163,230,53,0.5)', text: '#a3e635', tag: 'Muy Alta' }

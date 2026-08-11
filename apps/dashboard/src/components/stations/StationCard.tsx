@@ -1,4 +1,4 @@
-import { Station, STATUS_CONFIG } from '../../mocks/data'
+import { Station, STATUS_CONFIG } from '../../config/api'
 
 export function StationCard({ station, onClick }: { station: Station; onClick: () => void }) {
   const s = STATUS_CONFIG[station.status]

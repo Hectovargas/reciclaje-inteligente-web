@@ -1,17 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import { useCountUp } from '../../hooks/useCountUp'
 import { ConfRing } from '../common/ConfRing'
-import {
-  KPI_DATA,
-  MATERIAL_CLASSIFIED_BREAKDOWN,
-  IA_ACCURACY_BREAKDOWN,
-} from '../../mocks/data'
+import { useApi } from '../../config/api'
 
 export function DashboardMetrics() {
   const navigate = useNavigate()
-  const kgTotal = useCountUp(KPI_DATA.kgTotal)
-  const kgSaved = useCountUp(KPI_DATA.kgSaved)
-  const accuracy = useCountUp(KPI_DATA.accuracy)
+  const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
+
+  const kgTotal = useCountUp(metrics?.kgTotal || 0)
+  const kgSaved = useCountUp(metrics?.kgSaved || 0)
+  const accuracy = useCountUp(metrics?.accuracy || 0)
+
+  if (loading || !metrics) return <div style={{ color: 'white' }}>Cargando métricas...</div>
+
+  const KPI_DATA = metrics
+  const MATERIAL_CLASSIFIED_BREAKDOWN = metrics.materialBreakdown || []
+  const IA_ACCURACY_BREAKDOWN = metrics.iaAccuracyBreakdown || []
 
   return (
     <div style={{ flex: '1 1 320px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
@@ -31,7 +35,7 @@ export function DashboardMetrics() {
 
         {/* Material breakdown rows */}
         <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {MATERIAL_CLASSIFIED_BREAKDOWN.map(m => (
+          {MATERIAL_CLASSIFIED_BREAKDOWN.map((m: any) => (
             <div key={m.name}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, marginBottom: 2 }}>
                 <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.name}</span>
@@ -114,7 +118,7 @@ export function DashboardMetrics() {
 
           {/* Breakdown per material with progress bars */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
-            {IA_ACCURACY_BREAKDOWN.map(m => (
+            {IA_ACCURACY_BREAKDOWN.map((m: any) => (
               <div key={m.label}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
                   <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.label}</span>

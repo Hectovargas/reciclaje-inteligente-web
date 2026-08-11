@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import { PEAK_DATA, PEAK_RANGES } from '../../mocks/data'
+import { useState, useMemo } from 'react'
+import { PEAK_RANGES, useApi } from '../../config/api'
 
 export function PeakHoursChart() {
-  const [mode, setMode] = useState<'hoy' | 'semana'>('hoy')
-  const data = PEAK_DATA[mode]
+  const [view, setView] = useState<'hoy' | 'semana'>('hoy')
+  const { data: metrics } = useApi<any>('/dashboard/metrics')
+
+  const PEAK_DATA = metrics?.peakData || { hoy: [], semana: [] }
+  const data = PEAK_DATA[view] || []
   const MAX = 100
 
   const W = 700, H = 160
@@ -14,37 +17,41 @@ export function PeakHoursChart() {
 
   const Y_TICKS = [0, 25, 50, 75, 100]
 
-  // smooth line path
-  const pts = data.map((v, i) => ({
+  const pts = useMemo(() => data.map((v: number, i: number) => ({
     x: PAD.left + i * barW + barW / 2,
     y: PAD.top + cH - (v / MAX) * cH,
-  }))
-  let linePath = `M ${pts[0].x} ${pts[0].y}`
-  for (let i = 1; i < pts.length; i++) {
-    const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) / 3
-    const cp2x = pts[i].x   - (pts[i].x - pts[i-1].x) / 3
-    linePath += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
-  }
-  const fillPath = linePath + ` L ${pts[pts.length-1].x} ${PAD.top + cH} L ${pts[0].x} ${PAD.top + cH} Z`
+  })), [data, barW, cH, MAX])
+
+  const { linePath, fillPath } = useMemo(() => {
+    if (pts.length === 0) return { linePath: '', fillPath: '' }
+    let path = `M ${pts[0].x} ${pts[0].y}`
+    for (let i = 1; i < pts.length; i++) {
+      const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) / 3
+      const cp2x = pts[i].x - (pts[i].x - pts[i-1].x) / 3
+      path += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+    }
+    return { 
+      linePath: path, 
+      fillPath: path + ` L ${pts[pts.length-1].x} ${PAD.top + cH} L ${pts[0].x} ${PAD.top + cH} Z` 
+    }
+  }, [pts])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#f0fdf4' }}>Horas pico de uso</span>
           <span style={{ marginLeft: 10, fontSize: 10, color: 'rgba(240,253,244,0.35)', fontFamily: 'var(--font-mono)' }}>actividad por hora · red completa</span>
         </div>
-        {/* Toggle */}
         <div style={{ display: 'flex', borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(99,231,182,0.14)', background: 'rgba(240,253,244,0.03)' }}>
           {(['hoy','semana'] as const).map(m => (
-            <button key={m} onClick={() => setMode(m)} style={{
+            <button key={m} onClick={() => setView(m)} style={{
               padding: '5px 14px', border: 'none', cursor: 'pointer',
               fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 600,
-              background: mode === m ? 'rgba(163,230,53,0.15)' : 'transparent',
-              color: mode === m ? '#a3e635' : 'rgba(240,253,244,0.4)',
+              background: view === m ? 'rgba(163,230,53,0.15)' : 'transparent',
+              color: view === m ? '#a3e635' : 'rgba(240,253,244,0.4)',
               transition: 'all 0.18s',
-              boxShadow: mode === m ? 'inset 0 0 0 1px rgba(163,230,53,0.25)' : 'none',
+              boxShadow: view === m ? 'inset 0 0 0 1px rgba(163,230,53,0.25)' : 'none',
             }}>
               {m === 'hoy' ? 'Hoy' : 'Prom. semanal'}
             </button>
@@ -52,7 +59,6 @@ export function PeakHoursChart() {
         </div>
       </div>
 
-      {/* Chart */}
       <div style={{ width: '100%' }}>
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 'auto', aspectRatio: '700/160', overflow: 'hidden', display: 'block' }}>
         <defs>
@@ -71,7 +77,6 @@ export function PeakHoursChart() {
           </filter>
         </defs>
 
-        {/* Y grid */}
         {Y_TICKS.map(v => {
           const y = PAD.top + cH - (v / MAX) * cH
           return (
@@ -84,12 +89,11 @@ export function PeakHoursChart() {
           )
         })}
 
-        {/* Peak range shading */}
         {PEAK_RANGES.map(r => {
           const x1 = PAD.left + r.start * barW
           const x2 = PAD.left + (r.end + 1) * barW
           const midX = (x1 + x2) / 2
-          const peakVal = Math.max(...data.slice(r.start, r.end + 1))
+          const peakVal = Math.max(...(data.slice(r.start, r.end + 1) || [0]))
           const labelY = PAD.top + cH - (peakVal / MAX) * cH - 8
           return (
             <g key={r.label}>
@@ -106,15 +110,11 @@ export function PeakHoursChart() {
           )
         })}
 
-        {/* Area fill */}
         <path d={fillPath} fill="url(#pkgrad)" />
-
-        {/* Line */}
         <path d={linePath} fill="none" stroke="url(#pkline)" strokeWidth={2} filter="url(#glow)" strokeLinecap="round" />
 
-        {/* Dots at peaks */}
         {PEAK_RANGES.flatMap(r =>
-          data.slice(r.start, r.end + 1).map((v, i) => {
+          data.slice(r.start, r.end + 1).map((v: number, i: number) => {
             const idx = r.start + i
             return (
               <circle key={`${r.start}-${i}`}

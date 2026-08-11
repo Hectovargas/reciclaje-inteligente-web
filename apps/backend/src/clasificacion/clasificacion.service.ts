@@ -1,38 +1,36 @@
 import { Injectable } from '@nestjs/common';
-
-export interface RegistrarEventoDto {
-  categoria: string;
-  confianza: number;
-  zona: string;
-  timestamp?: string;
-}
+import { PrismaService } from '../prisma/prisma.service';
+import { RegistrarEventoDto } from './dto/clasificacion.dto';
 
 @Injectable()
 export class ClasificacionService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async registrarEvento(dto: RegistrarEventoDto) {
-    // Scaffolding placeholder for persisting EventoClasificacion
-    return {
-      success: true,
-      message: 'Evento de clasificación registrado correctamente',
+    const evento = await this.prisma.eventoClasificacion.create({
       data: {
-        id: 'evt-scaffolding-id',
         categoria: dto.categoria,
         confianza: dto.confianza,
-        zona: dto.zona,
-        timestamp: dto.timestamp || new Date().toISOString(),
+        stationId: dto.stationId,
+        ...(dto.timestamp && { timestamp: new Date(dto.timestamp) }),
       },
-    };
+    });
+    return evento;
   }
 
-  async obtenerEventos() {
-    return [
-      {
-        id: 'evt-1',
-        categoria: 'Plástico',
-        confianza: 0.98,
-        zona: 'Zona Norte',
-        timestamp: new Date().toISOString(),
-      },
-    ];
+  async obtenerEventos(page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.eventoClasificacion.findMany({
+        skip,
+        take: limit,
+        orderBy: { timestamp: 'desc' },
+        include: { station: { select: { name: true, zone: { select: { name: true } } } } },
+      }),
+      this.prisma.eventoClasificacion.count(),
+    ]);
+
+    return { data, total, page, limit };
   }
 }
+

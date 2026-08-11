@@ -7,14 +7,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+model Zone {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  stations    Station[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("zones")
+}
+
+model Station {
+  id          String                @id @default(uuid())
+  name        String
+  location    String
+  status      StationStatus         @default(ACTIVE)
+  capacity    Int                   @default(100)
+  token       String?               @unique
+  zoneId      String
+  zone        Zone                  @relation(fields: [zoneId], references: [id])
+  events      EventoClasificacion[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@map("stations")
+  @@index([zoneId])
+}
+
+enum StationStatus {
+  ACTIVE
+  WARNING
+  OFFLINE
+}
+
 model EventoClasificacion {
   id         String   @id @default(uuid())
-  categoria  String
+  categoria  String   // Papel, Plástico, Metal
   confianza  Float
-  zona       String
+  stationId  String
+  station    Station  @relation(fields: [stationId], references: [id])
   timestamp  DateTime @default(now())
 
   @@map("eventos_clasificacion")
+  @@index([timestamp])
+  @@index([stationId])
 }
 
 model QRToken {
@@ -26,4 +80,5 @@ model QRToken {
   timestamp DateTime @default(now())
 
   @@map("qr_tokens")
+  @@index([codigo])
 }
