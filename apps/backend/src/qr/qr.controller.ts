@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseGuards } from '@nestjs/common';
+import { StationTokenGuard } from '../auth/guards/station-token.guard';
 import { QrService } from './qr.service';
 import { Throttle } from '@nestjs/throttler';
 
@@ -7,6 +8,7 @@ export class QrController {
   constructor(private readonly qrService: QrService) {}
 
   @Post('generar')
+  @UseGuards(StationTokenGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async generarQR(@Body('categoria') categoria: string) {
     return this.qrService.generarQR(categoria || 'Plástico');

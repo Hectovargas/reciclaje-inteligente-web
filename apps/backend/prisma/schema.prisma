@@ -78,6 +78,7 @@ model QRToken {
   usado     Boolean  @default(false)
   firma     String
   timestamp DateTime @default(now())
+  expiresAt DateTime
 
   @@map("qr_tokens")
   @@index([codigo])

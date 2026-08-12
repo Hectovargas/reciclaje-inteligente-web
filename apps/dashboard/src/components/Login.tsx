@@ -274,8 +274,6 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
       }
 
       const data = await res.json()
-      // Store token so useApi hooks can use it without re-logging in
-      sessionStorage.setItem('auth_token', data.access_token)
 
       const apiUser = data.user
       const emailLower = apiUser.email.toLowerCase()

@@ -81,10 +81,18 @@ apps/dashboard/src/
 - **Base URL:** `/api/v1` (Proxy a través de Nginx/Vite en producción/desarrollo).
 - **Flujo Auth:**
   1. Si no hay usuario autenticado en la app, se presenta `Login.tsx`.
-  2. Al autenticarse exitosamente, el token JWT devuelto por `/api/v1/auth/login` se almacena en `sessionStorage` (`auth_token`).
-  3. El custom hook `useApi<T>(endpoint)` inyecta automáticamente el encabezado `Authorization: Bearer <token>`.
-  4. En caso de recibir error HTTP `401 Unauthorized`, invalida el token para requerir un re-login.
-  5. Contiene estructuras de datos de respaldo (`POOL`, `MAT`, `ZONAS`, `DATA`, `STATUS_CONFIG`) para garantizar el funcionamiento fluido en entornos sin conexión backend activa.
+  2. Al autenticarse exitosamente, el servidor establece una cookie `httpOnly` de autenticación. Ya no se usa `sessionStorage`.
+  3. El cliente HTTP usa `credentials: 'include'` en todas las peticiones para que la cookie viaje automáticamente. Se elimina el header `Authorization: Bearer`.
+  4. En caso de recibir error HTTP `401 Unauthorized`, la aplicación redirige a la pantalla de login.
+  5. El proceso de cierre de sesión llama a `POST /auth/logout` para limpiar la cookie e invalida el estado local del usuario.
+  6. Contiene estructuras de datos de respaldo (`POOL`, `MAT`, `ZONAS`, `DATA`, `STATUS_CONFIG`) para garantizar el funcionamiento fluido en entornos sin conexión backend activa.
+
+### 2.6 Actualizaciones Recientes (LiveFeed y Datos Reales)
+
+- **LiveFeed.tsx (de mock a real + polling)**: Se migró de los datos simulados (`POOL`) a consumir el endpoint real `GET /api/v1/clasificacion?page=1&limit=20` mediante *polling* cada 6 segundos (dentro del rango de 5-10 s) usando `fetchWithAuth`. La respuesta paginada `{ data, total, page, limit }` se mapea a la fila del feed (material, estación y hora local) y se aplica un resaltado *flash* cuando aparece un evento nuevo. No se implementó WebSocket (decisión de alcance), el *polling* es la estrategia vigente.
+- **ConfRing.tsx y MaterialBreakdownChart.tsx (ya consumían real)**: Ambos consumen `GET /api/v1/dashboard/metrics` (el primero vía `KPI_DATA.aiConf`, el segundo vía `metrics.monthlyData`). `ConfRing` renderiza el valor de confianza en escala 0-100 que devuelve el backend (`aiConf`) sin ajustes de escala adicionales; `MaterialBreakdownChart` grafica el desglose mensual por material y calcula su eje Y dinámicamente según el máximo de datos reales.
+- **Normalización de confianza real (escala 0-1 → 0-100)**: El contrato del backend (`RegistrarEventoDto`) define `confianza` en el rango **[0, 1]** (p. ej. `0.98`). En `AIDetailsPage.tsx` se normaliza con `Math.round(confianza * 100)` antes de mostrarla como porcentaje, evaluar `isCorrect` (umbral ≥ 80%), aplicar el filtro de confianza mínima y dimensionar la barra de progreso, de modo que los valores reales de la IA se visualicen de forma equivalente a los mocks previos. Los valores `aiConf` / `iaAccuracyBreakdown` de las métricas ya llegan en 0-100.
+- **Payload con QR**: El backend devuelve el QR generado en la misma respuesta del evento de clasificación (`POST /api/v1/clasificacion` incluye `codigo`, `firma`, `expiresAt`). Las vistas actuales del Dashboard (`LiveFeed`, `AIDetailsPage`) no muestran el QR (es funcional para la PWA/estación), por lo que no se realiza ninguna llamada adicional para consumirlo.
 
 ---
 

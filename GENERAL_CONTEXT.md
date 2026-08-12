@@ -20,7 +20,7 @@ reciclaje-inteligente-web/
 ├── packages/
 │   └── contracts/        → Solidity + Hardhat + OpenZeppelin (Smart Contracts ERC-20 Sepolia)
 │
-├── docker-compose.yml    → Orquestación de Contenedores (PostgreSQL, Backend, Dashboard Nginx)
+├── docker-compose.yml    → Orquestación de Contenedores (PostgreSQL, Vault, Backend, Dashboard Nginx)
 ├── pnpm-workspace.yaml   → Configuración de Workspaces de PNPM
 ├── package.json          → Scripts raíz del Monorepo
 └── GENERAL_CONTEXT.md    → Este documento
@@ -91,6 +91,7 @@ flowchart TD
 | **Admin Dashboard** | `http://localhost:3001` | `http://localhost:8080` | Panel de control web (Vite en dev, Nginx en Docker) |
 | **User PWA** | `http://localhost:3002` | N/A (local node/docker option) | App cliente Next.js 14 PWA |
 | **PostgreSQL DB** | `localhost:5432` | `localhost:5433` | Base de datos relacional PostgreSQL `recicla_db` |
+| **HashiCorp Vault** | `http://localhost:8200` | `http://localhost:8200` | Gestión de secretos (`vault-init` inyecta llaves por defecto) |
 | **Ethereum Sepolia** | Web3 RPC Remote | Web3 RPC Remote | Testnet de Ethereum para contrato ERC-20 `RECI` |
 
 ---
@@ -102,7 +103,8 @@ flowchart TD
 PORT=3000
 DATABASE_URL="postgresql://root:rootpassword@localhost:5433/recicla_db?schema=public"
 SEPOLIA_RPC_URL="https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY"
-ADMIN_PRIVATE_KEY="0x0000000000000000000000000000000000000000000000000000000000000000"
+VAULT_ADDR="http://127.0.0.1:8200"
+VAULT_TOKEN="root"
 CONTRACT_ADDRESS="0x0000000000000000000000000000000000000000"
 JWT_SECRET="super-secret-key-reciclaje"
 ```
@@ -185,9 +187,9 @@ docker compose down
 
 Es importante dejar constancia explícita de las siguientes decisiones de diseño para el alcance actual del MVP / Hackathon y sus correspondientes estrategias de mitigación para producción:
 
-### 🔑 A. Punto Único de Falla en la Minter Wallet (`ADMIN_PRIVATE_KEY` + `onlyOwner`)
-- **Diagnóstico de Riesgo**: La clave privada `ADMIN_PRIVATE_KEY` está configurada directamente en las variables de entorno del servidor backend (`apps/backend/.env`) para autorizar la llamada `mintPoints()` con la restricción `onlyOwner`. Si el servidor backend o su entorno fueran vulnerados, un atacante obtendría acceso total para emitir tokens `RECI` sin límite.
-- **Decisión MVP**: Se adopta esta arquitectura para simplificar la velocidad de desarrollo e integración inicial.
+### 🔑 A. Punto Único de Falla en la Minter Wallet (`onlyOwner`)
+- **Diagnóstico de Riesgo**: La clave privada está protegida en HashiCorp Vault para evitar fugas en texto plano (como `.env`) y es consumida asíncronamente por los servicios `Blockchain` y `QR` al inicio, pero sigue siendo una clave única para autorizar la llamada `mintPoints()` y generar firmas digitales.
+- **Decisión MVP**: Se adopta HashiCorp Vault local para almacenamiento de secretos, mejorando la seguridad en todos los servicios core, pero manteniéndose como single-sig por simplicidad.
 - **Mitigación para Producción**: 
   - Migrar la administración del Smart Contract a una billetera **Multisig (Gnosis Safe)**.
   - Delegar la ejecución de transacciones a un servicio de **Relayer / KMS / MPC** (como *OpenZeppelin Defender* o *AWS KMS*).

@@ -157,10 +157,11 @@ export function AIDetailsPage() {
   const { data: eventsRes, loading: eventsLoading } = useApi<any>('/clasificacion')
 
   const eventsList = useMemo(() => {
-    const rawList = eventsRes?.data || []
+    const rawList: any[] = eventsRes?.data || []
     return rawList.map((evt: any) => {
       const material = evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal'
       const imagePlaceholderText = evt.categoria === 'Papel' ? 'Papel / Cartón' : evt.categoria === 'Plástico' ? 'Botella / Envase' : 'Metal / Lata'
+      const confidence = Math.round((evt.confianza ?? 0) * 100)
       return {
         id: evt.id,
         timestamp: new Date(evt.timestamp).toLocaleString('es-ES'),
@@ -169,11 +170,11 @@ export function AIDetailsPage() {
         zone: evt.station?.zone?.name || 'Sin Zona',
         material,
         materialName: evt.categoria,
-        confidence: evt.confianza,
-        isCorrect: evt.confianza >= 80,
+        confidence,
+        isCorrect: confidence >= 80,
         imagePlaceholderText,
         detectedObjects: [
-          { label: evt.categoria, confidence: evt.confianza }
+          { label: evt.categoria, confidence }
         ]
       }
     })

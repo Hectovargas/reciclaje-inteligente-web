@@ -59,6 +59,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
       ethers:
         specifier: ^6.11.1
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -102,6 +105,9 @@ importers:
       '@types/bcrypt':
         specifier: ^6.0.0
         version: 6.0.0
+      '@types/cookie-parser':
+        specifier: ^1.4.10
+        version: 1.4.10(@types/express@4.17.25)
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
@@ -177,7 +183,7 @@ importers:
     dependencies:
       '@thirdweb-dev/react':
         specifier: ^4.1.20
-        version: 4.9.4(@babel/core@7.29.7(supports-color@8.1.1))(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@thirdweb-dev/sdk@4.0.99(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bufferutil@4.1.0)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(typescript@5.9.3)(utf-8-validate@5.0.10))(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: 4.9.4(0cfe31821ff3aec81a6ea1e0c0591cda)
       '@thirdweb-dev/sdk':
         specifier: ^4.0.99
         version: 4.0.99(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bufferutil@4.1.0)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -3876,6 +3882,11 @@ packages:
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
+  '@types/cookie-parser@1.4.10':
+    resolution: {integrity: sha512-B4xqkqfZ8Wek+rCOeRxsjMS9OgvzebEzzLYw7NHYuvzb7IdxOkI0ZHGgeEBX4PUM7QGVvNSK60T3OvWj3YfBRg==}
+    peerDependencies:
+      '@types/express': '*'
+
   '@types/cookiejar@2.1.5':
     resolution: {integrity: sha512-he+DHOWReW0nghN24E1WUqM0efK4kI9oTqDm6XmK8ZPe2djZ90BSNdGnIyCLzCPw7/pogPlGbzI2wHGGmi4O/Q==}
 
@@ -5134,6 +5145,13 @@ packages:
 
   cookie-es@1.2.3:
     resolution: {integrity: sha512-lXVyvUvrNXblMqzIRrxHb57UUVmqsSWlxqt3XIjCkUP0wDAf6uicO6KMbEgYrMNtEvWgWHwe42CKxPu9MYAnWw==}
+
+  cookie-parser@1.4.7:
+    resolution: {integrity: sha512-nGUvgXnotP3BsjiLX2ypbQnWoGUPIIfHQNZkkC668ntrzGWEZVW70HDEB1qnNGMicPje6EttlIgzo51YSwNQGw==}
+    engines: {node: '>= 0.8.0'}
+
+  cookie-signature@1.0.6:
+    resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
 
   cookie-signature@1.0.7:
     resolution: {integrity: sha512-NXdYc3dLr47pBkpUCHtKSwIOQXLVn8dZEuywboCOJY/osA0wFSLlSawr3KN8qXJEyX66FcONTH8EIlVuK0yyFA==}
@@ -14179,7 +14197,7 @@ snapshots:
 
   '@tanstack/virtual-core@3.17.7': {}
 
-  '@thirdweb-dev/auth@4.1.97(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+  '@thirdweb-dev/auth@4.1.97(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(cookie-parser@1.4.7)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@fastify/cookie': 9.4.0
       '@thirdweb-dev/wallets': 2.5.39(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(localforage@1.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -14188,6 +14206,7 @@ snapshots:
       uuid: 9.0.1
       zod: 3.25.76
     optionalDependencies:
+      cookie-parser: 1.4.7
       ethers: 5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       express: 4.22.1(supports-color@8.1.1)
       fastify: 4.29.1
@@ -14293,10 +14312,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@thirdweb-dev/react-core@4.9.4(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@thirdweb-dev/react-core@4.9.4(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(cookie-parser@1.4.7)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@tanstack/react-query': 4.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@thirdweb-dev/auth': 4.1.97(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)
+      '@thirdweb-dev/auth': 4.1.97(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(cookie-parser@1.4.7)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@thirdweb-dev/chains': 0.1.120
       '@thirdweb-dev/generated-abis': 0.0.2
       '@thirdweb-dev/sdk': 4.0.99(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bufferutil@4.1.0)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -14363,7 +14382,7 @@ snapshots:
       - zksync-ethers
       - zod
 
-  '@thirdweb-dev/react@4.9.4(@babel/core@7.29.7(supports-color@8.1.1))(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@thirdweb-dev/sdk@4.0.99(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bufferutil@4.1.0)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(typescript@5.9.3)(utf-8-validate@5.0.10))(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@thirdweb-dev/react@4.9.4(0cfe31821ff3aec81a6ea1e0c0591cda)':
     dependencies:
       '@emotion/css': 11.10.5(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1)
       '@emotion/react': 11.14.0(@types/react@18.3.31)(react@18.3.1)(supports-color@8.1.1)
@@ -14380,7 +14399,7 @@ snapshots:
       '@tanstack/react-query': 4.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@thirdweb-dev/chains': 0.1.120
       '@thirdweb-dev/payments': 1.0.5(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      '@thirdweb-dev/react-core': 4.9.4(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@thirdweb-dev/react-core': 4.9.4(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(cookie-parser@1.4.7)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(express@4.22.1(supports-color@8.1.1))(fastify@4.29.1)(localforage@1.10.0)(next@14.2.35(@babel/core@7.29.7(supports-color@8.1.1))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@thirdweb-dev/sdk': 4.0.99(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bufferutil@4.1.0)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@thirdweb-dev/wallets': 2.5.39(@ethersproject/abstract-provider@5.8.0)(@ethersproject/abstract-signer@5.8.0)(@ethersproject/bignumber@5.8.0)(@ethersproject/properties@5.8.0)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(bs58@5.0.0)(bufferutil@4.1.0)(debug@4.4.3(supports-color@8.1.1))(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(localforage@1.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(supports-color@8.1.1)(tweetnacl@1.0.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       buffer: 6.0.3
@@ -14696,6 +14715,10 @@ snapshots:
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 20.19.43
+
+  '@types/cookie-parser@1.4.10(@types/express@4.17.25)':
+    dependencies:
+      '@types/express': 4.17.25
 
   '@types/cookiejar@2.1.5': {}
 
@@ -17319,6 +17342,13 @@ snapshots:
   convert-source-map@2.0.0: {}
 
   cookie-es@1.2.3: {}
+
+  cookie-parser@1.4.7:
+    dependencies:
+      cookie: 0.7.2
+      cookie-signature: 1.0.6
+
+  cookie-signature@1.0.6: {}
 
   cookie-signature@1.0.7: {}
 

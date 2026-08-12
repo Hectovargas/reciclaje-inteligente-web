@@ -30,16 +30,12 @@ Este documento sirve como guía de contexto técnico, arquitectura, endpoints y 
 ## 🔒 Análisis Crítico de Seguridad, Limitaciones y Recomendaciones
 
 > [!CAUTION]
-> **1. Endpoint `POST /api/v1/qr/generar` sin autenticación (Vulnerabilidad Pendiente)**
-> - **Estado actual**: La ruta `POST /api/v1/qr/generar` en `QrController` no posee `@UseGuards(JwtAuthGuard, RolesGuard)`.
-> - **Riesgo**: Cualquier cliente anónimo puede solicitar tokens QR firmados con la clave privada de administración (`ADMIN_PRIVATE_KEY`), pudiendo falsificar códigos de reciclaje.
-> - **Recomendación**: Proteger con `@UseGuards(JwtAuthGuard, RolesGuard)` y restringir a roles `ADMIN` / `MANAGER` o autenticación por token de estación.
+> **1. Endpoint `POST /api/v1/qr/generar` (Mitigado)**
+> - **Estado actual**: Protegido con `StationTokenGuard`. Solo estaciones válidas pueden generarlos.
 
 > [!WARNING]
-> **2. Ausencia de Expiración (TTL) en Tokens QR (`QRToken`)**
-> - **Estado actual**: El modelo `QRToken` registra `usado: Boolean @default(false)`, pero no incluye un campo `expiresAt` ni ventana de validez.
-> - **Riesgo**: Si un código QR se genera y nunca se escanea, permanece activo indefinidamente.
-> - **Recomendación**: Agregar `expiresAt: DateTime` a `schema.prisma` y validar `timestamp + TTL <= now()` en `QrService.verificarQR()`.
+> **2. Expiración (TTL) en Tokens QR (`QRToken`) (Mitigado)**
+> - **Estado actual**: El modelo `QRToken` incluye el campo `expiresAt`. `QrService` almacena el token al generarlo y valida expiración (10 min) y uso en `verificarQR()`.
 
 > [!WARNING]
 > **3. Credenciales Seed de Desarrollo (Advertencia)**
@@ -47,10 +43,9 @@ Este documento sirve como guía de contexto técnico, arquitectura, endpoints y 
 > - **Uso**: Únicamente válido para entornos de desarrollo local y testing. **PROHIBIDO su uso en entornos de producción o staging público**. Debe cambiarse mediante variables de entorno o migración segura.
 
 > [!IMPORTANT]
-> **4. Almacenamiento de Token JWT en Frontend (`sessionStorage` vs `httpOnly` Cookie)**
-> - **Decisión de arquitectura actual**: El token se almacena en `sessionStorage` en la SPA para facilitar consumo directo mediante cabecera `Authorization: Bearer <token>`.
-> - **Riesgo**: Vulnerabilidad a ataques XSS (Cross-Site Scripting) si un script externo accede a `sessionStorage`.
-> - **Recomendación para Producción**: Migrar la autenticación a `httpOnly`, `SameSite=Strict`, `Secure` cookies con HTTPS, o implementar Access Tokens de corta duración (15 min) + Refresh Tokens en cookie segura.
+> **4. Almacenamiento de Token JWT en Frontend (`httpOnly` Cookie)**
+> - **Decisión de arquitectura actual**: El token se almacena de forma segura usando una cookie `httpOnly`, protegiendo a los usuarios contra ataques XSS.
+> - **Fallback**: El backend soporta leer el token desde el header `Authorization: Bearer <token>` temporalmente por retrocompatibilidad.
 
 > [!NOTE]
 > **5. Mitigación de Fuerza Bruta y Scraping de QR (Resuelto)**
@@ -58,6 +53,10 @@ Este documento sirve como guía de contexto técnico, arquitectura, endpoints y 
 >   - `POST /api/v1/auth/login`: Máximo 5 intentos por minuto (mitiga fuerza bruta de contraseñas).
 >   - `POST /api/v1/qr/generar`: Máximo 10 peticiones por minuto.
 >   - `GET /api/v1/qr/verificar`: Máximo 20 consultas por minuto (mitiga scraping/DoS de la tabla `QRToken`).
+
+> [!TIP]
+> **6. Gestión de Secretos con HashiCorp Vault (Resuelto)**
+> - **Implementado**: La clave privada `ADMIN_PRIVATE_KEY` ya no se guarda en texto plano (`.env`). El sistema utiliza HashiCorp Vault local, del cual tanto `BlockchainService` como `QrService` obtienen la clave de forma asíncrona al inicializarse mediante `VAULT_ADDR` y `VAULT_TOKEN`, garantizando que nunca quede hardcodeada.
 
 ---
 
@@ -145,6 +144,7 @@ model QRToken {
   usado     Boolean  @default(false)
   firma     String
   timestamp DateTime @default(now())
+  expiresAt DateTime
 }
 ```
 
@@ -155,13 +155,14 @@ model QRToken {
 | Método | Endpoint | Protegido | Roles | Rate Limit | Descripción |
 |---|---|---|---|---|---|
 | `GET` | `/api/v1/health` | ❌ No | Todos | 100 req/min | Estado del sistema (Prisma DB ping + Memoria Heap) |
-| `POST` | `/api/v1/auth/login` | ❌ No | Todos | **5 req/min** | Autenticación con email/password. Devuelve JWT |
+| `POST` | `/api/v1/auth/login` | ❌ No | Todos | **5 req/min** | Autenticación con email/password. Retorna user data y setea cookie httpOnly `access_token` |
+| `POST` | `/api/v1/auth/logout` | ❌ No | Todos | 100 req/min | Limpia la cookie segura `access_token` |
 | `GET` | `/api/v1/dashboard/metrics` | ✅ Sí | ADMIN, MANAGER, VIEWER | 100 req/min | Métricas, desglose de materiales, precisión IA y heatmap |
 | `GET` | `/api/v1/dashboard/stations` | ✅ Sí | ADMIN, MANAGER, VIEWER | 100 req/min | Estaciones con estado normalizado (`active`, `warning`, `offline`) |
-| `POST` | `/api/v1/clasificacion` | ✅ Sí | ADMIN, MANAGER | 100 req/min | Registro de evento de clasificación desde estación IA |
+| `POST` | `/api/v1/clasificacion` | ✅ Sí | Estación (StationToken) | **30 req/min** | Registro de evento de clasificación desde estación IA. Devuelve evento + QR |
 | `GET` | `/api/v1/clasificacion` | ✅ Sí | ADMIN, MANAGER, VIEWER | 100 req/min | Consulta paginada de eventos (`?page=1&limit=20`) |
-| `POST` | `/api/v1/qr/generar` | ❌ No (Vulnerable) | Todos | **10 req/min** | Genera token QR firmado criptográficamente |
-| `GET` | `/api/v1/qr/verificar` | ❌ No | Todos | **20 req/min** | Valida firma digital de token QR (`?codigo=...&firma=...`) |
+| `POST` | `/api/v1/qr/generar` | ✅ Sí | Estación (StationToken) | **10 req/min** | Genera token QR firmado criptográficamente |
+| `GET` | `/api/v1/qr/verificar` | ❌ No | Todos | **20 req/min** | Valida firma digital de token QR y expiración (`?codigo=...&firma=...`) |
 | `GET` | `/api/docs` | ❌ No | Todos | Sin límite | Documentación interactiva Swagger OpenAPI |
 
 ---
@@ -174,13 +175,53 @@ La firma digital del QR utiliza **Ethers v6** (`solidityPackedKeccak256`) con la
 $$\text{hash} = \text{keccak256}\Big(\text{codigo} \mathbin{\Vert} \text{categoria} \mathbin{\Vert} \text{timestamp}\Big)$$
 
 ### Estructura de Respuesta del Payload QR
-```json
 {
   "codigo": "QR-PLÁSTICO-1786479000000",
   "categoria": "Plástico",
   "firma": "0x1234567890abcdef...",
   "usado": false,
-  "timestamp": "2026-08-11T20:25:00.000Z"
+  "timestamp": "2026-08-11T20:25:00.000Z",
+  "expiresAt": "2026-08-11T20:35:00.000Z"
+}
+```
+
+---
+
+## 📡 Contrato de Comunicación ESP32 (Estación IA)
+
+Para enviar eventos de clasificación desde la estación, el ESP32 debe realizar una petición HTTP con el siguiente contrato:
+
+**Endpoint:** `POST /api/v1/clasificacion`
+
+**Headers Requeridos:**
+- `Content-Type: application/json`
+- `x-station-token: <TOKEN_DE_LA_ESTACION_EN_BD>`
+
+**Body (JSON):**
+```json
+{
+  "categoria": "Plástico",
+  "confianza": 0.95,
+  "stationId": "<ID_UUID_DE_LA_ESTACION>"
+}
+```
+
+**Respuesta Esperada (201 Created):**
+```json
+{
+  "id": "uuid-evento-...",
+  "categoria": "Plástico",
+  "confianza": 0.95,
+  "stationId": "uuid-estacion",
+  "timestamp": "2026-08-12T...",
+  "qr": {
+    "codigo": "QR-PLÁSTICO-1786479000000",
+    "categoria": "Plástico",
+    "firma": "0x12...",
+    "usado": false,
+    "timestamp": "2026-08-12T...",
+    "expiresAt": "2026-08-12T..."
+  }
 }
 ```
 

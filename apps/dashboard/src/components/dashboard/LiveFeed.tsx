@@ -1,30 +1,50 @@
-import { useState, useEffect, useRef } from 'react'
-import { POOL, MAT, useApi } from '../../config/api'
+import { useState, useEffect } from 'react'
+import { MAT, fetchWithAuth } from '../../config/api'
 import { MatIcon } from '../common/MatIcon'
 
 export function LiveFeed() {
-  const { data: metrics } = useApi<any>('/dashboard/metrics')
   const [feed, setFeed] = useState<any[]>([])
-  const [flashId, setFlashId] = useState<number | null>(null)
-  const nextId = useRef(100)
+  const [flashId, setFlashId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (metrics?.feedInit) {
-      setFeed(metrics.feedInit)
+    let mounted = true;
+    let lastId: string | null = null;
+    
+    async function loadFeed() {
+      try {
+        const res = await fetchWithAuth('/clasificacion?page=1&limit=20');
+        if (!mounted || !res.data) return;
+        
+        const mapped = res.data.map((evt: any) => ({
+          id: evt.id,
+          type: evt.categoria,
+          station: evt.station?.name || 'Estación',
+          material: evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal',
+          time: new Date(evt.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        }));
+        
+        setFeed(mapped.slice(0, 10));
+        
+        if (mapped.length > 0 && lastId !== mapped[0].id) {
+          if (lastId !== null) {
+            setFlashId(mapped[0].id);
+            setTimeout(() => { if (mounted) setFlashId(null) }, 1400);
+          }
+          lastId = mapped[0].id;
+        }
+      } catch (err) {
+        console.error('Error fetching live feed', err);
+      }
     }
-  }, [metrics])
-
-  useEffect(() => {
-    if (!POOL || POOL.length === 0) return
-    const id = setInterval(() => {
-      const evt = POOL[Math.floor(Math.random() * POOL.length)]
-      const item = { ...evt, id: nextId.current++, time: 'ahora' }
-      setFeed(prev => [item, ...prev.slice(0, 9)])
-      setFlashId(item.id)
-      setTimeout(() => setFlashId(null), 1400)
-    }, 3800)
-    return () => clearInterval(id)
-  }, [])
+    
+    loadFeed();
+    const interval = setInterval(loadFeed, 6000); // Poll every 6s
+    
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div className="glass-card" style={{ flex: '1 1 260px', minWidth: 260, height: 420, padding: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

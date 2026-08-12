@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegistrarEventoDto } from './dto/clasificacion.dto';
+import { QrService } from '../qr/qr.service';
 
 @Injectable()
 export class ClasificacionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly qrService: QrService,
+  ) {}
 
   async registrarEvento(dto: RegistrarEventoDto) {
     const evento = await this.prisma.eventoClasificacion.create({
@@ -15,7 +19,13 @@ export class ClasificacionService {
         ...(dto.timestamp && { timestamp: new Date(dto.timestamp) }),
       },
     });
-    return evento;
+    
+    const qr = await this.qrService.generarQR(dto.categoria);
+    
+    return {
+      ...evento,
+      qr,
+    };
   }
 
   async obtenerEventos(page = 1, limit = 20) {

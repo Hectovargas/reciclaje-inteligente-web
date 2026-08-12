@@ -2,44 +2,19 @@ import { useState, useEffect } from 'react';
 
 const API_URL = '/api/v1';
 
-// Global token state to avoid multiple logins
-let globalToken = '';
-
-async function getAuthToken() {
-  // First check the sessionStorage token set by Login.tsx after real auth
-  const stored = sessionStorage.getItem('auth_token');
-  if (stored) {
-    globalToken = stored;
-    return globalToken;
-  }
-  if (globalToken) return globalToken;
-
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'admin@recicla.com', password: 'admin123' })
-  });
-  
-  if (!res.ok) throw new Error('Login failed');
-  
-  const data = await res.json();
-  globalToken = data.token || data.access_token;
-  sessionStorage.setItem('auth_token', globalToken);
-  return globalToken;
-}
-
-async function fetchWithAuth(endpoint: string) {
-  const token = await getAuthToken();
+export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const res = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...options.headers
     }
   });
   
   if (!res.ok) {
     if (res.status === 401) {
-      globalToken = ''; // force re-login next time
+      window.location.href = '/'; // force re-login next time
     }
     throw new Error(`API error: ${res.status}`);
   }

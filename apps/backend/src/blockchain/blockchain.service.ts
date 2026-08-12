@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ethers } from 'ethers';
 
 const ERC20_ABI = [
@@ -8,7 +8,7 @@ const ERC20_ABI = [
 ];
 
 @Injectable()
-export class BlockchainService {
+export class BlockchainService implements OnModuleInit {
   private readonly logger = new Logger(BlockchainService.name);
   private provider: ethers.JsonRpcProvider;
   private wallet: ethers.Wallet;
@@ -16,11 +16,39 @@ export class BlockchainService {
 
   constructor() {
     const rpcUrl = process.env.SEPOLIA_RPC_URL || 'https://rpc.sepolia.org';
-    const privateKey = process.env.ADMIN_PRIVATE_KEY || '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
     this.contractAddress = process.env.CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
-
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
-    this.wallet = new ethers.Wallet(privateKey, this.provider);
+  }
+
+  async onModuleInit() {
+    const vaultAddr = process.env.VAULT_ADDR || 'http://127.0.0.1:8200';
+    const vaultToken = process.env.VAULT_TOKEN || 'root';
+
+    try {
+      this.logger.log(`Fetching admin private key from Vault at ${vaultAddr}`);
+      const response = await fetch(`${vaultAddr}/v1/secret/data/reciclaje`, {
+        headers: {
+          'X-Vault-Token': vaultToken,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch from Vault: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const privateKey = data.data.data.admin_private_key;
+
+      if (!privateKey) {
+        throw new Error('admin_private_key not found in Vault secret');
+      }
+
+      this.wallet = new ethers.Wallet(privateKey, this.provider);
+      this.logger.log('Wallet successfully initialized securely from Vault.');
+    } catch (error) {
+      this.logger.error('Error initializing BlockchainService with Vault:', error);
+      // No re-throwing to avoid hard crash during dev, but typically we would fail fast
+    }
   }
 
   async mintearPuntos(usuarioAddress: string, cantidad: number) {

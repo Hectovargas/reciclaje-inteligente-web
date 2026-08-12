@@ -129,7 +129,13 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
               Mi Perfil
             </button>
             <button
-              onClick={() => { sessionStorage.removeItem('auth_token'); setUser(null); setMobileDrawerOpen(false); }}
+              onClick={async () => {
+                try {
+                  await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
+                } catch(e) {}
+                setUser(null);
+                setMobileDrawerOpen(false);
+              }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                 padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.2)',
@@ -243,7 +249,13 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
                   Mi Perfil
                 </button>
                 <button
-                  onClick={() => { sessionStorage.removeItem('auth_token'); setUser(null); setShowUserMenu(false) }}
+                  onClick={async () => {
+                    try {
+                      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
+                    } catch(e) {}
+                    setUser(null);
+                    setShowUserMenu(false);
+                  }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                     padding: '8px 10px', borderRadius: 8, border: 'none', background: 'transparent',
