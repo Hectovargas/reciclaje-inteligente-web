@@ -3,6 +3,13 @@ import { APP_CONFIG } from '../config/app'
 import { User } from '../types/user'
 
 const MOCK_USERS: Record<string, User> = {
+  'admin@recicla.com': {
+    name: 'Admin Principal',
+    email: 'admin@recicla.com',
+    role: 'Super Administrador',
+    accessLevel: 'Acceso Total del Sistema (Nivel 3)',
+    initials: 'AP'
+  },
   'admin@ecogrid.io': {
     name: 'Héctor Vargas',
     email: 'h.vargas@ecogrid.io',

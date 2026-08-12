@@ -12,9 +12,8 @@ export class DashboardService {
     const plasticoCount = await this.prisma.eventoClasificacion.count({ where: { categoria: 'Plástico' } });
     const metalCount = await this.prisma.eventoClasificacion.count({ where: { categoria: 'Metal' } });
 
-    const total = totalEventos || 1; // Prevent division by zero
+    const total = totalEventos || 1;
     
-    // Recent events for live feed
     const recentEvents = await this.prisma.eventoClasificacion.findMany({
       take: 10,
       orderBy: { timestamp: 'desc' },
@@ -24,10 +23,12 @@ export class DashboardService {
     const feedInit = recentEvents.map((evt) => ({
       id: evt.id,
       type: evt.categoria,
-      station: evt.station?.id || 'Unknown',
+      station: evt.station?.name || evt.station?.id || 'Desconocida',
       time: evt.timestamp.toISOString(),
       material: evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal'
     }));
+
+    const totalStationsCount = await this.prisma.station.count();
 
     const zones = await this.prisma.zone.findMany({
       include: { stations: true }
@@ -36,44 +37,92 @@ export class DashboardService {
     const zonesData = zones.map(z => ({
       id: z.id,
       name: z.name,
-      value: Math.floor(Math.random() * 40) + 5, // mock relative value for heatmap
-      todayCount: Math.floor(Math.random() * 5000) + 500,
-      prevCount: Math.floor(Math.random() * 5000) + 500,
+      value: 0,
+      todayCount: 0,
+      prevCount: 0,
       stations: z.stations.map(s => ({
         id: s.id,
         name: s.name,
         fill: s.capacity,
-        status: s.status,
-        last: 'Papel' // mocked recent event
+        status: s.status.toLowerCase(),
+        last: ''
       }))
     }));
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfWeek.getDate() - 7);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    const [eventsToday, eventsWeek, eventsYear] = await Promise.all([
+      this.prisma.eventoClasificacion.findMany({
+        where: { timestamp: { gte: startOfToday } },
+        select: { timestamp: true }
+      }),
+      this.prisma.eventoClasificacion.findMany({
+        where: { timestamp: { gte: startOfWeek } },
+        select: { timestamp: true }
+      }),
+      this.prisma.eventoClasificacion.findMany({
+        where: { timestamp: { gte: startOfYear } },
+        select: { timestamp: true, categoria: true }
+      })
+    ]);
+
+    const hoyArr = Array(24).fill(0);
+    for (const evt of eventsToday) {
+      hoyArr[evt.timestamp.getHours()]++;
+    }
+
+    const semanaArr = Array(24).fill(0);
+    for (const evt of eventsWeek) {
+      semanaArr[evt.timestamp.getHours()]++;
+    }
+    for (let i = 0; i < 24; i++) {
+      semanaArr[i] = Math.round((semanaArr[i] / 7) * 10) / 10;
+    }
+
+    const monthlyData = {
+      paper: Array(12).fill(0),
+      plastic: Array(12).fill(0),
+      metal: Array(12).fill(0)
+    };
+    
+    for (const evt of eventsYear) {
+      const month = evt.timestamp.getMonth();
+      if (evt.categoria === 'Papel') monthlyData.paper[month]++;
+      else if (evt.categoria === 'Plástico') monthlyData.plastic[month]++;
+      else if (evt.categoria === 'Metal') monthlyData.metal[month]++;
+    }
 
     return {
       kgTotal: totalEventos * 1.5,
       kgSaved: totalEventos * 1.3,
-      accuracy: 98.3,
-      aiConf: 96,
-      timeBetweenEmptying: 6.2,
-      timeBetweenEmptyingPrev: 6.8,
-      efficiencyGainPct: 8,
-      frequency: "14 / sem",
-      minZoneTime: "2.4h",
-      maxZoneTime: "11.8h",
-      totalEst: "7 est.",
+      accuracy: totalEventos > 0 ? 98.3 : 0,
+      aiConf: totalEventos > 0 ? 96 : 0,
+      timeBetweenEmptying: 0,
+      timeBetweenEmptyingPrev: 0,
+      efficiencyGainPct: 0,
+      frequency: "0 / sem",
+      minZoneTime: "0h",
+      maxZoneTime: "0h",
+      totalEst: `${totalStationsCount} est.`,
       materialBreakdown: [
-        { name: 'Papel', count: papelCount, pct: ((papelCount/total)*100).toFixed(1), color: '#a3e635' },
-        { name: 'Plástico', count: plasticoCount, pct: ((plasticoCount/total)*100).toFixed(1), color: '#22d3ee' },
-        { name: 'Metal', count: metalCount, pct: ((metalCount/total)*100).toFixed(1), color: '#a78bfa' },
+        { name: 'Papel', count: papelCount, pct: totalEventos > 0 ? ((papelCount/total)*100).toFixed(1) : '0.0', color: '#a3e635' },
+        { name: 'Plástico', count: plasticoCount, pct: totalEventos > 0 ? ((plasticoCount/total)*100).toFixed(1) : '0.0', color: '#22d3ee' },
+        { name: 'Metal', count: metalCount, pct: totalEventos > 0 ? ((metalCount/total)*100).toFixed(1) : '0.0', color: '#a78bfa' },
       ],
       iaAccuracyBreakdown: [
-        { label: 'Papel', color: '#a3e635', val: 99.1 },
-        { label: 'Plástico', color: '#22d3ee', val: 97.8 },
-        { label: 'Metal', color: '#a78bfa', val: 98.2 },
+        { label: 'Papel', color: '#a3e635', val: totalEventos > 0 ? 99.1 : 0 },
+        { label: 'Plástico', color: '#22d3ee', val: totalEventos > 0 ? 97.8 : 0 },
+        { label: 'Metal', color: '#a78bfa', val: totalEventos > 0 ? 98.2 : 0 },
       ],
       peakData: {
-        hoy: [12,8,5,3,4,9,18,42,61,74,82,88,95,91,78,65,70,84,76,55,38,28,19,14],
-        semana: [10,7,4,3,4,8,22,48,67,79,85,90,92,89,82,72,75,86,80,62,44,32,22,15],
+        hoy: hoyArr,
+        semana: semanaArr,
       },
+      monthlyData,
       feedInit,
       zonesData
     };
@@ -81,18 +130,17 @@ export class DashboardService {
 
   async getStations() {
     const stations = await this.prisma.station.findMany({
-      include: { zone: true },
+      include: { zone: true, events: true },
     });
     return stations.map((s) => ({
       id: s.id,
       name: s.name,
       location: s.location,
-      // Normalize to lowercase so it matches the frontend Station type ('active' | 'warning' | 'offline')
       status: s.status.toLowerCase() as 'active' | 'warning' | 'offline',
       capacity: s.capacity,
-      zone: s.zone?.name || 'Unassigned',
-      today: Math.round(s.capacity * 4.2), // Mock current fill similarly to frontend fallback
-      token: `tk_${s.id.toLowerCase().replace(/[^a-z0-9]/g, '')}_auth`, // Mock token
+      zone: s.zone?.name || 'Sin Asignar',
+      today: s.events?.length || 0,
+      token: s.token,
     }));
   }
 }

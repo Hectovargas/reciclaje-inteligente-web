@@ -154,9 +154,33 @@ export function AIDetailsPage() {
   const [minConfidence, setMinConfidence] = useState<number>(0)
 
   const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
+  const { data: eventsRes, loading: eventsLoading } = useApi<any>('/clasificacion')
+
+  const eventsList = useMemo(() => {
+    const rawList = eventsRes?.data || []
+    return rawList.map((evt: any) => {
+      const material = evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal'
+      const imagePlaceholderText = evt.categoria === 'Papel' ? 'Papel / Cartón' : evt.categoria === 'Plástico' ? 'Botella / Envase' : 'Metal / Lata'
+      return {
+        id: evt.id,
+        timestamp: new Date(evt.timestamp).toLocaleString('es-ES'),
+        stationId: evt.stationId,
+        stationName: evt.station?.name || 'Estación Desconocida',
+        zone: evt.station?.zone?.name || 'Sin Zona',
+        material,
+        materialName: evt.categoria,
+        confidence: evt.confianza,
+        isCorrect: evt.confianza >= 80,
+        imagePlaceholderText,
+        detectedObjects: [
+          { label: evt.categoria, confidence: evt.confianza }
+        ]
+      }
+    })
+  }, [eventsRes])
 
   const filteredEvents = useMemo(() => {
-    return MOCK_AI_DETAILED_FEED.filter(evt => {
+    return eventsList.filter((evt: any) => {
       const matchMat = selectedMaterial === 'all' || evt.material === selectedMaterial
       const matchSearch =
         evt.stationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -166,9 +190,9 @@ export function AIDetailsPage() {
       const matchConf = evt.confidence >= minConfidence
       return matchMat && matchSearch && matchConf
     })
-  }, [selectedMaterial, searchQuery, minConfidence])
+  }, [eventsList, selectedMaterial, searchQuery, minConfidence])
 
-  if (loading || !metrics) return <div style={{ color: 'white', padding: 20 }}>Cargando datos IA...</div>
+  if (loading || eventsLoading || !metrics) return <div style={{ color: 'white', padding: 20 }}>Cargando datos IA...</div>
 
   const KPI_DATA = metrics || {}
   const IA_ACCURACY_BREAKDOWN = metrics.iaAccuracyBreakdown || []

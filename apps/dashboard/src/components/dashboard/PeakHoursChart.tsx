@@ -1,40 +1,139 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { PEAK_RANGES, useApi } from '../../config/api'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Filler,
+  Legend,
+  Plugin
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Filler,
+  Legend
+)
 
 export function PeakHoursChart() {
   const [view, setView] = useState<'hoy' | 'semana'>('hoy')
   const { data: metrics } = useApi<any>('/dashboard/metrics')
 
-  const PEAK_DATA = metrics?.peakData || { hoy: [], semana: [] }
-  const data = PEAK_DATA[view] || []
-  const MAX = 100
+  const PEAK_DATA = metrics?.peakData || { hoy: Array(24).fill(0), semana: Array(24).fill(0) }
+  const data = PEAK_DATA[view] && PEAK_DATA[view].length > 0 ? PEAK_DATA[view] : Array(24).fill(0)
 
-  const W = 700, H = 160
-  const PAD = { top: 26, right: 28, bottom: 28, left: 36 }
-  const cW = W - PAD.left - PAD.right
-  const cH = H - PAD.top - PAD.bottom
-  const barW = cW / 24
+  const labels = Array.from({ length: 24 }, (_, i) => `${i}h`)
 
-  const Y_TICKS = [0, 25, 50, 75, 100]
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: 'Actividad',
+        data,
+        borderColor: (context: any) => {
+          const chart = context.chart
+          const { ctx, chartArea } = chart
+          if (!chartArea) return '#a3e635'
+          const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0)
+          gradient.addColorStop(0, '#22d3ee')
+          gradient.addColorStop(0.5, '#a3e635')
+          gradient.addColorStop(1, '#22d3ee')
+          return gradient
+        },
+        backgroundColor: (context: any) => {
+          const chart = context.chart
+          const { ctx, chartArea } = chart
+          if (!chartArea) return 'rgba(163,230,53,0.1)'
+          const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
+          gradient.addColorStop(0, 'rgba(163,230,53,0.28)')
+          gradient.addColorStop(1, 'rgba(163,230,53,0.02)')
+          return gradient
+        },
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#a3e635',
+        pointBorderColor: 'rgba(11,16,26,0.8)',
+        pointBorderWidth: 1.5,
+        pointRadius: (context: any) => {
+          const index = context.dataIndex
+          const inPeak = PEAK_RANGES.some(r => index >= r.start && index <= r.end)
+          return inPeak && data[index] > 0 ? 3 : 0
+        },
+        pointHoverRadius: 5,
+      }
+    ]
+  }
 
-  const pts = useMemo(() => data.map((v: number, i: number) => ({
-    x: PAD.left + i * barW + barW / 2,
-    y: PAD.top + cH - (v / MAX) * cH,
-  })), [data, barW, cH, MAX])
-
-  const { linePath, fillPath } = useMemo(() => {
-    if (pts.length === 0) return { linePath: '', fillPath: '' }
-    let path = `M ${pts[0].x} ${pts[0].y}`
-    for (let i = 1; i < pts.length; i++) {
-      const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) / 3
-      const cp2x = pts[i].x - (pts[i].x - pts[i-1].x) / 3
-      path += ` C ${cp1x} ${pts[i-1].y} ${cp2x} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          stepSize: 25,
+          color: 'rgba(240,253,244,0.28)',
+          font: { family: 'var(--font-mono)', size: 10 }
+        },
+        grid: {
+          color: 'rgba(240,253,244,0.05)',
+        },
+        border: { display: false }
+      },
+      x: {
+        ticks: {
+          color: 'rgba(240,253,244,0.3)',
+          font: { family: 'var(--font-mono)', size: 10 },
+          autoSkip: false,
+          maxRotation: 0,
+          callback: function(value: any, index: number) {
+            if ([0, 3, 6, 9, 12, 15, 18, 21, 23].includes(index)) {
+              return `${index}h`
+            }
+            return null
+          }
+        },
+        grid: {
+          display: false,
+        },
+        border: {
+          color: 'rgba(240,253,244,0.07)'
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(11,16,26,0.9)',
+        titleColor: '#f0fdf4',
+        bodyColor: '#a3e635',
+        borderColor: 'rgba(163,230,53,0.2)',
+        borderWidth: 1,
+        padding: 10,
+        displayColors: false,
+        callbacks: {
+          title: (items: any) => `Hora: ${items[0].label}`,
+          label: (item: any) => `Actividad: ${item.raw}%`
+        }
+      }
+    },
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
     }
-    return { 
-      linePath: path, 
-      fillPath: path + ` L ${pts[pts.length-1].x} ${PAD.top + cH} L ${pts[0].x} ${PAD.top + cH} Z` 
-    }
-  }, [pts])
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -59,88 +158,8 @@ export function PeakHoursChart() {
         </div>
       </div>
 
-      <div style={{ width: '100%' }}>
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 'auto', aspectRatio: '700/160', overflow: 'hidden', display: 'block' }}>
-        <defs>
-          <linearGradient id="pkgrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#a3e635" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="#a3e635" stopOpacity="0.02" />
-          </linearGradient>
-          <linearGradient id="pkline" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#22d3ee" />
-            <stop offset="50%" stopColor="#a3e635" />
-            <stop offset="100%" stopColor="#22d3ee" />
-          </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        {Y_TICKS.map(v => {
-          const y = PAD.top + cH - (v / MAX) * cH
-          return (
-            <g key={v}>
-              <line x1={PAD.left} y1={y} x2={PAD.left + cW} y2={y} stroke="rgba(240,253,244,0.05)" strokeWidth={1} />
-              {v > 0 && (
-                <text x={PAD.left - 5} y={y + 3.5} textAnchor="end" fill="rgba(240,253,244,0.28)" fontSize={8} fontFamily="var(--font-mono)">{v}</text>
-              )}
-            </g>
-          )
-        })}
-
-        {PEAK_RANGES.map(r => {
-          const x1 = PAD.left + r.start * barW
-          const x2 = PAD.left + (r.end + 1) * barW
-          const midX = (x1 + x2) / 2
-          const peakVal = Math.max(...(data.slice(r.start, r.end + 1) || [0]))
-          const labelY = PAD.top + cH - (peakVal / MAX) * cH - 8
-          return (
-            <g key={r.label}>
-              <rect x={x1} y={PAD.top} width={x2 - x1} height={cH}
-                fill="rgba(163,230,53,0.07)" rx={4} />
-              <rect x={x1} y={PAD.top} width={x2 - x1} height={1}
-                fill="rgba(163,230,53,0.35)" />
-              <text x={midX} y={labelY} textAnchor="middle"
-                fill="#a3e635" fontSize={8} fontWeight="700" fontFamily="var(--font-mono)"
-                style={{ filter: 'drop-shadow(0 0 4px rgba(163,230,53,0.6))' }}>
-                {r.label}
-              </text>
-            </g>
-          )
-        })}
-
-        <path d={fillPath} fill="url(#pkgrad)" />
-        <path d={linePath} fill="none" stroke="url(#pkline)" strokeWidth={2} filter="url(#glow)" strokeLinecap="round" />
-
-        {PEAK_RANGES.flatMap(r =>
-          data.slice(r.start, r.end + 1).map((v: number, i: number) => {
-            const idx = r.start + i
-            return (
-              <circle key={`${r.start}-${i}`}
-                cx={pts[idx].x} cy={pts[idx].y} r={3}
-                fill="#a3e635" stroke="rgba(11,16,26,0.8)" strokeWidth={1.5}
-                style={{ filter: 'drop-shadow(0 0 5px rgba(163,230,53,0.8))' }}
-              />
-            )
-          })
-        )}
-
-        {/* X axis hour labels — every 3h + 23h */}
-        {[0, 3, 6, 9, 12, 15, 18, 21, 23].map(h => (
-          <text key={h}
-            x={PAD.left + h * barW + barW / 2}
-            y={PAD.top + cH + 14}
-            textAnchor="middle"
-            fill="rgba(240,253,244,0.3)"
-            fontSize={8.5}
-            fontFamily="var(--font-mono)"
-          >{h}h</text>
-        ))}
-
-        {/* Axis line */}
-        <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + cH} stroke="rgba(240,253,244,0.07)" strokeWidth={1} />
-      </svg>
+      <div style={{ width: '100%', height: 180, position: 'relative' }}>
+        <Line data={chartData} options={options} />
       </div>
     </div>
   )

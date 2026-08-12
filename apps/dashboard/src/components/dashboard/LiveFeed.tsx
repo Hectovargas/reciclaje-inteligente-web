@@ -15,6 +15,7 @@ export function LiveFeed() {
   }, [metrics])
 
   useEffect(() => {
+    if (!POOL || POOL.length === 0) return
     const id = setInterval(() => {
       const evt = POOL[Math.floor(Math.random() * POOL.length)]
       const item = { ...evt, id: nextId.current++, time: 'ahora' }

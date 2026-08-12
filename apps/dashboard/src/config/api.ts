@@ -77,13 +77,8 @@ export function useApi<T>(endpoint: string) {
   return { data, loading, error };
 }
 
-// Fallback mock definitions for data structures not strictly provided by the backend to keep components working
-export const POOL = [
-  { type: 'Metal',    station: 'ES-012', material: 'metal' },
-  { type: 'Plástico', station: 'ES-076', material: 'plastic' },
-  { type: 'Papel',    station: 'ES-044', material: 'paper' },
-  { type: 'Metal',    station: 'ES-088', material: 'metal' },
-]
+// Fallback definitions for empty database state
+export const POOL: Array<{ type: string; station: string; material: string }> = []
 
 export const MAT: Record<string, string> = {
   paper: '#a3e635', plastic: '#22d3ee', metal: '#a78bfa',
@@ -101,14 +96,14 @@ export const STATUS_CONFIG = {
   warning: { label: 'Alerta', color: '#fbbf24', ring: 'status-ring-warning' },
 }
 
-export const ZONAS = ['UNITEC', 'Altara', 'Altia', 'City Mall', 'Mall Galerias', 'Mega Mall']
+export const ZONAS: string[] = []
 export const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 export const MAX_VAL = 560
 export const Y_TICKS = [0, 140, 280, 420, 560]
 export const DATA = {
-  paper:   [310, 280, 340, 390, 420, 460, 510, 490, 430, 370, 300, 260],
-  plastic: [190, 210, 230, 270, 310, 350, 380, 360, 290, 240, 200, 180],
-  metal:   [140, 130, 155, 170, 185, 195, 210, 200, 180, 160, 135, 120],
+  paper:   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  plastic: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  metal:   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 }
 export const SERIES = [
   { key: 'paper'   as const, color: '#a3e635', label: 'Papel' },
@@ -128,7 +123,7 @@ export type Station = {
 }
 
 export function getStationFromZoneItem(s: { id: string; name: string; fill?: number; status: string; last?: string }, zoneName: string): Station {
-  const cap = s.fill ?? 60
+  const cap = s.fill ?? 0
   const validStatus = (s.status === 'active' || s.status === 'offline' || s.status === 'warning') ? s.status : 'active'
   return {
     id: s.id,
@@ -137,7 +132,7 @@ export function getStationFromZoneItem(s: { id: string; name: string; fill?: num
     zone: zoneName,
     status: validStatus as any,
     capacity: cap,
-    today: Math.round(cap * 4.2),
+    today: 0,
     token: `tk_${s.id.toLowerCase().replace(/[^a-z0-9]/g, '')}_auth`,
   }
 }

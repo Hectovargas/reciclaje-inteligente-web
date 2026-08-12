@@ -18,36 +18,55 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
+    image: node:20-alpine
     container_name: recicla_backend
+    working_dir: /app
+    command: sh -c "apk add --no-cache openssl && npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter backend prisma:generate && pnpm --filter backend prisma:deploy && (cd apps/backend && npx prisma db seed) && pnpm --filter backend start:dev"
     ports:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://root:rootpassword@db:5432/recicla_db?schema=public
       - JWT_SECRET=super-secret-jwt-key-change-in-prod
       - PORT=3000
-      - NODE_ENV=production
+      - NODE_ENV=development
+      - SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+      - CONTRACT_ADDRESS=0x0000000000000000000000000000000000000000
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+      - ./package.json:/app/package.json
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml:ro
+      - backend_node_modules:/app/node_modules
+      - backend_app_node_modules:/app/apps/backend/node_modules
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
-    # Runs prisma migrations then seeds initial data (admin user, zones, stations), then starts the app.
-    # The seed uses upsert so it's idempotent — safe to run on every startup.
-    command: sh -c "npx prisma migrate deploy && node dist/prisma/seed.js && node dist/main"
 
   dashboard:
-    build:
-      context: .
-      dockerfile: apps/dashboard/Dockerfile
+    image: node:20-alpine
     container_name: recicla_dashboard
+    working_dir: /app
+    command: sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter dashboard dev --host"
     ports:
-      - "8080:80"
+      - "3001:3001"
+    environment:
+      - VITE_API_URL=http://backend:3000
+      - NODE_ENV=development
+    volumes:
+      - ./apps/dashboard:/app/apps/dashboard
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+      - ./package.json:/app/package.json
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml:ro
+      - dashboard_node_modules:/app/node_modules
+      - dashboard_app_node_modules:/app/apps/dashboard/node_modules
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
   pgdata:
-
+  backend_node_modules:
+  backend_app_node_modules:
+  dashboard_node_modules:
+  dashboard_app_node_modules:
