@@ -8,13 +8,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(VIEWER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  password            String
+  name                String
+  role                Role     @default(USER)
+  walletAddress       String?  @unique
+  encryptedPrivateKey String?
+  iv                  String?
+  authTag             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@map("users")
 }
@@ -23,11 +27,14 @@ enum Role {
   ADMIN
   MANAGER
   VIEWER
+  USER
+  OPERATOR
 }
 
 model Zone {
   id          String    @id @default(uuid())
   name        String    @unique
+  isActive    Boolean   @default(true)
   stations    Station[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -36,17 +43,22 @@ model Zone {
 }
 
 model Station {
-  id          String                @id @default(uuid())
-  name        String
-  location    String
-  status      StationStatus         @default(ACTIVE)
-  capacity    Int                   @default(100)
-  token       String?               @unique
-  zoneId      String
-  zone        Zone                  @relation(fields: [zoneId], references: [id])
-  events      EventoClasificacion[]
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
+  id                 String                @id @default(uuid())
+  name               String
+  location           String
+  status             StationStatus         @default(ACTIVE)
+  capacity           Int                   @default(100)
+  token              String?               @unique
+  macAddress         String?               @unique
+  provisioningToken  String?
+  deviceSecret       String?
+  lastPingAt         DateTime?
+  zoneId             String
+  zone               Zone                  @relation(fields: [zoneId], references: [id])
+  events             EventoClasificacion[]
+  telemetrias        Telemetria[]
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   @@map("stations")
   @@index([zoneId])
@@ -56,6 +68,7 @@ enum StationStatus {
   ACTIVE
   WARNING
   OFFLINE
+  PENDING_ACTIVATION
 }
 
 model EventoClasificacion {
@@ -82,4 +95,44 @@ model QRToken {
 
   @@map("qr_tokens")
   @@index([codigo])
+}
+
+model Telemetria {
+  id            String   @id @default(uuid())
+  stationId     String
+  station       Station  @relation(fields: [stationId], references: [id])
+  nivelPapel    Float
+  nivelPlastico Float
+  nivelMetal    Float
+  bateria       Float
+  temperatura   Float?
+  timestamp     DateTime @default(now())
+
+  @@map("telemetrias")
+  @@index([stationId])
+  @@index([timestamp])
+}
+
+model BlockchainEvent {
+  id          String                @id @default(uuid())
+  txHash      String?               @unique
+  fromAddress String
+  toAddress   String
+  amount      Float
+  status      BlockchainEventStatus @default(PENDING)
+  batchId     String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  @@map("blockchain_events")
+  @@index([fromAddress])
+  @@index([toAddress])
+  @@index([batchId])
+}
+
+enum BlockchainEventStatus {
+  PENDING
+  BATCHED
+  CONFIRMED
+  FAILED
 }

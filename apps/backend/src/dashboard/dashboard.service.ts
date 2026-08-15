@@ -31,6 +31,7 @@ export class DashboardService {
     const totalStationsCount = await this.prisma.station.count();
 
     const zones = await this.prisma.zone.findMany({
+      where: { isActive: true },
       include: { stations: true }
     });
     
@@ -139,8 +140,44 @@ export class DashboardService {
       status: s.status.toLowerCase() as 'active' | 'warning' | 'offline',
       capacity: s.capacity,
       zone: s.zone?.name || 'Sin Asignar',
+      zoneId: s.zoneId,
       today: s.events?.length || 0,
       token: s.token,
     }));
+  }
+
+  async createStation(data: any) {
+    const token = 'tk_' + Math.random().toString(36).slice(2, 14);
+    const station = await this.prisma.station.create({
+      data: {
+        name: data.name,
+        location: data.location,
+        zoneId: data.zoneId,
+        status: 'OFFLINE',
+        token,
+      },
+      include: { zone: true, events: true }
+    });
+    
+    return {
+      id: station.id,
+      name: station.name,
+      location: station.location,
+      status: station.status.toLowerCase() as 'active' | 'warning' | 'offline',
+      capacity: station.capacity,
+      zone: station.zone?.name || 'Sin Asignar',
+      zoneId: station.zoneId,
+      today: station.events?.length || 0,
+      token: station.token,
+    };
+  }
+
+  async updateStation(id: string, data: any) {
+    return this.prisma.station.update({
+      where: { id },
+      data: {
+        ...data,
+      },
+    });
   }
 }

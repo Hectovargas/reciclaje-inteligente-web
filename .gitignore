@@ -24,3 +24,29 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 *.swp
+
+# Build artifacts & TypeScript caches
+*.tsbuildinfo
+*.js.map
+coverage/
+coverage.json
+
+# Generated TypeScript outputs in src/test/prisma
+apps/backend/prisma/*.js
+apps/backend/prisma/*.d.ts
+apps/backend/prisma/*.db
+apps/backend/test/*.js
+apps/backend/test/*.d.ts
+
+# Next-PWA generated files
+apps/pwa/public/sw.js*
+apps/pwa/public/workbox-*.js*
+apps/pwa/public/fallback-*.js*
+apps/pwa/public/fall
+
+# Agent execution logs (keep skills and original request)
+.agents/*
+!.agents/skills/
+!.agents/ORIGINAL_REQUEST.md
+
+

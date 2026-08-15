@@ -6,9 +6,12 @@ import { PeakHoursChart } from './dashboard/PeakHoursChart'
 import { useApi, Station } from '../config/api'
 
 export default function Dashboard() {
-  const { data: stations } = useApi<Station[]>('/dashboard/stations')
+  const { data: stations } = useApi<Station[]>('/estaciones', { pollIntervalMs: 10000 })
   
-  const activeCount = (stations || []).filter(s => s.status === 'active' || s.status === 'warning').length
+  const activeCount = (stations || []).filter(s => {
+    const st = (s.status || '').toUpperCase()
+    return st === 'ACTIVE' || st === 'WARNING' || s.status === 'active' || s.status === 'warning'
+  }).length
   const totalCount = (stations || []).length
 
   return (

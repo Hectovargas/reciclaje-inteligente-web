@@ -1,0 +1,42 @@
+export const RECOMPENSAS_RECICLAJE_ABI = [
+  // Read functions
+  'function name() external view returns (string)',
+  'function symbol() external view returns (string)',
+  'function decimals() external view returns (uint8)',
+  'function totalSupply() external view returns (uint256)',
+  'function balanceOf(address account) external view returns (uint256)',
+  'function allowance(address owner, address spender) external view returns (uint256)',
+  'function paused() external view returns (bool)',
+  'function currentBatchId() external view returns (uint256)',
+  'function DEFAULT_ADMIN_ROLE() external view returns (bytes32)',
+  'function MINTER_ROLE() external view returns (bytes32)',
+  'function PAUSER_ROLE() external view returns (bytes32)',
+  'function hasRole(bytes32 role, address account) external view returns (bool)',
+  'function getRoleAdmin(bytes32 role) external view returns (bytes32)',
+  'function supportsInterface(bytes4 interfaceId) external view returns (bool)',
+
+  // Write functions
+  'function mint(address to, uint256 amount) external',
+  'function mintBatch(address[] calldata recipients, uint256[] calldata amounts) external returns (uint256 batchId)',
+  'function burn(uint256 value) external',
+  'function burnFrom(address account, uint256 value) external',
+  'function pause() external',
+  'function unpause() external',
+  'function transfer(address to, uint256 value) external returns (bool)',
+  'function transferFrom(address from, address to, uint256 value) external returns (bool)',
+  'function approve(address spender, uint256 value) external returns (bool)',
+  'function grantRole(bytes32 role, address account) external',
+  'function revokeRole(bytes32 role, address account) external',
+  'function renounceRole(bytes32 role, address callerConfirmation) external',
+
+  // Events
+  'event TokensMinted(address indexed recipient, uint256 amount, uint256 indexed batchId)',
+  'event BatchMintExecuted(uint256 indexed batchId, uint256 totalRecipients, uint256 totalAmount)',
+  'event Transfer(address indexed from, address indexed to, uint256 value)',
+  'event Approval(address indexed owner, address indexed spender, uint256 value)',
+  'event Paused(address account)',
+  'event Unpaused(address account)',
+  'event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)',
+  'event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)',
+  'event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)',
+];

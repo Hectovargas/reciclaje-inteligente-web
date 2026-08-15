@@ -5,18 +5,30 @@ import Stations from './components/Stations'
 import Login from './components/Login'
 import ZoneDetailPage from './components/dashboard/ZoneDetailPage'
 import { AIDetailsPage } from './components/dashboard/AIDetailsPage'
+import ZonesAdmin from './components/zones/ZonesAdmin'
 import { APP_CONFIG } from './config/app'
 import { User } from './types/user'
+import { AuthProvider, useAuth } from './config/AuthContext'
 import './index.css'
 
-const TABS = [
-  { id: 'dashboard', label: 'Dashboard', path: '/' },
-  { id: 'stations', label: 'Estaciones', path: '/estaciones' },
-]
+const getTabs = (role: string) => {
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', path: '/' },
+    { id: 'stations', label: 'Estaciones', path: '/estaciones' },
+  ]
+  if (role === 'ADMIN') {
+    tabs.push({ id: 'zones-admin', label: 'Zonas', path: '/zonas-admin' })
+  }
+  return tabs
+}
 
-function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) => void }) {
+function MainLayout() {
   const location = useLocation()
-  const activeTab = location.pathname.startsWith('/estaciones') ? 'stations' : 'dashboard'
+  const { user, logout } = useAuth()
+  if (!user) return null;
+  let activeTab = 'dashboard'
+  if (location.pathname.startsWith('/estaciones')) activeTab = 'stations'
+  if (location.pathname.startsWith('/zonas-admin')) activeTab = 'zones-admin'
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
@@ -81,7 +93,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {TABS.map(tab => (
+          {getTabs(user.role).map(tab => (
             <Link
               key={tab.id}
               to={tab.path}
@@ -130,10 +142,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
             </button>
             <button
               onClick={async () => {
-                try {
-                  await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
-                } catch(e) {}
-                setUser(null);
+                await logout();
                 setMobileDrawerOpen(false);
               }}
               style={{
@@ -187,7 +196,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
 
           {/* Nav */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {TABS.map(tab => (
+            {getTabs(user.role).map(tab => (
               <Link
                 key={tab.id}
                 to={tab.path}
@@ -250,10 +259,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
                 </button>
                 <button
                   onClick={async () => {
-                    try {
-                      await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'include' });
-                    } catch(e) {}
-                    setUser(null);
+                    await logout();
                     setShowUserMenu(false);
                   }}
                   style={{
@@ -308,6 +314,7 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
             <Route path="/estaciones" element={<Stations />} />
             <Route path="/zonas/:id" element={<ZoneDetailPage />} />
             <Route path="/diagnostico-ia" element={<AIDetailsPage />} />
+            <Route path="/zonas-admin" element={<ZonesAdmin />} />
           </Routes>
         </main>
       </div>
@@ -391,14 +398,42 @@ function MainLayout({ user, setUser }: { user: User, setUser: (u: User | null) =
   )
 }
 
-export default function App() {
-  const [user, setUser] = useState<User | null>(null)
+function AppContent() {
+  const { user, status, setUser } = useAuth()
 
-  if (!user) return <Login onAuth={setUser} />
+  if (status === 'loading') {
+    return (
+      <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#0b101a' }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%',
+          border: '3px solid rgba(163,230,53,0.2)',
+          borderTopColor: '#a3e635',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated' || !user) {
+    return <Login onAuth={setUser} />
+  }
 
   return (
     <Router>
-      <MainLayout user={user} setUser={setUser} />
+      <MainLayout />
     </Router>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }

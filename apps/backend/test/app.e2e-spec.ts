@@ -38,4 +38,36 @@ describe('AppController (e2e)', () => {
       .get('/v1/dashboard/metrics')
       .expect(401);
   });
+
+  it('/v1/estaciones (GET) should fail without auth', () => {
+    return request(app.getHttpServer())
+      .get('/v1/estaciones')
+      .expect(401);
+  });
+
+  it('/v1/auth/me (GET) should fail without auth', () => {
+    return request(app.getHttpServer())
+      .get('/v1/auth/me')
+      .expect(401);
+  });
+
+  it('/v1/auth/register (POST) should fail with validation error on empty body', () => {
+    return request(app.getHttpServer())
+      .get('/v1/auth/register')
+      .expect(404);
+  });
+
+  it('/v1/auth/register (POST) validation bad request', () => {
+    return request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({})
+      .expect(400);
+  });
+
+  it('/v1/auth/login (POST) validation bad request', () => {
+    return request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({})
+      .expect(400);
+  });
 });

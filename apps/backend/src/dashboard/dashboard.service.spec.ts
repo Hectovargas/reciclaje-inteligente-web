@@ -17,7 +17,10 @@ describe('DashboardService', () => {
               count: jest.fn().mockResolvedValue(10),
               findMany: jest.fn().mockResolvedValue([])
             },
-            station: { findMany: jest.fn().mockResolvedValue([]) },
+            station: { 
+              count: jest.fn().mockResolvedValue(0),
+              findMany: jest.fn().mockResolvedValue([]) 
+            },
             zone: { findMany: jest.fn().mockResolvedValue([]) },
           },
         },

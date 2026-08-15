@@ -1,73 +1,52 @@
 'use client';
 
 import React, { useState } from 'react';
-import { QrCode, Wallet, Award, Recycle, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Header } from '../components/Header';
+import { BalanceCard } from '../components/BalanceCard';
+import { QrScanner } from '../components/QrScanner';
+import { ClaimModal } from '../components/ClaimModal';
+import { TransactionHistory } from '../components/TransactionHistory';
 
 export default function Home() {
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [scannedToken, setScannedToken] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [scannedCode, setScannedCode] = useState<string | null>(null);
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleConnectWallet = () => {
-    setWalletConnected(true);
+  const handleScan = (decodedText: string) => {
+    setScannedCode(decodedText);
+    setClaimModalOpen(true);
   };
 
-  const handleSimulateScan = () => {
-    setScannedToken('QR-PLASTICO-982347');
+  const handleClaimSuccess = () => {
+    // Increment trigger to refresh balance and transaction history
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
     <div className="pwa-container">
-      <header className="header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontWeight: 700 }}>
-          <Recycle size={24} />
-          <span>ReciclajePWA</span>
-        </div>
-        <button
-          onClick={handleConnectWallet}
-          style={{
-            background: walletConnected ? 'rgba(16, 185, 129, 0.2)' : '#1e293b',
-            color: walletConnected ? '#10b981' : '#f8fafc',
-            border: '1px solid ' + (walletConnected ? '#10b981' : 'rgba(255,255,255,0.1)'),
-            padding: '0.5rem 0.875rem',
-            borderRadius: '10px',
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            display: 'flex',
-            align-items: 'center',
-            gap: '0.4rem',
-          }}
-        >
-          <Wallet size={16} />
-          {walletConnected ? '0x71C...4f9' : 'Conectar Web3'}
-        </button>
-      </header>
+      <Header />
 
       <main className="main-content">
-        <div className="wallet-card">
-          <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>Balance PuntosReciclaje</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
-            <Award size={28} color="#10b981" />
-            <h2 style={{ fontSize: '2rem', fontWeight: 700 }}>150.0 <span style={{ fontSize: '1rem', color: '#10b981' }}>RECI</span></h2>
-          </div>
-        </div>
+        {/* Live Custodial RECI Token Balance */}
+        <BalanceCard user={user} refreshTrigger={refreshTrigger} />
 
-        <div className="scan-card">
-          <QrCode size={64} color="#10b981" />
-          <h3>Escanea tu Código QR</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-            Apunta con la cámara al código QR impreso en el contenedor inteligente
-          </p>
-          <button className="btn-primary" onClick={handleSimulateScan}>
-            <QrCode size={18} /> Escanear QR
-          </button>
+        {/* Real Camera QR Scanner Component */}
+        <QrScanner onScan={handleScan} />
 
-          {scannedToken && (
-            <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(16,185,129,0.1)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981' }}>
-              <CheckCircle2 size={18} /> Token Escaneado: {scannedToken}
-            </div>
-          )}
-        </div>
+        {/* Transaction History */}
+        <TransactionHistory user={user} refreshTrigger={refreshTrigger} />
       </main>
+
+      {/* Claim & Verification Modal */}
+      <ClaimModal
+        isOpen={claimModalOpen}
+        onClose={() => setClaimModalOpen(false)}
+        scannedCode={scannedCode}
+        user={user}
+        onClaimSuccess={handleClaimSuccess}
+      />
     </div>
   );
 }

@@ -153,8 +153,8 @@ export function AIDetailsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [minConfidence, setMinConfidence] = useState<number>(0)
 
-  const { data: metrics, loading } = useApi<any>('/dashboard/metrics')
-  const { data: eventsRes, loading: eventsLoading } = useApi<any>('/clasificacion')
+  const { data: metrics, loading } = useApi<any>('/dashboard/metrics', { pollIntervalMs: 10000 })
+  const { data: eventsRes, loading: eventsLoading } = useApi<any>('/clasificacion?page=1&limit=50', { pollIntervalMs: 8000 })
 
   const eventsList = useMemo(() => {
     const rawList: any[] = eventsRes?.data || []

@@ -18,6 +18,12 @@ export class RegistrarEventoDto {
   @IsNotEmpty()
   stationId!: string;
 
+  @ApiPropertyOptional({ example: 0.25, description: 'Peso del material en kilogramos' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  peso?: number;
+
   @ApiPropertyOptional({ example: '2026-08-10T12:00:00Z' })
   @IsOptional()
   @IsString()

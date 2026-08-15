@@ -13,9 +13,20 @@ async function bootstrap() {
   // Logging
   app.useLogger(app.get(Logger));
 
+  // Allowed CORS origins
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:8080',
+  ];
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+
   // Security
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: allowedOrigins,
     credentials: true,
   });
   app.use(helmet());
@@ -33,12 +44,13 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
-  // Swagger OpenAPI
+  // Swagger OpenAPI Documentation
   const config = new DocumentBuilder()
-    .setTitle('Dashboard API')
-    .setDescription('The Reciclaje Inteligente Dashboard API')
+    .setTitle('CleanCity Reciclaje Inteligente API')
+    .setDescription('API REST de la plataforma de reciclaje inteligente CleanCity')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('access_token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

@@ -202,6 +202,9 @@ html, body, #root {
 .status-ring-warning {
   box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.3), 0 0 16px rgba(251, 191, 36, 0.15);
 }
+.status-ring-pending {
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3), 0 0 16px rgba(56, 189, 248, 0.15);
+}
 
 /* Input underline style */
 .input-underline {

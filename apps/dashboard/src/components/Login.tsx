@@ -378,7 +378,7 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
           100% { transform: scale(8); opacity: 0; }
         }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(18px); }
+          from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes logoFloat {
@@ -392,6 +392,25 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
           0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
           100% { box-shadow: 0 0 0 20px rgba(52,211,153,0); }
         }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes card-expand {
+            from { opacity: 1; }
+            to { opacity: 0; }
+          }
+          @keyframes logoFloat {
+            0%,100% { transform: none; }
+          }
+          @keyframes scanH {
+            0%,100% { opacity: 0; transform: none; }
+          }
+          @keyframes btn-shimmer {
+            0%,100% { left: -100%; display: none; }
+          }
+        }
       `}</style>
 
       {/* Card */}
@@ -399,8 +418,8 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
         position: 'relative', zIndex: 10,
         width: 420, maxWidth: 'calc(100vw - 48px)',
         animation: cardExpanding
-          ? 'card-expand 0.65s cubic-bezier(0.4,0,1,1) forwards'
-          : 'fadeInUp 0.6s cubic-bezier(0.4,0,0.2,1) forwards',
+          ? 'card-expand 400ms cubic-bezier(0.4,0,1,1) forwards'
+          : 'fadeInUp 400ms ease-out forwards',
       }}>
         {/* Glow ring behind card */}
         <div style={{
@@ -469,7 +488,7 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
 
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ animation: 'fadeInUp 0.5s 0.1s both' }}>
+            <div style={{ animation: 'fadeInUp 400ms 100ms both' }}>
               <FloatingInput
                 id="email"
                 label="Correo electrónico"
@@ -479,7 +498,7 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
                 autoComplete="email"
               />
             </div>
-            <div style={{ animation: 'fadeInUp 0.5s 0.2s both' }}>
+            <div style={{ animation: 'fadeInUp 400ms 200ms both' }}>
               <FloatingInput
                 id="password"
                 label="Contraseña"
@@ -493,7 +512,7 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
             {/* Remember */}
             <div style={{
               display: 'flex', alignItems: 'center',
-              animation: 'fadeInUp 0.5s 0.3s both',
+              animation: 'fadeInUp 400ms 300ms both',
             }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
                 <div style={{
@@ -522,7 +541,7 @@ export default function Login({ onAuth }: { onAuth: (user: User) => void }) {
             )}
 
             {/* Submit button */}
-            <div style={{ animation: 'fadeInUp 0.5s 0.35s both', marginTop: 6 }}>
+            <div style={{ animation: 'fadeInUp 400ms 350ms both', marginTop: 6 }}>
               <button
                 type="submit"
                 disabled={!canSubmit}

@@ -1,6 +1,19 @@
-# Reciclaje Inteligente Web
+# CleanCity — Plataforma de Reciclaje Inteligente Web
 
-Monorepo para el ecosistema **Reciclaje Inteligente Web**, estructurado para gestionar el panel de monitoreo de administración, la aplicación PWA para usuarios finales, el backend con NestJS y Prisma, y los contratos inteligentes en la testnet Sepolia de Ethereum.
+Ecosistema integral de **Reciclaje Inteligente** (*CleanCity*), estructurado como un monorepo modular (`pnpm workspaces`) que combina hardware IoT (ESP32), visión artificial para clasificación de residuos, API Backend en NestJS con colas BullMQ, contratos inteligentes ERC-20 en Ethereum Sepolia, Centro de Control de Administración en React/Vite y Progressive Web App (PWA) móvil para ciudadanos en Next.js.
+
+---
+
+## 📑 Documentación Técnica y Reportes
+
+Para información arquitectónica y de ingeniería detallada, consulte los documentos en [`docs/`](./docs/README.md):
+
+- 📘 **[INFORME_TECNICO.md](./docs/INFORME_TECNICO.md):** Informe Técnico Final completo (Resumen Ejecutivo R1–R7, Planteamiento y Justificación, 5 Cuadros Comparativos, 5 Diagramas Mermaid, Catálogo OpenAPI/Swagger, Especificación Solidity, Auditoría de Seguridad y Guía de Demostración).
+- 🌐 **[GENERAL_CONTEXT.md](./docs/GENERAL_CONTEXT.md):** Visión panorámica del monorepo, topología de servicios y puertos.
+- ⚙️ **[BACKEND_CONTEXT.md](./docs/BACKEND_CONTEXT.md):** Contexto técnico de la API NestJS, Prisma y BullMQ.
+- 📱 **[FRONTEND_CONTEXT.md](./docs/FRONTEND_CONTEXT.md):** Contexto del Dashboard React y la PWA Next.js.
+- 🧪 **[TEST_INFRA.md](./docs/TEST_INFRA.md):** Metodología de la infraestructura de pruebas (*Opaque-Box E2E* y suites unitarias/integración).
+- 🛡️ **[SECURITY_AUDIT.md](./docs/SECURITY_AUDIT.md):** Reporte formal de auditoría de seguridad, mitigación de amenazas y custodia de claves.
 
 ---
 
@@ -9,142 +22,153 @@ Monorepo para el ecosistema **Reciclaje Inteligente Web**, estructurado para ges
 ```text
 reciclaje-inteligente-web/
 ├── apps/
-│   ├── dashboard/          → React + Vite + TypeScript + Chart.js (Panel de Métricas)
-│   ├── pwa/                → Next.js (PWA) + Web3 SDK / Privy / Thirdweb + TypeScript
-│   └── backend/            → NestJS + Prisma + PostgreSQL + Ethers.js
-│       └── src/
-│           ├── clasificacion/   (HTTP POST para eventos del módulo de visión)
-│           ├── dashboard/       (Endpoints de métricas agregadas)
-│           ├── qr/              (Generación de QR con firma criptográfica)
-│           ├── blockchain/      (Interacción con Smart Contract vía ethers.js)
-│           └── prisma/          (Conexión e integración con PostgreSQL)
+│   ├── backend/            → API NestJS 10 + Prisma ORM + PostgreSQL + Redis/BullMQ + Ethers.js v6
+│   │   └── src/
+│   │       ├── auth/            (Autenticación JWT en cookies httpOnly + Custodia de Wallets)
+│   │       ├── estaciones/      (CRUD de estaciones, asignación de zonas y rotación de tokens)
+│   │       ├── zones/           (Gestión de zonas urbanas fijas)
+│   │       ├── iot/             (Activación Zero-Touch ESP32 y telemetría ultrasónica)
+│   │       ├── qr/              (Generación Keccak256/ECDSA y canje atómico transaccional)
+│   │       ├── clasificacion/   (Ingesta de eventos de visión artificial por IA)
+│   │       ├── blockchain/      (Ethers.js v6, cifrado AES-256-GCM y worker BullMQ mintBatch)
+│   │       └── prisma/          (Esquema relacional y migraciones PostgreSQL)
+│   ├── dashboard/          → React 18 + Vite 5 + TypeScript + TailwindCSS + Chart.js (EcoGridAI)
+│   └── pwa/                → Next.js 14 (App Router) + html5-qrcode + Web3 Balance + Service Worker
 │
 ├── packages/
-│   └── contracts/          → Solidity + Hardhat + OpenZeppelin
-│       ├── contracts/RecompensasReciclaje.sol   (ERC-20 "PuntosReciclaje", Sepolia)
-│       ├── scripts/        (Script de despliegue a Sepolia)
-│       └── test/           (Pruebas unitarias del Smart Contract)
+│   └── contracts/          → Solidity 0.8.20 + Hardhat 2.19 + OpenZeppelin Contracts v5
+│       ├── contracts/RecompensasReciclaje.sol   (ERC-20 "RECI", mintBatch, Pausable, AccessControl)
+│       ├── scripts/deploy.ts                    (Script de despliegue a Sepolia y exportación de ABI)
+│       └── test/                                (Suite de 29 pruebas unitarias con 100% de cobertura)
 │
-├── pnpm-workspace.yaml
+├── docs/                   → Centro de documentación técnica, reportes y especificaciones
+├── tests/
+│   └── e2e/                → Suite de pruebas E2E Opaque-Box en 4 Tiers (91 casos de prueba)
+│
+├── docker-compose.yml       → Orquestación de PostgreSQL (5433), Redis (6379), Vault (8200) y Backend
+├── pnpm-workspace.yaml      → Configuración de paquetes del monorepo
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## 🛠️ Requisitos Previos
+## 🚀 Inicio Rápido con Docker Compose
 
-- **Node.js**: `v18.x` o superior (se recomienda v20+)
-- **Gestor de paquetes**: `pnpm`
-  * Si no lo tienes instalado, puedes activarlo con Node.js usando **Corepack** (no requiere `sudo`):
-    ```bash
-    corepack enable
-    ```
-  * O instalándolo globalmente con permisos de administrador:
-    ```bash
-    sudo npm install -g pnpm
-    ```
-- **Base de Datos**: PostgreSQL para el backend NestJS/Prisma
-
----
-
-## 🚀 Instalación y Configuración Inicial
-
-1. **Clonar el repositorio e instalar dependencias:**
-   ```bash
-   pnpm install
-   ```
-
-2. **Configurar variables de entorno:**
-   - En `apps/backend/`: Copia `.env.example` a `.env` y ajusta `DATABASE_URL` y las llaves de Sepolia/Admin.
-   - En `packages/contracts/`: Copia `.env.example` a `.env` y define `SEPOLIA_RPC_URL` y `PRIVATE_KEY`.
-
-3. **Generar esquema de Prisma (Backend):**
-   ```bash
-   pnpm --filter backend exec prisma generate
-   ```
-
----
-
-## 💻 Comandos para Ejecutar el Proyecto
-
-### 1. Instalación de Dependencias e Inicialización
+La forma más rápida de levantar toda la infraestructura del sistema (Base de datos PostgreSQL, Broker Redis, HashiCorp Vault, Backend NestJS y Dashboard):
 
 ```bash
-# 1. Instalar todas las dependencias del monorepo
+# 1. Clonar el repositorio e instalar dependencias
+git clone https://github.com/Hectovargas/reciclaje-inteligente-web.git
+cd reciclaje-inteligente-web
 pnpm install
 
-# 2. Generar el cliente de Prisma para el backend
-pnpm --filter backend exec prisma generate
+# 2. Iniciar todos los servicios con Docker Compose
+docker compose up -d
 
-# 3. (Opcional) Ejecutar migraciones de base de datos en desarrollo
-pnpm --filter backend exec prisma migrate dev
+# 3. Verificar el estado de los contenedores
+docker compose ps
 ```
+
+### Puertos y Servicios Disponibles:
+- 🌐 **PWA Móvil Ciudadana:** `http://localhost:3002`
+- 📊 **Centro de Control (Dashboard):** `http://localhost:3001` (o `http://localhost:8080`)
+- ⚙️ **API REST NestJS:** `http://localhost:3000`
+- 📖 **Swagger OpenAPI UI:** `http://localhost:3000/api/docs`
+- 🐘 **PostgreSQL DB:** `localhost:5433` (`recicla_db`)
+- ⚡ **Redis Broker:** `localhost:6379`
+- 🔒 **HashiCorp Vault:** `http://localhost:8200`
 
 ---
 
-### 2. Ejecución en Modo Desarrollo (`dev`)
+## 💻 Ejecución en Modo Desarrollo Local (Sin Docker)
 
-Puedes iniciar cada aplicación de forma individual desde la raíz del proyecto:
+Si prefieres ejecutar los servicios directamente en tu entorno local:
 
-#### 📊 Dashboard (Panel de Administración)
-Ejecuta el servidor de desarrollo con Vite en `http://localhost:3001`:
+### 1. Inicialización de Base de Datos y Dependencias
 ```bash
-pnpm dev:dashboard
+# Instalar dependencias globales del monorepo
+pnpm install
+
+# Generar el cliente de Prisma ORM
+pnpm --filter backend prisma:generate
+
+# Compilar los contratos inteligentes de Hardhat
+pnpm build:contracts
 ```
 
-#### 📱 PWA (Aplicación de Usuarios)
-Ejecuta el servidor de desarrollo con Next.js en `http://localhost:3002`:
+### 2. Iniciar Servicios en Paralelo
+Ejecuta cada comando en una terminal independiente:
+
 ```bash
+# Terminal 1: Backend NestJS (Puerto 3000)
+pnpm dev:backend
+
+# Terminal 2: Admin Dashboard React/Vite (Puerto 3001)
+pnpm dev:dashboard
+
+# Terminal 3: User PWA Next.js 14 (Puerto 3002)
 pnpm dev:pwa
 ```
 
-#### ⚙️ Backend (API NestJS)
-Ejecuta el servidor backend NestJS en modo watch en `http://localhost:3000`:
-```bash
-pnpm dev:backend
-```
-
 ---
 
-### 3. Construcción para Producción (`build`)
+## 🧪 Ejecución de Pruebas Automatizadas
 
-Para compilar todas las aplicaciones y paquetes del monorepo:
-```bash
-pnpm build
-```
-
----
-
-### 4. Smart Contracts (`packages/contracts`)
-
-Comandos para compilar, probar y desplegar los contratos inteligentes:
+El monorepo cuenta con **269 pruebas automatizadas** distribuidas en todas las capas del sistema con un **100% de tasa de aprobación**:
 
 ```bash
-# Compilar contratos Solidity
-pnpm build:contracts
+# 1. Pruebas Unitarias e Integración del Backend (113 tests)
+pnpm --filter backend test
 
-# Ejecutar pruebas unitarias Hardhat
-pnpm test:contracts
+# 2. Pruebas de Smart Contracts y Cobertura Hardhat (29 tests - 100% Cobertura)
+pnpm --filter contracts test
+pnpm --filter contracts coverage
 
-# Desplegar contrato a la testnet Sepolia de Ethereum
-pnpm --filter contracts deploy:sepolia
+# 3. Pruebas de Componentes del Admin Dashboard (16 tests)
+pnpm --filter dashboard test
+
+# 4. Pruebas de Flujos y Componentes de la PWA Móvil (20 tests)
+pnpm --filter pwa test
+
+# 5. Suite Completa Opaque-Box E2E (91 tests en 4 Tiers)
+bash tests/e2e/run_e2e.sh
 ```
 
 ---
 
-## 📜 Modelos Iniciales de Prisma
+## 💎 Smart Contract ERC-20 `RecompensasReciclaje.sol`
 
-El backend cuenta con los siguientes modelos principales definidos en `schema.prisma`:
-- **`EventoClasificacion`**: `id`, `categoria`, `confianza`, `zona`, `timestamp`
-- **`QRToken`**: `id`, `codigo`, `categoria`, `usado`, `firma`, `timestamp`
+El contrato `RecompensasReciclaje.sol` gestiona el token oficial **CleanCity Reciclaje (`RECI`)** en la red Ethereum Sepolia:
+
+- **Estándar:** ERC-20 OpenZeppelin v5 con 18 decimales.
+- **Roles Criptográficos:**
+  - `DEFAULT_ADMIN_ROLE`: Administración global y otorgamiento de roles.
+  - `MINTER_ROLE`: Autorización exclusiva para emitir tokens (asignado a la wallet operadora del backend).
+  - `PAUSER_ROLE`: Capacidad de congelar operaciones en situaciones de contingencia.
+- **Emisión por Lotes (`mintBatch`):**
+  ```solidity
+  function mintBatch(
+      address[] calldata recipients,
+      uint256[] calldata amounts
+  ) external onlyRole(MINTER_ROLE) whenNotPaused returns (uint256 batchId)
+  ```
+  Permite liquidar hasta 25 recompensas en una única transacción on-chain, reduciendo los costos de gas en más de un 70%.
 
 ---
 
-## 💎 Contrato ERC-20 `RecompensasReciclaje`
+## 📱 Guía Rápida para Demostración en Vivo (Demo Mode)
 
-El contrato `RecompensasReciclaje.sol` implementa un token ERC-20 llamado **PuntosReciclaje** (`RECI`), con restricción `onlyOwner` en la función:
-```solidity
-function mintPoints(address usuario, uint256 cantidad) external onlyOwner
-```
-Esto asegura que únicamente la wallet administradora (del backend de Reciclaje Inteligente) pueda emitir o recompensar con puntos a los usuarios tras validar sus acciones de reciclaje.
+1. **Registro:** Ingrese a la PWA (`http://localhost:3002`) y cree una cuenta ciudadana. Se generará automáticamente una wallet custodial con clave cifrada en AES-256-GCM.
+2. **Dashboard:** Ingrese al Dashboard (`http://localhost:3001`) con credenciales `admin@recicla.com` / `admin123` y visualice el mapa de calor por zonas.
+3. **Aprovisionamiento IoT:** Cree una estación en estado `PENDING_ACTIVATION` y simule el encendido del ESP32 enviando su ping de activación (`POST /api/v1/estaciones/activar`). El estado cambiará automáticamente a `ACTIVE`.
+4. **Clasificación y QR:** Simule la detección de plástico por visión artificial (`POST /api/v1/clasificacion/evento`). Se generará un código QR firmado criptográficamente con Keccak256/ECDSA.
+5. **Canje de Puntos:** Escanee el código QR desde la cámara de la PWA. El backend ejecutará el canje atómico (prevención de replay attacks) y encolará la recompensa en BullMQ.
+6. **Liquidación y Telemetría:** El worker procesará el lote y minteará tokens `$RECI` en el Smart Contract, incrementando el saldo del usuario en tiempo real. Finalmente, simule una lectura de llenado ($\ge 80\%$) para disparar la alerta `WARNING` en el Centro de Control.
+
+---
+
+## 📄 Licencia y Créditos
+
+Desarrollado para el proyecto **CleanCity / Reciclaje Inteligente Web** (2026).  
+Distribuido bajo la licencia MIT. Consulte `LICENSE` para más detalles.

@@ -1,21 +1,25 @@
 {
-  "name": "Reciclaje Inteligente PWA",
-  "short_name": "ReciclajePWA",
-  "description": "Escanea QR y recibe tokens ERC-20 por tus hábitos de reciclaje.",
+  "name": "CleanCity - Reciclaje Inteligente PWA",
+  "short_name": "CleanCity",
+  "description": "Escanea códigos QR de reciclaje y recibe recompensas en tokens RECI ERC-20.",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0a0f1d",
   "theme_color": "#10b981",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

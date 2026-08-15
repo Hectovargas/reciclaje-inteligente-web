@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Post, Put, Body, Param } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -28,5 +28,19 @@ export class DashboardController {
   @ApiResponse({ status: 200, type: [StationDto] })
   async getStations() {
     return this.dashboardService.getStations();
+  }
+
+  @Post('stations')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new station' })
+  async createStation(@Body() data: any) { // using any for now to avoid dealing with DTO validation import issues if not set up
+    return this.dashboardService.createStation(data);
+  }
+
+  @Put('stations/:id')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update an existing station' })
+  async updateStation(@Param('id') id: string, @Body() data: any) {
+    return this.dashboardService.updateStation(id, data);
   }
 }

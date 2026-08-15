@@ -20,7 +20,7 @@ export class ClasificacionService {
       },
     });
     
-    const qr = await this.qrService.generarQR(dto.categoria);
+    const qr = await this.qrService.generarQR(dto.categoria, dto.stationId, dto.peso);
     
     return {
       ...evento,
@@ -43,4 +43,3 @@ export class ClasificacionService {
     return { data, total, page, limit };
   }
 }
-

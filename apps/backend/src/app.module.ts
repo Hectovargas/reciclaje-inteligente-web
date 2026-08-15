@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -11,6 +12,9 @@ import { QrModule } from './qr/qr.module';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { ZonesModule } from './zones/zones.module';
+import { EstacionesModule } from './estaciones/estaciones.module';
+import { IotModule } from './iot/iot.module';
 
 @Module({
   imports: [
@@ -18,6 +22,18 @@ import { HealthModule } from './health/health.module';
     LoggerModule.forRoot(loggerOptions),
     // Rate limiting: 100 requests per 60 seconds per IP
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST', '127.0.0.1'),
+          port: Number(configService.get<number>('REDIS_PORT', 6379)),
+          password: configService.get<string>('REDIS_PASSWORD') || undefined,
+          maxRetriesPerRequest: null,
+        },
+      }),
+      inject: [ConfigService],
+    }),
     PrismaModule,
     AuthModule,
     HealthModule,
@@ -25,6 +41,9 @@ import { HealthModule } from './health/health.module';
     DashboardModule,
     QrModule,
     BlockchainModule,
+    ZonesModule,
+    EstacionesModule,
+    IotModule,
   ],
   providers: [
     {

@@ -1,0 +1,6 @@
+-- AlterEnum
+ALTER TYPE "Role" ADD VALUE 'USER';
+ALTER TYPE "Role" ADD VALUE 'OPERATOR';
+
+-- AlterEnum
+ALTER TYPE "StationStatus" ADD VALUE 'PENDING_ACTIVATION';
