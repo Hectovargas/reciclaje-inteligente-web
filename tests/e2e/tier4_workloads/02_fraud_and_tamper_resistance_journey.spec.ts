@@ -16,8 +16,8 @@ export function registerFraudResistanceJourneyTests(harness: E2ETestHarness) {
     harness.reset();
   });
 
-  // Journey 2: Adversarial Attack Campaign
-  suite.it('Journey 2: Adversarial Attack Campaign: QR Forgery, Double Claim Replay, IoT Spoofing, and Smart Contract Exploit', async () => {
+  // Journey 2.1: Adversarial Attack Campaign
+  suite.it('Journey 2.1: Adversarial Attack Campaign: QR Forgery, Double Claim Replay, IoT Spoofing, and Smart Contract Exploit', async () => {
     console.log('\n   [Attack Vector 1] Attacker generates fake QR with altered ECDSA signature...');
     const genuineQR = await generateCryptographicQR('Metal');
     const forgedFirma = createTamperedSignature(genuineQR.firma);
@@ -71,5 +71,42 @@ export function registerFraudResistanceJourneyTests(harness: E2ETestHarness) {
     console.log('   [Attack Vector 5] Verify platform integrity and balances remain unaltered...');
     const aliceBal = harness.blockchain.balanceOf(TEST_CONSTANTS.USER_ALICE.address);
     expect(parseFloat(aliceBal)).toBeGreaterThanOrEqual(150.0);
+  });
+
+  // Journey 2.2: Brute Force & Rate Limit Protection Campaign
+  suite.it('Journey 2.2: Brute Force & Rate Limit Protection Campaign (Rapid brute-force login lockout)', async () => {
+    const attackerIp = '198.51.100.42';
+
+    for (let i = 0; i < 5; i++) {
+      const res = await harness.request('POST', '/api/v1/auth/login', {
+        headers: { 'x-forwarded-for': attackerIp },
+        body: { email: 'target.admin@recicla.com', password: `WrongGuess${i}!` },
+      });
+      expect(res.status).toBe(401);
+    }
+
+    // 6th attempt triggers 429 Too Many Requests
+    const rateLimitedRes = await harness.request('POST', '/api/v1/auth/login', {
+      headers: { 'x-forwarded-for': attackerIp },
+      body: { email: 'target.admin@recicla.com', password: 'AnotherGuess123!' },
+    });
+    expect(rateLimitedRes.status).toBe(429);
+    expect(rateLimitedRes.data.message).toContain('Too Many Requests');
+  });
+
+  // Journey 2.3: Replay with Expired and Outdated Cryptographic Nonces
+  suite.it('Journey 2.3: Replay with Expired QR Tokens past 10-minute TTL rejects claims without database pollution', async () => {
+    const expiredQR = await generateCryptographicQR('Plástico', undefined, { expired: true });
+    harness.qrTokens.set(expiredQR.codigo, expiredQR);
+
+    const userLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('USER') });
+
+    const claimRes = await harness.request('POST', '/api/v1/qr/reclamar', {
+      cookies: userLogin.cookies,
+      body: { token: expiredQR.codigo },
+    });
+
+    expect(claimRes.status).toBe(400);
+    expect(claimRes.data.message).toContain('QR vencido');
   });
 }

@@ -7,7 +7,7 @@ export const TEST_CONSTANTS = {
   // Deterministic Admin Private Key for local cryptographic signing (matches fallback/vault mock)
   ADMIN_PRIVATE_KEY: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   // Derived Admin Public Address
-  ADMIN_ADDRESS: '0x14791697260E4c9A71f18484C9f997B308e59325',
+  ADMIN_ADDRESS: '0xFCAd0B19bB29D4674531d6f115237E16AfCE377c',
 
   // Mock User Keys & Addresses
   USER_ALICE: {
@@ -31,7 +31,7 @@ export const TEST_CONSTANTS = {
     password: 'admin123',
     name: 'CleanCity System Admin',
     role: 'ADMIN',
-    address: '0x14791697260E4c9A71f18484C9f997B308e59325',
+    address: '0xFCAd0B19bB29D4674531d6f115237E16AfCE377c',
   },
   MANAGER_USER: {
     email: 'manager@recicla.com',

@@ -1,8 +1,10 @@
 export interface User {
-  id: string;
+  id?: string;
   email: string;
   name: string;
   role: string;
+  accessLevel?: string;
+  initials?: string;
   walletAddress?: string;
 }
 

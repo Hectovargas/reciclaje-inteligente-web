@@ -68,4 +68,33 @@ export function registerAtomicClaimReplayLockoutTests(harness: E2ETestHarness) {
     expect(bobClaim.status).toBe(400);
     expect(bobClaim.data.message).toContain('QR ya fue usado');
   });
+
+  // Combo 3.3: Repeated Claim Attempt by Same User Rejected
+  suite.it('Combo 3.3: Same user repeating claim on already redeemed QR receives 400 "QR ya fue usado"', async () => {
+    const qr = await generateCryptographicQR('Papel');
+    harness.qrTokens.set(qr.codigo, qr);
+
+    const userLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('USER') });
+
+    // First claim
+    const firstClaim = await harness.request('POST', '/api/v1/qr/reclamar', { cookies: userLogin.cookies, body: { token: qr.codigo } });
+    expect(firstClaim.status).toBe(200);
+
+    // Second claim
+    const secondClaim = await harness.request('POST', '/api/v1/qr/reclamar', { cookies: userLogin.cookies, body: { token: qr.codigo } });
+    expect(secondClaim.status).toBe(400);
+    expect(secondClaim.data.message).toContain('QR ya fue usado');
+  });
+
+  // Combo 3.4: Unauthenticated Claim Attempt Does Not Consume Token
+  suite.it('Combo 3.4: Unauthenticated claim attempt returns 401 and leaves QR token in unused state', async () => {
+    const qr = await generateCryptographicQR('Vidrio');
+    harness.qrTokens.set(qr.codigo, qr);
+
+    const unauthClaim = await harness.request('POST', '/api/v1/qr/reclamar', { body: { token: qr.codigo } });
+    expect(unauthClaim.status).toBe(401);
+
+    // QR remains unused
+    expect(harness.qrTokens.get(qr.codigo)!.usado).toBe(false);
+  });
 }

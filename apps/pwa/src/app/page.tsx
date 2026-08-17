@@ -1,52 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import { Header } from '../components/Header';
-import { BalanceCard } from '../components/BalanceCard';
-import { QrScanner } from '../components/QrScanner';
-import { ClaimModal } from '../components/ClaimModal';
-import { TransactionHistory } from '../components/TransactionHistory';
 
-export default function Home() {
-  const { user } = useAuth();
-  const [scannedCode, setScannedCode] = useState<string | null>(null);
-  const [claimModalOpen, setClaimModalOpen] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+export default function RootPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-  const handleScan = (decodedText: string) => {
-    setScannedCode(decodedText);
-    setClaimModalOpen(true);
-  };
-
-  const handleClaimSuccess = () => {
-    // Increment trigger to refresh balance and transaction history
-    setRefreshTrigger((prev) => prev + 1);
-  };
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        router.replace('/login');
+      } else if (user.role === 'ADMIN') {
+        router.replace('/admin');
+      } else {
+        router.replace('/app');
+      }
+    }
+  }, [user, loading, router]);
 
   return (
-    <div className="pwa-container">
-      <Header />
-
-      <main className="main-content">
-        {/* Live Custodial RECI Token Balance */}
-        <BalanceCard user={user} refreshTrigger={refreshTrigger} />
-
-        {/* Real Camera QR Scanner Component */}
-        <QrScanner onScan={handleScan} />
-
-        {/* Transaction History */}
-        <TransactionHistory user={user} refreshTrigger={refreshTrigger} />
-      </main>
-
-      {/* Claim & Verification Modal */}
-      <ClaimModal
-        isOpen={claimModalOpen}
-        onClose={() => setClaimModalOpen(false)}
-        scannedCode={scannedCode}
-        user={user}
-        onClaimSuccess={handleClaimSuccess}
-      />
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#0a0f1d',
+      color: '#94a3b8'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <p>Cargando CleanCity...</p>
+      </div>
     </div>
   );
 }

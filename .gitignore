@@ -38,11 +38,19 @@ apps/backend/prisma/*.db
 apps/backend/test/*.js
 apps/backend/test/*.d.ts
 
-# Next-PWA generated files
+# Next-PWA generated files (auto-generated at build/runtime — do not commit)
 apps/pwa/public/sw.js*
 apps/pwa/public/workbox-*.js*
 apps/pwa/public/fallback-*.js*
-apps/pwa/public/fall
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Next.js generated type declarations (auto-generated)
+**/next-env.d.ts
+
+# pnpm debug log
+pnpm-debug.log*
 
 # Agent execution logs (keep skills and original request)
 .agents/*

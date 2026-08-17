@@ -7,6 +7,7 @@ import { E2ERunner, expect } from '../runner';
 import { E2ETestHarness } from '../harness/e2e-harness';
 import { TEST_CONSTANTS } from '../config/test-constants';
 import { createNormalTelemetryPayload } from '../fixtures/telemetry.fixture';
+import { createValidLoginPayload } from '../fixtures/auth.fixture';
 
 export function registerTokenRevocationIotLockoutTests(harness: E2ETestHarness) {
   const suite = E2ERunner.createSuite('Token Revocation & IoT Lockout Sync', 'Tier 3');
@@ -27,8 +28,9 @@ export function registerTokenRevocationIotLockoutTests(harness: E2ETestHarness) 
     expect(initialRes.status).toBe(200);
 
     // Admin revokes token
+    const adminLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('ADMIN') });
     const revokeRes = await harness.request('POST', `/api/v1/estaciones/${station.id}/revoke-token`, {
-      cookies: { access_token: 'mock-jwt-admin@recicla.com-ADMIN' },
+      cookies: adminLogin.cookies,
     });
     expect(revokeRes.status).toBe(200);
     const newToken = revokeRes.data.newToken;
@@ -46,8 +48,9 @@ export function registerTokenRevocationIotLockoutTests(harness: E2ETestHarness) 
     const station = TEST_CONSTANTS.STATIONS.STATION_01;
 
     // Revoke token
+    const adminLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('ADMIN') });
     const revokeRes = await harness.request('POST', `/api/v1/estaciones/${station.id}/revoke-token`, {
-      cookies: { access_token: 'mock-jwt-admin@recicla.com-ADMIN' },
+      cookies: adminLogin.cookies,
     });
     const newToken = revokeRes.data.newToken;
 
@@ -58,5 +61,32 @@ export function registerTokenRevocationIotLockoutTests(harness: E2ETestHarness) 
 
     expect(successRes.status).toBe(200);
     expect(successRes.data.recorded).toBe(true);
+  });
+
+  // Combo 5.3: Classification Ingestion Blocked for Revoked Station Token
+  suite.it('Combo 5.3: Revoked station token immediately rejects AI classification submissions with 401', async () => {
+    const station = TEST_CONSTANTS.STATIONS.STATION_01;
+    const oldToken = station.provisioningToken;
+
+    const adminLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('ADMIN') });
+    await harness.request('POST', `/api/v1/estaciones/${station.id}/revoke-token`, { cookies: adminLogin.cookies });
+
+    const classRes = await harness.request('POST', '/api/v1/clasificacion', {
+      headers: { 'x-station-token': oldToken },
+      body: { categoria: 'Plástico', confianza: 0.95, stationId: station.id },
+    });
+
+    expect(classRes.status).toBe(401);
+  });
+
+  // Combo 5.4: Unauthorized Citizen Blocked from Station Token Revocation
+  suite.it('Combo 5.4: Regular citizen user cannot trigger token revocation (403 Forbidden)', async () => {
+    const userLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('USER') });
+
+    const revokeAttempt = await harness.request('POST', '/api/v1/estaciones/station-uuid-001/revoke-token', {
+      cookies: userLogin.cookies,
+    });
+
+    expect(revokeAttempt.status).toBe(403);
   });
 }

@@ -72,7 +72,33 @@ export function registerBatchWorkerMintConfirmationTests(harness: E2ETestHarness
     const txRes = await harness.request('GET', `/api/v1/blockchain/transactions/${userWallet}`);
     expect(txRes.status).toBe(200);
     expect(txRes.data.length).toBeGreaterThanOrEqual(1);
-    expect(txRes.data[0].status).toBe('CONFIRMED');
     expect(txRes.data[0].amount).toBe('10.0');
+    expect(txRes.data[0].status).toBe('CONFIRMED');
+  });
+
+  // Combo 6.3: Multi-Recipient Batch Aggregation
+  suite.it('Combo 6.3: BullMQ batch worker processes multi-recipient jobs with single transaction hash', async () => {
+    const reg1 = await harness.request('POST', '/api/v1/auth/register', { body: createValidRegisterPayload({ email: 'batch.user1@cleancity.io' }) });
+    const reg2 = await harness.request('POST', '/api/v1/auth/register', { body: createValidRegisterPayload({ email: 'batch.user2@cleancity.io' }) });
+
+    harness.blockchain.enqueueBatchMint({
+      batchId: 'BATCH-MULTI-001',
+      timestamp: new Date().toISOString(),
+      items: [
+        { recipientAddress: reg1.data.walletAddress, amount: 20, material: 'Plástico', claimToken: 'CLAIM-P1' },
+        { recipientAddress: reg2.data.walletAddress, amount: 30, material: 'Metal', claimToken: 'CLAIM-M1' },
+      ],
+    });
+
+    const result = harness.blockchain.processBullMqBatch();
+    expect(result?.status).toBe('PROCESSED');
+    expect(result?.count).toBe(2);
+    expect(result?.totalMinted).toBe('50.0');
+  });
+
+  // Combo 6.4: Empty Queue Processing Safety
+  suite.it('Combo 6.4: Calling worker processor on empty BullMQ queue returns null without errors', () => {
+    const emptyResult = harness.blockchain.processBullMqBatch();
+    expect(emptyResult).toBeNull();
   });
 }

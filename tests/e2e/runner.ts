@@ -231,9 +231,20 @@ export function expect(actual: any) {
         throw new Error(`Expected value to be defined, but received ${actual}`);
       }
     },
+    toBeUndefined() {
+      if (actual !== undefined) {
+        throw new Error(`Expected undefined, but received ${JSON.stringify(actual)}`);
+      }
+    },
     toBeNull() {
       if (actual !== null) {
         throw new Error(`Expected null, but received ${JSON.stringify(actual)}`);
+      }
+    },
+    toHaveLength(expectedLen: number) {
+      const len = actual?.length ?? (typeof actual === 'object' && actual !== null ? Object.keys(actual).length : undefined);
+      if (len !== expectedLen) {
+        throw new Error(`Expected length ${expectedLen}, but received ${len}`);
       }
     },
     toBeTruthy() {
@@ -246,14 +257,14 @@ export function expect(actual: any) {
         throw new Error(`Expected falsy value, but received ${JSON.stringify(actual)}`);
       }
     },
-    toContain(expectedSubstr: string) {
+    toContain(expected: any) {
       if (typeof actual === 'string') {
-        if (!actual.includes(expectedSubstr)) {
-          throw new Error(`Expected string "${actual}" to contain "${expectedSubstr}"`);
+        if (!actual.includes(String(expected))) {
+          throw new Error(`Expected string "${actual}" to contain "${expected}"`);
         }
       } else if (Array.isArray(actual)) {
-        if (!actual.includes(expectedSubstr)) {
-          throw new Error(`Expected array to contain ${JSON.stringify(expectedSubstr)}`);
+        if (!actual.includes(expected)) {
+          throw new Error(`Expected array to contain ${JSON.stringify(expected)}`);
         }
       } else {
         throw new Error(`toContain applied to non-iterable ${typeof actual}`);

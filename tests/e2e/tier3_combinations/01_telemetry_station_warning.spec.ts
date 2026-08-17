@@ -77,4 +77,46 @@ export function registerTelemetryStationWarningTests(harness: E2ETestHarness) {
     expect(metrics.data.estacionesAlerta).toBe(0);
     expect(metrics.data.estacionesActivas).toBeGreaterThanOrEqual(1);
   });
+
+  // Combo 1.3: Multi-Compartment Overflow Aggregation
+  suite.it('Combo 1.3: Multi-compartment surge (paper 88%, metal 91%) triggers WARNING and records peak levels', async () => {
+    const station = TEST_CONSTANTS.STATIONS.STATION_01;
+
+    const telemRes = await harness.request('POST', '/api/v1/iot/telemetria', {
+      body: {
+        macAddress: station.macAddress,
+        token: station.provisioningToken,
+        levels: { papel: 88, plastico: 40, metal: 91 },
+        battery: 85,
+      },
+    });
+
+    expect(telemRes.status).toBe(200);
+    expect(telemRes.data.stationStatus).toBe('WARNING');
+
+    const adminLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('ADMIN') });
+    const stationsList = await harness.request('GET', '/api/v1/estaciones', { cookies: adminLogin.cookies });
+    const updated = stationsList.data.find((s: any) => s.id === station.id);
+
+    expect(updated.currentLevels.papel).toBe(88);
+    expect(updated.currentLevels.metal).toBe(91);
+    expect(updated.status).toBe('warning');
+  });
+
+  // Combo 1.4: Critical Battery Drop with Telemetry Update
+  suite.it('Combo 1.4: Hardware battery drop to 7% flags batteryAlert: true while persisting sensor levels', async () => {
+    const station = TEST_CONSTANTS.STATIONS.STATION_01;
+
+    const telemRes = await harness.request('POST', '/api/v1/iot/telemetria', {
+      body: {
+        macAddress: station.macAddress,
+        token: station.provisioningToken,
+        levels: { papel: 30, plastico: 25, metal: 15 },
+        battery: 7,
+      },
+    });
+
+    expect(telemRes.status).toBe(200);
+    expect(telemRes.data.batteryAlert).toBe(true);
+  });
 }

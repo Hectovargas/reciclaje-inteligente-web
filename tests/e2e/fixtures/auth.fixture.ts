@@ -16,11 +16,11 @@ export interface LoginUserDto {
 }
 
 export function createValidRegisterPayload(overrides?: Partial<RegisterUserDto>): RegisterUserDto {
-  const timestamp = Date.now();
+  const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
   return {
-    email: `user_${timestamp}@test.cleancity.io`,
+    email: `user_${uniqueId}@test.cleancity.io`,
     password: 'Password123!Secure',
-    name: `User Test ${timestamp}`,
+    name: `User Test ${uniqueId}`,
     ...overrides,
   };
 }

@@ -60,7 +60,7 @@ export interface EventoRecord {
 }
 
 export interface QRTokenRecord {
-  id: string;
+  id?: string;
   codigo: string;
   categoria: string;
   firma: string;
@@ -240,6 +240,11 @@ export class E2ETestHarness {
     if (!token) return null;
 
     try {
+      const emailFromJwt = this.vault.decodeJwt(token);
+      if (emailFromJwt) {
+        return this.users.get(emailFromJwt) || null;
+      }
+
       // Decode mock JWT format: "mock-jwt-<email>-<role>"
       if (token.startsWith('mock-jwt-')) {
         const parts = token.split('-');
@@ -495,6 +500,60 @@ export class E2ETestHarness {
       station.token = `PROV-TOK-REVOKED-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
       station.updatedAt = new Date();
       return { status: 200, data: { stationId: station.id, newToken: station.token }, headers: {}, cookies: {} };
+    }
+
+    if (route.startsWith('/estaciones/') && !route.endsWith('/revoke-token') && (method === 'PUT' || method === 'PATCH')) {
+      if (!authUser || authUser.role !== 'ADMIN') {
+        return { status: 403, data: { message: 'Forbidden resource: requires ADMIN role' }, headers: {}, cookies: {} };
+      }
+      const stationId = route.replace('/estaciones/', '');
+      const station = this.stations.get(stationId);
+      if (!station) {
+        return { status: 404, data: { message: 'Station not found' }, headers: {}, cookies: {} };
+      }
+      if (body?.capacity !== undefined && (typeof body.capacity !== 'number' || body.capacity <= 0)) {
+        return { status: 400, data: { message: 'Capacity must be a positive integer' }, headers: {}, cookies: {} };
+      }
+      if (body?.name) station.name = body.name.trim();
+      if (body?.location) station.location = body.location.trim();
+      if (body?.capacity) station.capacity = body.capacity;
+      if (body?.macAddress !== undefined) station.macAddress = body.macAddress;
+      if (body?.zoneId) station.zoneId = body.zoneId;
+      station.updatedAt = new Date();
+      return { status: 200, data: station, headers: {}, cookies: {} };
+    }
+
+    if (route.startsWith('/estaciones/') && !route.endsWith('/revoke-token') && method === 'DELETE') {
+      if (!authUser || authUser.role !== 'ADMIN') {
+        return { status: 403, data: { message: 'Forbidden resource: requires ADMIN role' }, headers: {}, cookies: {} };
+      }
+      const stationId = route.replace('/estaciones/', '');
+      if (!this.stations.has(stationId)) {
+        return { status: 404, data: { message: 'Station not found' }, headers: {}, cookies: {} };
+      }
+      this.stations.delete(stationId);
+      return { status: 200, data: { message: 'Estación eliminada exitosamente' }, headers: {}, cookies: {} };
+    }
+
+    if (route === '/manifest.json' && method === 'GET') {
+      return {
+        status: 200,
+        data: {
+          name: 'CleanCity EcoGridAI',
+          short_name: 'CleanCity',
+          start_url: '/app',
+          scope: '/app',
+          display: 'standalone',
+          theme_color: '#10b981',
+          background_color: '#0a0f1d',
+          icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          ],
+        },
+        headers: { 'content-type': 'application/json' },
+        cookies: {},
+      };
     }
 
     // 5. ESP32 Zero-Touch Activation
@@ -843,6 +902,7 @@ export class E2ETestHarness {
           usuario: address,
           balance,
           simbolo: 'RECI',
+          symbol: 'RECI',
         },
         headers: {},
         cookies: {},
@@ -912,5 +972,69 @@ export class E2ETestHarness {
       headers: {},
       cookies: {},
     };
+  }
+
+  /**
+   * Simulates Next.js Edge Middleware route gating with jose JWT verification
+   */
+  public simulateEdgeMiddleware(path: string, cookies: Record<string, string> = this.sessionCookies): {
+    status: number;
+    redirectUrl?: string;
+    passed: boolean;
+    role?: string;
+  } {
+    const token = cookies['access_token'];
+    let decodedUser: UserRecord | undefined;
+
+    if (token) {
+      const email = this.vault.decodeJwt(token);
+      if (email) {
+        decodedUser = this.users.get(email);
+      } else if (token.startsWith('mock-jwt-')) {
+        const parts = token.split('-');
+        const emailPart = parts[2];
+        decodedUser = Array.from(this.users.values()).find(u => u.email === emailPart);
+      }
+    }
+
+    // Gated routes
+    if (path.startsWith('/admin')) {
+      if (!decodedUser) {
+        return { status: 307, redirectUrl: `/login?callbackUrl=${encodeURIComponent(path)}`, passed: false };
+      }
+      if (decodedUser.role !== 'ADMIN') {
+        return { status: 307, redirectUrl: '/app', passed: false, role: decodedUser.role };
+      }
+      return { status: 200, passed: true, role: 'ADMIN' };
+    }
+
+    if (path.startsWith('/app')) {
+      if (!decodedUser) {
+        return { status: 307, redirectUrl: `/login?callbackUrl=${encodeURIComponent(path)}`, passed: false };
+      }
+      return { status: 200, passed: true, role: decodedUser.role };
+    }
+
+    if (path === '/') {
+      if (!decodedUser) {
+        return { status: 307, redirectUrl: '/login', passed: false };
+      }
+      if (decodedUser.role === 'ADMIN') {
+        return { status: 307, redirectUrl: '/admin', passed: false, role: 'ADMIN' };
+      }
+      return { status: 307, redirectUrl: '/app', passed: false, role: decodedUser.role };
+    }
+
+    if (path === '/login' || path === '/register') {
+      if (decodedUser) {
+        if (decodedUser.role === 'ADMIN') {
+          return { status: 307, redirectUrl: '/admin', passed: false, role: 'ADMIN' };
+        }
+        return { status: 307, redirectUrl: '/app', passed: false, role: decodedUser.role };
+      }
+      return { status: 200, passed: true };
+    }
+
+    return { status: 200, passed: true };
   }
 }

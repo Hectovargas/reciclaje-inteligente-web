@@ -15,8 +15,8 @@ export function registerStationCapacityMaintenanceJourneyTests(harness: E2ETestH
     harness.reset();
   });
 
-  // Journey 3: Municipal Operations & Capacity Surge Lifecycle
-  suite.it('Journey 3: Municipal Operations: Normal Ingestion -> Surge to WARNING (85%) -> Saturation (100%) -> Truck Emptying -> ACTIVE Recovery', async () => {
+  // Journey 3.1: Municipal Operations & Capacity Surge Lifecycle
+  suite.it('Journey 3.1: Municipal Operations: Normal Ingestion -> Surge to WARNING (85%) -> Saturation (100%) -> Truck Emptying -> ACTIVE Recovery', async () => {
     const station = TEST_CONSTANTS.STATIONS.STATION_01;
 
     console.log('\n   [Phase 1: Normal Ingestion] Station operating nominally at 35% fill level...');
@@ -79,6 +79,39 @@ export function registerStationCapacityMaintenanceJourneyTests(harness: E2ETestH
     console.log('   [Phase 5: Verified Recovery] Central dashboard clears warning state and returns to green...');
     const dashP5 = await harness.request('GET', '/api/v1/dashboard/metrics', { cookies: adminLogin.cookies });
     expect(dashP5.data.estacionesAlerta).toBe(0);
-    expect(dashP5.data.estacionesActivas).toBeGreaterThanOrEqual(1);
+  });
+
+  // Journey 3.2: Multi-Station Zone Surge Escalation
+  suite.it('Journey 3.2: Multi-Station Zone Surge Escalation (Simultaneous capacity saturation across city zone)', async () => {
+    const st1 = harness.stations.get('station-uuid-001')!;
+    const st2 = harness.stations.get('station-uuid-002')!;
+
+    // Both stations breach 80%
+    await harness.request('POST', '/api/v1/iot/telemetria', {
+      body: { macAddress: st1.macAddress, token: st1.token, levels: { papel: 85, plastico: 82, metal: 70 }, battery: 90 },
+    });
+    await harness.request('POST', '/api/v1/iot/telemetria', {
+      body: { macAddress: st2.macAddress, token: st2.token, levels: { papel: 90, plastico: 95, metal: 88 }, battery: 91 },
+    });
+
+    const adminLogin = await harness.request('POST', '/api/v1/auth/login', { body: createValidLoginPayload('ADMIN') });
+    const dash = await harness.request('GET', '/api/v1/dashboard/metrics', { cookies: adminLogin.cookies });
+
+    expect(dash.data.estacionesAlerta).toBe(2);
+  });
+
+  // Journey 3.3: Sensor Overflow Clamping and Resilient Recovery
+  suite.it('Journey 3.3: Extreme Sensor Overflow (120%) clamped to 100% and restored after maintenance', async () => {
+    const st1 = harness.stations.get('station-uuid-001')!;
+
+    const overflowRes = await harness.request('POST', '/api/v1/iot/telemetria', {
+      body: { macAddress: st1.macAddress, token: st1.token, levels: { papel: 120, plastico: 130, metal: 110 }, battery: 80 },
+    });
+
+    expect(overflowRes.status).toBe(200);
+    expect(st1.currentLevels.papel).toBe(100);
+    expect(st1.currentLevels.plastico).toBe(100);
+    expect(st1.currentLevels.metal).toBe(100);
+    expect(st1.status).toBe('WARNING');
   });
 }

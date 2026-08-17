@@ -1,60 +1,47 @@
 # Original User Request
 
-## Initial Request — 2026-08-15T06:21:29Z
+## 2026-08-17T03:03:12Z
 
-Construye el módulo blockchain y las funcionalidades pendientes del proyecto Estación de Reciclaje Inteligente (CleanCity), orquestando el monorepo (NestJS, Prisma, PostgreSQL, Docker, React/Vite, Next.js PWA, Hardhat, ERC-20, BullMQ) respetando el flujo de trabajo entre los roles especializados de .agents/skills/.
+<USER_REQUEST>
+Consolidar las aplicaciones `apps/dashboard` (React 18 + Vite) y `apps/pwa` (Next.js 14 App Router) en una única aplicación frontend Next.js modular con rutas segmentadas por rol (`/admin` y `/app`), middleware RBAC con `jose` sobre cookies httpOnly, CSS Scoping por layout, code-splitting estricto y soporte PWA aislado.
 
 Working directory: /home/fefo/Documentos/GitHub/reciclaje-inteligente-web
-Integrity mode: demo
+Integrity mode: development
 
 ## Requirements
 
-### R1. Backend Core & REST APIs (Estaciones, Zonas, Auth)
-- Implementar el CRUD de estaciones de reciclaje y asignación a zonas urbanas fijas en NestJS y Prisma.
-- Implementar la activación automática de estaciones ESP32 al recibir el primer ping (`POST /api/v1/estaciones/activar` o `/api/v1/iot/ping`), vinculando MAC y provisioning token para cambiar su estado de `PENDING_ACTIVATION` a `ACTIVE`.
-- Asegurar autenticación JWT gestionada mediante cookies `httpOnly`, `Secure`, `SameSite` en `/api/v1/auth/*` (login, register, logout, me).
+### R1. Estructura de Rutas y Migración de Componentes
+Portar todos los componentes de administración del Dashboard hacia `src/app/admin/**` en Next.js (App Router), reemplazando `react-router-dom` por `next/navigation`, adaptando directivas `'use client'` y migrando variables de entorno (`VITE_` -> `NEXT_PUBLIC_`). Aplicar CSS scoping aislando `admin.css` y `pwa.css`.
 
-### R2. Blockchain Architecture & Smart Contracts (ERC-20 Sepolia)
-- Generar la especificación técnica formal del smart contract ERC-20 (`RECI`) con soporte de batch minting (`mintBatch`), roles de control de acceso (`DEFAULT_ADMIN_ROLE`, `MINTER_ROLE`), pausable y eventos de emisión.
-- Implementar el contrato en Solidity (`packages/contracts/contracts/RecompensasReciclaje.sol`) con OpenZeppelin, scripts de despliegue y suite exhaustiva de tests en Hardhat.
+### R2. Middleware RBAC y Autenticación Edge-Compatible (jose)
+Implementar `middleware.ts` utilizando `jose` para validar el JWT en cookie `httpOnly` en Next.js Edge Runtime, protegiendo `/admin/**` exclusivamente para rol `ADMIN` y `/app/**` para usuarios autenticados.
 
-### R3. Web3 Backend Integration & BullMQ Batch Minting
-- Implementar en NestJS la gestión segura y cifrada de wallets custodiales (AES-256-GCM / HashiCorp Vault).
-- Implementar colas de trabajo asíncronas con BullMQ (`apps/backend`) para batch minting periódico o por umbral de reciclajes acumulados, evitando colisiones de nonce y asegurando idempotencia.
-- Persistir y auditar cada transacción en la tabla `blockchain_events` con unicidad de `tx_hash` y trazabilidad de estado (`PENDING`, `BATCHED`, `CONFIRMED`, `FAILED`).
+### R3. Code-Splitting Estricto y Aislamiento de Dependencias
+Asegurar mediante dynamic imports (`next/dynamic` con `ssr: false`) que dependencias pesadas exclusivas del Dashboard (`chart.js`, `react-chartjs-2`, mapas) no se incluyan en el bundle inicial de `/app`.
 
-### R4. Admin Dashboard & User PWA Interfaces
-- Refinar el Dashboard administrativo (React/Vite) con visualización de métricas en tiempo real, desglose de materiales clasificados, estado de sensores/estaciones y gestión de zonas.
-- Actualizar la aplicación PWA (Next.js) con flujo completo de escaneo y validación de QR, consulta de saldo en tokens `RECI` e historial de transacciones.
+### R4. Aislamiento y Conservación del Service Worker PWA
+Configurar `@ducanh2912/next-pwa` con `scope: "/app"` y `start_url: "/app"`, garantizando soporte offline, manifest y acceso a la cámara (`html5-qrcode`) sin interferir con las rutas administrativas de `/admin`.
 
-### R5. IoT Sensor Integration & Cryptographic QR Verification
-- Implementar los endpoints de telemetría de nivel de llenado de contenedores y generación de códigos QR firmados criptográficamente (ECDSA) para evitar reclamos fraudulentos.
-
-### R6. Continuous QA Testing & Security Auditing
-- Escribir tests unitarios y de integración incrementales (NestJS/Supertest, Hardhat, React) acompañando cada entregable de los ingenieros.
-- Ejecutar auditoría de seguridad sobre custodia de claves, sanitización de inputs, protección CSRF/XSS y mitigación de doble reclamo en blockchain.
-
-### R7. Technical Report & System Documentation
-- Redactar el Informe Técnico final consolidando la arquitectura implementada, decisiones de diseño, esquemas de datos, endpoints Swagger y manual de despliegue.
+### R5. QA, Linting y Verificación de Integración
+Validar compilación completa (`next build`), ausencia de errores de tipos TypeScript, linter y ejecución exitosa de pruebas automatizadas sin alterar los endpoints del backend NestJS.
 
 ## Acceptance Criteria
 
-### Backend & API
-- [ ] Endpoints de autenticación emiten y validan cookies `httpOnly` sin exponer tokens JWT en `localStorage`.
-- [ ] La activación de estaciones ESP32 por MAC + token transiciona el estado a `ACTIVE` automáticamente.
-- [ ] Endpoints de Zonas y Estaciones responden correctamente con validación de DTOs (`class-validator`) y documentación Swagger (`/api/docs`).
+### Control de Acceso y Rutas
+- [ ] Peticiones a `/admin/**` sin rol `ADMIN` son redirigidas a `/login` o bloqueadas.
+- [ ] Peticiones a `/app/**` son accesibles para ciudadanos autenticados y redirigidas a login si no hay sesión.
+- [ ] La raíz `/` redirige de forma condicional según el rol del usuario autenticado.
 
-### Blockchain & Smart Contracts
-- [ ] Contrato `RecompensasReciclaje.sol` compila sin advertencias en Hardhat y pasa el 100% de los tests unitarios (mint, mintBatch, pause, roles).
-- [ ] Worker BullMQ procesa en lote las solicitudes de emisión y actualiza el estado de `blockchain_events`.
-- [ ] Las llaves privadas operadoras se almacenan cifradas (AES-256-GCM / Vault) y las transacciones registran `tx_hash` único.
+### Rendimiento y Bundling
+- [ ] El bundle de la ruta `/app` no importa ni contiene `chart.js` ni `react-chartjs-2`.
+- [ ] Las vistas administrativas cargan dinámicamente sus gráficos en cliente.
 
-### Frontend & IoT
-- [ ] El Dashboard de administración muestra estadísticas en tiempo real y gestiona estaciones y zonas sin errores de consola.
-- [ ] La PWA permite al usuario escanear QR firmado, validar reciclaje y consultar balance de tokens.
-- [ ] Endpoint de telemetría IoT actualiza la capacidad de la estación y dispara alertas preventivas de vaciado.
+### PWA & Experiencia Móvil
+- [ ] `manifest.json` y Service Worker funcionan correctamente bajo `/app`.
+- [ ] La vista `/offline` se muestra ante pérdida de conexión en `/app`.
+- [ ] El componente de escaneo QR con cámara opera sin errores en Next.js.
 
-### QA, Seguridad y Documentación
-- [ ] Suites de pruebas automatizadas ejecutan y pasan para backend (`pnpm test`), contratos (`pnpm hardhat test`) y frontends.
-- [ ] Auditoría de seguridad confirma ausencia de secretos en texto plano y mitigación de repetición/replay attacks.
-- [ ] Documento `INFORME_TECNICO.md` redactado detallando arquitectura, flujos y métricas del sistema CleanCity.
+### Calidad de Código
+- [ ] `pnpm build` compila con éxito sin errores de TypeScript ni rutas rotas.
+- [ ] Los nombres y contratos de la API REST de NestJS se mantienen 100% intactos.
+</USER_REQUEST>

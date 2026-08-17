@@ -4,18 +4,34 @@
   "private": true,
   "description": "Monorepo para la plataforma de Reciclaje Inteligente Web",
   "scripts": {
-    "dev:dashboard": "pnpm --filter dashboard dev",
     "dev:pwa": "pnpm --filter pwa dev",
     "dev:backend": "pnpm --filter backend start:dev",
-    "build:contracts": "pnpm --filter contracts compile",
+    "dev:dashboard": "pnpm --filter dashboard dev",
+    "build:contracts": "pnpm --filter contracts build",
+    "build:backend": "pnpm --filter backend build",
+    "build:pwa": "pnpm --filter pwa build",
+    "build:dashboard": "pnpm --filter dashboard build",
+    "build": "pnpm build:contracts && pnpm build:backend && pnpm build:pwa",
     "test:contracts": "pnpm --filter contracts test",
-    "build": "pnpm --filter \"./apps/*\" build && pnpm --filter \"./packages/*\" build"
+    "test:backend": "pnpm --filter backend test",
+    "test:pwa": "pnpm --filter pwa test",
+    "test:dashboard": "pnpm --filter dashboard test",
+    "test:e2e": "bash tests/e2e/run_e2e.sh",
+    "test": "pnpm test:contracts && pnpm test:backend && pnpm test:pwa",
+    "typecheck:pwa": "pnpm --filter pwa exec tsc --noEmit",
+    "typecheck:backend": "pnpm --filter backend exec tsc --noEmit",
+    "typecheck:contracts": "pnpm --filter contracts compile",
+    "typecheck": "pnpm typecheck:contracts && pnpm typecheck:backend && pnpm typecheck:pwa"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "ethers": "^6.11.1"
+  },
   "devDependencies": {
+    "ethers": "^6.11.1",
     "typescript": "^5.3.3"
   }
 }
