@@ -126,10 +126,6 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div className="tech-chip">
-            <span className="pulse-dot" style={{ width: '5px', height: '5px' }} />
-            <span style={{ fontSize: '9.5px' }}>RED ACTIVA</span>
-          </div>
           <button
             onClick={fetchBalance}
             disabled={loading}

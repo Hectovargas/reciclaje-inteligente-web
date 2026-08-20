@@ -71,25 +71,9 @@ export function Header() {
               }}
             />
           </div>
-          <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <div style={{ minWidth: 0 }}>
             <span style={{ color: '#f0fdf4', fontWeight: 800, fontSize: '0.98rem', letterSpacing: '-0.03em', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
               CleanCity
-            </span>
-            <span
-              style={{
-                fontSize: '8.5px',
-                fontWeight: 700,
-                color: '#a3e635',
-                background: 'rgba(163, 230, 53, 0.12)',
-                border: '1px solid rgba(163, 230, 53, 0.25)',
-                padding: '1px 4px',
-                borderRadius: '4px',
-                fontFamily: 'var(--font-mono)',
-                letterSpacing: '0.04em',
-                flexShrink: 0,
-              }}
-            >
-              PWA
             </span>
           </div>
         </Link>
