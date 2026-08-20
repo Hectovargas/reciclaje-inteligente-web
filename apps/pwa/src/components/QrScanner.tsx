@@ -130,54 +130,67 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
     <div
       className="glass-card"
       style={{
-        padding: '18px 16px',
+        padding: '16px 14px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
+        gap: '12px',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Module Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ScanLine size={14} color="#22d3ee" />
-          <span className="tech-label" style={{ color: 'rgba(240, 253, 244, 0.5)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
+          <ScanLine size={13} color="#22d3ee" style={{ flexShrink: 0 }} />
+          <span
+            className="tech-label"
+            style={{
+              color: 'rgba(240, 253, 244, 0.5)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: 'clamp(8px, 2.4vw, 9.5px)',
+            }}
+          >
             Captura Óptica en Tiempo Real
           </span>
         </div>
-        <div className="tech-chip" style={{ borderColor: 'rgba(34, 211, 238, 0.25)', color: '#22d3ee' }}>
+        <div className="tech-chip" style={{ borderColor: 'rgba(34, 211, 238, 0.25)', color: '#22d3ee', flexShrink: 0 }}>
           <span className="pulse-dot-cyan" style={{ width: '5px', height: '5px' }} />
-          <span>ACTIVO</span>
+          <span style={{ fontSize: '9px' }}>ACTIVO</span>
         </div>
       </div>
 
       {/* Mode Switch Tabs */}
-      <div className="glass-tabs">
+      <div className="glass-tabs" style={{ boxSizing: 'border-box' }}>
         <button
           className={`glass-tab-btn ${mode === 'camera' ? 'active' : ''}`}
+          style={{ minWidth: 0, padding: '7px 8px', fontSize: '11.5px', whiteSpace: 'nowrap' }}
           onClick={() => {
             setMode('camera');
             setFileScanError(null);
           }}
         >
-          <Camera size={14} />
+          <Camera size={13} />
           <span>Cámara</span>
         </button>
 
         <button
           className={`glass-tab-btn ${mode === 'file' ? 'active' : ''}`}
+          style={{ minWidth: 0, padding: '7px 8px', fontSize: '11.5px', whiteSpace: 'nowrap' }}
           onClick={() => {
             stopScanner();
             setMode('file');
           }}
         >
-          <Upload size={14} />
+          <Upload size={13} />
           <span>Subir QR</span>
         </button>
       </div>
 
       {/* 1. Camera View */}
       {mode === 'camera' && (
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
           {/* Active Camera Element */}
           <div
             id={scannerContainerId}
@@ -197,44 +210,45 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
 
           {/* Idle Camera HUD Viewfinder */}
           {!isScanning && (
-            <div className="viewfinder-container">
-              <div className="viewfinder-hud">
+            <div className="viewfinder-container" style={{ width: '100%', maxWidth: '340px', boxSizing: 'border-box' }}>
+              <div className="viewfinder-hud" style={{ padding: '20px 12px', minHeight: '200px' }}>
                 <div className="vf-grid" />
                 <div className="vf-corner vf-tl" />
                 <div className="vf-corner vf-tr" />
                 <div className="vf-corner vf-bl" />
                 <div className="vf-corner vf-br" />
-                <div className="laser-scan-line" />
+                <div className="laser-scan-line" style={{ left: '8px', right: '8px' }} />
 
                 <div
                   style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '16px',
+                    width: '52px',
+                    height: '52px',
+                    borderRadius: '14px',
                     background: 'radial-gradient(circle, rgba(163, 230, 53, 0.2) 0%, rgba(34, 211, 238, 0.08) 100%)',
                     border: '1px solid rgba(163, 230, 53, 0.35)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: '14px',
+                    marginBottom: '10px',
                     color: '#a3e635',
                     boxShadow: '0 0 24px rgba(163, 230, 53, 0.25)',
                     position: 'relative',
                     zIndex: 2,
                   }}
                 >
-                  <QrCode size={32} />
+                  <QrCode size={28} />
                 </div>
 
                 <h3
                   style={{
-                    fontSize: '1.05rem',
+                    fontSize: '1rem',
                     fontWeight: 800,
                     color: '#f0fdf4',
                     marginBottom: '4px',
                     letterSpacing: '-0.02em',
                     position: 'relative',
                     zIndex: 2,
+                    textAlign: 'center',
                   }}
                 >
                   Escáner QR en Tiempo Real
@@ -242,11 +256,11 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
                 <p
                   style={{
                     color: 'rgba(240, 253, 244, 0.55)',
-                    fontSize: '0.8rem',
-                    maxWidth: '280px',
-                    margin: '0 auto 16px',
+                    fontSize: '0.78rem',
+                    maxWidth: '260px',
+                    margin: '0 auto 14px',
                     textAlign: 'center',
-                    lineHeight: 1.4,
+                    lineHeight: 1.35,
                     position: 'relative',
                     zIndex: 2,
                   }}
@@ -258,9 +272,9 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
                   className="btn-cyber-primary"
                   onClick={() => startScanner(selectedCameraId)}
                   disabled={isProcessing}
-                  style={{ position: 'relative', zIndex: 2, maxWidth: '240px' }}
+                  style={{ position: 'relative', zIndex: 2, maxWidth: '220px', padding: '10px 16px', fontSize: '13px' }}
                 >
-                  <Camera size={16} />
+                  <Camera size={15} />
                   <span>Activar Cámara</span>
                 </button>
               </div>
@@ -350,18 +364,18 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
 
           {/* Micro-Guide Steps */}
           {!isScanning && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '100%', marginTop: '14px' }}>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '4px', width: '100%', marginTop: '12px' }}>
+              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
                 <span className="step-num">1</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)' }}>Deposita material</span>
+                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Deposita material</span>
               </div>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 4px' }}>
+              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
                 <span className="step-num" style={{ color: '#22d3ee', background: 'rgba(34, 211, 238, 0.12)' }}>2</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)' }}>Clasificación IA</span>
+                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Clasificación IA</span>
               </div>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 4px' }}>
+              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
                 <span className="step-num" style={{ color: '#34d399', background: 'rgba(52, 211, 153, 0.12)' }}>3</span>
-                <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)' }}>Escanea código</span>
+                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Escanea código</span>
               </div>
             </div>
           )}

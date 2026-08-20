@@ -108,44 +108,46 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
     <div
       className="glass-card"
       style={{
-        padding: '20px',
+        padding: '16px 14px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
+        gap: '12px',
         background: 'linear-gradient(135deg, rgba(22, 32, 50, 0.8) 0%, rgba(13, 17, 23, 0.95) 100%)',
         borderColor: 'rgba(99, 231, 182, 0.22)',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Top Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span className="tech-label" style={{ color: 'rgba(240, 253, 244, 0.5)' }}>
             Saldo Acumulado
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div className="tech-chip">
-            <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />
-            <span style={{ fontSize: '10px' }}>RED ACTIVA</span>
+            <span className="pulse-dot" style={{ width: '5px', height: '5px' }} />
+            <span style={{ fontSize: '9.5px' }}>RED ACTIVA</span>
           </div>
           <button
             onClick={fetchBalance}
             disabled={loading}
             className="btn-glass-icon"
-            style={{ width: '28px', height: '28px', padding: 0 }}
+            style={{ width: '26px', height: '26px', padding: 0 }}
             title="Actualizar balance on-chain"
           >
-            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+            <RefreshCw size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
         </div>
       </div>
 
       {/* Main Balance Row */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', margin: '4px 0 2px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '8px', margin: '2px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', minWidth: 0 }}>
           <span
             style={{
-              fontSize: '2.8rem',
+              fontSize: 'clamp(2.2rem, 7.5vw, 2.7rem)',
               fontWeight: 800,
               color: '#a3e635',
               fontFamily: 'var(--font-mono)',
@@ -161,30 +163,42 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
               background: 'rgba(163, 230, 53, 0.12)',
               border: '1px solid rgba(163, 230, 53, 0.3)',
               color: '#a3e635',
-              padding: '3px 8px',
-              borderRadius: '6px',
-              fontSize: '11px',
+              padding: '2px 6px',
+              borderRadius: '5px',
+              fontSize: '10.5px',
               fontWeight: 800,
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.06em',
+              flexShrink: 0,
             }}
           >
             {balanceData?.symbol || 'RECI'}
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Award size={20} color="#a3e635" style={{ filter: 'drop-shadow(0 0 8px rgba(163, 230, 53, 0.5))' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <Award size={18} color="#a3e635" style={{ filter: 'drop-shadow(0 0 8px rgba(163, 230, 53, 0.5))' }} />
         </div>
       </div>
 
       {/* Sub-Panel: Wallet Chip & Eco Stat */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '4px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '6px', paddingTop: '2px' }}>
         {/* Wallet Address HUD */}
-        <div className="hud-sub-box">
-          <span className="tech-label" style={{ fontSize: '8.5px' }}>Billetera Custodial</span>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginTop: '2px' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#22d3ee', fontWeight: 600 }}>
+        <div className="hud-sub-box" style={{ minWidth: 0 }}>
+          <span className="tech-label" style={{ fontSize: '8px' }}>Billetera Custodial</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2px', marginTop: '2px', minWidth: 0 }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'clamp(9.5px, 2.7vw, 11px)',
+                color: '#22d3ee',
+                fontWeight: 600,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0,
+              }}
+            >
               {shortenAddress(user.walletAddress)}
             </span>
             <button
@@ -194,25 +208,37 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
                 border: 'none',
                 color: copied ? '#a3e635' : 'rgba(240, 253, 244, 0.4)',
                 cursor: 'pointer',
-                padding: '2px 4px',
+                padding: '2px',
                 borderRadius: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 transition: 'all 0.2s',
+                flexShrink: 0,
               }}
               title="Copiar dirección"
             >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? <Check size={11} /> : <Copy size={11} />}
             </button>
           </div>
         </div>
 
         {/* Eco Impact HUD */}
-        <div className="hud-sub-box">
-          <span className="tech-label" style={{ fontSize: '8.5px' }}>Impacto Ambiental</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-            <Leaf size={13} color="#34d399" />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#34d399', fontWeight: 700 }}>
+        <div className="hud-sub-box" style={{ minWidth: 0 }}>
+          <span className="tech-label" style={{ fontSize: '8px' }}>Impacto Ambiental</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px', minWidth: 0 }}>
+            <Leaf size={12} color="#34d399" style={{ flexShrink: 0 }} />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'clamp(9.5px, 2.7vw, 11px)',
+                color: '#34d399',
+                fontWeight: 700,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: 0,
+              }}
+            >
               {Math.round(rawBalanceNum)} unidades
             </span>
           </div>

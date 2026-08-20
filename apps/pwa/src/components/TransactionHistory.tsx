@@ -160,32 +160,43 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
     <div
       className="glass-card"
       style={{
-        padding: '18px 16px',
+        padding: '16px 14px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '14px',
+        gap: '12px',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <History size={15} color="#22d3ee" />
-          <span className="tech-label" style={{ color: 'rgba(240, 253, 244, 0.5)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+          <History size={14} color="#22d3ee" style={{ flexShrink: 0 }} />
+          <span
+            className="tech-label"
+            style={{
+              color: 'rgba(240, 253, 244, 0.5)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: 'clamp(8px, 2.4vw, 9.5px)',
+            }}
+          >
             Historial de Recompensas
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="tech-chip">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <span className="tech-chip" style={{ fontSize: '9px', padding: '2px 6px' }}>
             {transactions.length} {transactions.length === 1 ? 'REG' : 'REGS'}
           </span>
           <button
             onClick={fetchTransactions}
             disabled={loading}
             className="btn-glass-icon"
-            style={{ width: '28px', height: '28px', padding: 0 }}
+            style={{ width: '26px', height: '26px', padding: 0 }}
             title="Refrescar historial on-chain"
           >
-            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+            <RefreshCw size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
         </div>
       </div>
