@@ -1,98 +1,90 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Titanium Outer Frame Gradients -->
-    <linearGradient id="titaniumBevel" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#94a3b8" />
-      <stop offset="30%" stop-color="#475569" />
-      <stop offset="70%" stop-color="#1e293b" />
-      <stop offset="100%" stop-color="#0f172a" />
-    </linearGradient>
-    <linearGradient id="titaniumInner" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#334155" />
-      <stop offset="100%" stop-color="#0f172a" />
+    <!-- Background diagonal pattern -->
+    <pattern id="carbonBg" width="14" height="14" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#0a1410" stroke-width="4" />
+      <line x1="7" y1="0" x2="7" y2="14" stroke="#040806" stroke-width="8" />
+    </pattern>
+
+    <!-- Electric Neon Green Gradient -->
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80" />
+      <stop offset="35%" stop-color="#22c55e" />
+      <stop offset="70%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
     </linearGradient>
 
-    <!-- Emerald Glass Panel Gradients -->
-    <radialGradient id="emeraldGlass" cx="50%" cy="45%" r="65%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="45%" stop-color="#059669" />
-      <stop offset="85%" stop-color="#064e3b" />
-      <stop offset="100%" stop-color="#022c22" />
-    </radialGradient>
-    <linearGradient id="glassReflection" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
-      <stop offset="30%" stop-color="rgba(255,255,255,0.08)" />
-      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-    </linearGradient>
-
-    <!-- Metallic 3D Chrome Symbol Gradients -->
-    <linearGradient id="chromeLight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="35%" stop-color="#e2e8f0" />
-      <stop offset="65%" stop-color="#94a3b8" />
-      <stop offset="100%" stop-color="#475569" />
-    </linearGradient>
-
-    <!-- Shadow & Glow Filters -->
-    <filter id="chassisShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="20" stdDeviation="25" flood-color="#000000" flood-opacity="0.8" />
-    </filter>
-    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="#10b981" flood-opacity="0.6" />
-    </filter>
-    <filter id="symbolShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#022c22" flood-opacity="0.9" />
-    </filter>
-    <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="5" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <!-- Intense Neon Green Glow -->
+    <filter id="electricGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur1" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur2" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="28" result="blur3" />
+      <feMerge>
+        <feMergeNode in="blur3" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
 
-  <!-- Deep Black Studio Canvas -->
-  <rect width="512" height="512" fill="#05070c" rx="128" />
+  <!-- Pitch Black Carbon Canvas -->
+  <rect width="512" height="512" rx="128" fill="#040706" />
+  <rect width="512" height="512" rx="128" fill="url(#carbonBg)" />
 
-  <!-- Outer Titanium Industrial Chassis -->
-  <rect x="36" y="36" width="440" height="440" rx="100" fill="url(#titaniumBevel)" filter="url(#chassisShadow)" />
-  <rect x="44" y="44" width="424" height="424" rx="92" fill="url(#titaniumInner)" />
+  <!-- Outer Neon Green Rounded Squircle Border -->
+  <rect x="36" y="36" width="440" height="440" rx="100" fill="none" stroke="url(#neonGreen)" stroke-width="12" opacity="0.4" filter="url(#electricGlow)" />
+  <rect x="36" y="36" width="440" height="440" rx="100" fill="none" stroke="url(#neonGreen)" stroke-width="7" stroke-linecap="round" filter="url(#electricGlow)" />
+  <rect x="36" y="36" width="440" height="440" rx="100" fill="none" stroke="#dcfce7" stroke-width="2.5" opacity="0.9" />
 
-  <!-- Hardware Screws on Chassis -->
-  <circle cx="85" cy="85" r="7" fill="#64748b" stroke="#1e293b" stroke-width="2" />
-  <circle cx="427" cy="85" r="7" fill="#64748b" stroke="#1e293b" stroke-width="2" />
-  <circle cx="85" cy="427" r="7" fill="#64748b" stroke="#1e293b" stroke-width="2" />
-  <circle cx="427" cy="427" r="7" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+  <!-- Inner Soft Green Glow Halo -->
+  <circle cx="256" cy="270" r="130" fill="#10b981" opacity="0.08" filter="url(#electricGlow)" />
 
-  <!-- Top RF / Antenna IoT Indicator -->
-  <circle cx="427" cy="85" r="9" fill="#10b981" filter="url(#ledGlow)" opacity="0.9" />
+  <!-- NEON GREEN RECYCLING BIN GROUP -->
+  <g filter="url(#electricGlow)">
+    <!-- 1. Top Handle -->
+    <path d="M 226 122 L 226 98 C 226 86 238 76 256 76 C 274 76 286 86 286 98 L 286 122" fill="none" stroke="url(#neonGreen)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 226 122 L 226 98 C 226 86 238 76 256 76 C 274 76 286 86 286 98 L 286 122" fill="none" stroke="#f0fdf4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
 
-  <!-- Inner Recessed Bezel -->
-  <rect x="76" y="76" width="360" height="360" rx="72" fill="#090d16" stroke="#1e293b" stroke-width="3" />
+    <!-- 2. Lid Rim -->
+    <rect x="135" y="122" width="242" height="24" rx="12" fill="none" stroke="url(#neonGreen)" stroke-width="14" stroke-linecap="round" />
+    <rect x="135" y="122" width="242" height="24" rx="12" fill="none" stroke="#f0fdf4" stroke-width="4.5" stroke-linecap="round" />
 
-  <!-- Illuminated Emerald Glass Screen -->
-  <rect x="86" y="86" width="340" height="340" rx="62" fill="url(#emeraldGlass)" filter="url(#emeraldGlow)" />
-  <rect x="86" y="86" width="340" height="170" rx="62" fill="url(#glassReflection)" />
+    <!-- 3. Trash Can Body -->
+    <path d="M 162 152 L 184 402 C 187 422 202 436 222 436 L 290 436 C 310 436 325 422 328 402 L 350 152" fill="none" stroke="url(#neonGreen)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 162 152 L 184 402 C 187 422 202 436 222 436 L 290 436 C 310 436 325 422 328 402 L 350 152" fill="none" stroke="#f0fdf4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
 
-  <!-- 3D Metallic Chrome Recycling Symbol -->
-  <g transform="translate(256, 240) scale(1.05)" filter="url(#symbolShadow)">
-    <!-- Loop 1 (Top) -->
-    <path d="M -30 -95 L 35 -95 C 60 -95 80 -75 90 -55 L 105 -15 L 85 -5 L 70 -45 C 65 -58 52 -70 35 -70 L -30 -70 L -30 -48 L -80 -82.5 L -30 -117 Z" fill="url(#chromeLight)" stroke="#ffffff" stroke-width="2" />
-    
-    <!-- Loop 2 (Right) -->
-    <g transform="rotate(120)">
-      <path d="M -30 -95 L 35 -95 C 60 -95 80 -75 90 -55 L 105 -15 L 85 -5 L 70 -45 C 65 -58 52 -70 35 -70 L -30 -70 L -30 -48 L -80 -82.5 L -30 -117 Z" fill="url(#chromeLight)" stroke="#ffffff" stroke-width="2" />
-    </g>
+    <!-- 4. Recycling Arrows Symbol Inside (Centered at x=256, y=292) -->
+    <g transform="translate(256, 292) scale(0.92)">
+      <!-- Loop Path - Top Arrow -->
+      <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+      
+      <!-- Loop Path - Right/Bottom Arrow -->
+      <g transform="rotate(120)">
+        <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
 
-    <!-- Loop 3 (Left) -->
-    <g transform="rotate(240)">
-      <path d="M -30 -95 L 35 -95 C 60 -95 80 -75 90 -55 L 105 -15 L 85 -5 L 70 -45 C 65 -58 52 -70 35 -70 L -30 -70 L -30 -48 L -80 -82.5 L -30 -117 Z" fill="url(#chromeLight)" stroke="#ffffff" stroke-width="2" />
+      <!-- Loop Path - Left/Top Arrow -->
+      <g transform="rotate(240)">
+        <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+
+      <!-- Bright White-Green Center Core Tubes -->
+      <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      
+      <g transform="rotate(120)">
+        <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+
+      <g transform="rotate(240)">
+        <path d="M -15 -68 L 15 -68 C 28 -68 38 -58 43 -48 L 52 -30" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M 38 -32 L 53 -28 L 58 -44" fill="none" stroke="#f0fdf4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
     </g>
   </g>
-
-  <!-- Bottom IoT Status Telemetry LED Bar -->
-  <rect x="176" y="380" width="160" height="28" rx="14" fill="#090d16" stroke="#1e293b" stroke-width="2" />
-  <circle cx="204" cy="394" r="5" fill="#34d399" filter="url(#ledGlow)" />
-  <circle cx="230" cy="394" r="5" fill="#10b981" filter="url(#ledGlow)" />
-  <circle cx="256" cy="394" r="5" fill="#10b981" filter="url(#ledGlow)" />
-  <circle cx="282" cy="394" r="5" fill="#10b981" filter="url(#ledGlow)" />
-  <circle cx="308" cy="394" r="5" fill="#059669" filter="url(#ledGlow)" />
 </svg>
