@@ -1,3 +1,4 @@
+// CleanCity API - Deployment Version 1.0.1 (0.0.0.0 Production Binding)
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';

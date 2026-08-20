@@ -54,23 +54,18 @@ export default function RegisterPage() {
         <div className="auth-card">
           {/* Logo & Header */}
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <div
+            <img
+              src="/icon.svg"
+              alt="CleanCity Logo"
               style={{
-                width: '58px',
-                height: '58px',
+                width: '64px',
+                height: '64px',
                 borderRadius: '16px',
-                background: 'linear-gradient(135deg, #10b981, #06b6d4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
                 margin: '0 auto 1rem',
-                color: '#070b14',
-                boxShadow: '0 0 25px rgba(16, 185, 129, 0.45)',
-                animation: 'pulseGlow 3s infinite ease-in-out',
+                display: 'block',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
               }}
-            >
-              <Recycle size={32} strokeWidth={2.4} />
-            </div>
+            />
             <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Crear Cuenta Ciudadana
             </h1>

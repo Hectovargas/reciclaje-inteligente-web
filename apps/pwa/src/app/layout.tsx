@@ -7,6 +7,17 @@ export const metadata: Metadata = {
   title: 'CleanCity - Reciclaje Inteligente',
   description: 'Aplicación de reciclaje inteligente para escanear códigos QR y recibir recompensas ecológicas.',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: '/icon.svg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -30,7 +41,8 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>

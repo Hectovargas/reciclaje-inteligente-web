@@ -18,20 +18,17 @@ export function Header() {
   return (
     <>
       <header className="header">
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <img
+            src="/icon.svg"
+            alt="CleanCity Logo"
             style={{
-              background: 'linear-gradient(135deg, #10b981, #06b6d4)',
-              borderRadius: '10px',
-              padding: '0.4rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 15px rgba(16, 185, 129, 0.4)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '9px',
+              boxShadow: '0 0 15px rgba(16, 185, 129, 0.35)',
             }}
-          >
-            <Recycle size={22} color="#0a0f1d" strokeWidth={2.5} />
-          </div>
+          />
           <div>
             <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               CleanCity
