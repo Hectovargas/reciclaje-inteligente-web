@@ -27,29 +27,35 @@ export function DashboardMetrics() {
   const KPI_DATA = metrics || {
     kgTotal: 0,
     kgSaved: 0,
-    accuracy: 940,
-    aiConf: 94,
-    timeBetweenEmptying: '4.5',
-    timeBetweenEmptyingPrev: '5.2',
-    frequency: '2.1x/día',
-    minZoneTime: '3.2h',
-    maxZoneTime: '6.8h',
-    totalEst: '8 Activas',
+    accuracy: 0,
+    aiConf: 0,
+    timeBetweenEmptying: '0',
+    timeBetweenEmptyingPrev: '0',
+    frequency: '0 / sem',
+    minZoneTime: '0h',
+    maxZoneTime: '0h',
+    totalEst: '0 est.',
     materialBreakdown: [],
     iaAccuracyBreakdown: [],
   };
 
-  const MATERIAL_CLASSIFIED_BREAKDOWN = KPI_DATA.materialBreakdown || [
-    { name: 'Papel y Cartón', count: 0, pct: 40, color: '#a3e635' },
-    { name: 'Plásticos (PET/PEAD)', count: 0, pct: 35, color: '#22d3ee' },
-    { name: 'Metales y Aluminio', count: 0, pct: 25, color: '#a78bfa' },
-  ];
+  const MATERIAL_CLASSIFIED_BREAKDOWN =
+    KPI_DATA.materialBreakdown && KPI_DATA.materialBreakdown.length > 0
+      ? KPI_DATA.materialBreakdown
+      : [
+          { name: 'Papel', count: 0, pct: '0.0', color: '#a3e635' },
+          { name: 'Plástico', count: 0, pct: '0.0', color: '#22d3ee' },
+          { name: 'Metal', count: 0, pct: '0.0', color: '#a78bfa' },
+        ];
 
-  const IA_ACCURACY_BREAKDOWN = KPI_DATA.iaAccuracyBreakdown || [
-    { label: 'Papel', val: 97, color: '#a3e635' },
-    { label: 'Plástico', val: 94, color: '#22d3ee' },
-    { label: 'Metal', val: 92, color: '#a78bfa' },
-  ];
+  const IA_ACCURACY_BREAKDOWN =
+    KPI_DATA.iaAccuracyBreakdown && KPI_DATA.iaAccuracyBreakdown.length > 0
+      ? KPI_DATA.iaAccuracyBreakdown
+      : [
+          { label: 'Papel', val: 0, color: '#a3e635' },
+          { label: 'Plástico', val: 0, color: '#22d3ee' },
+          { label: 'Metal', val: 0, color: '#a78bfa' },
+        ];
 
   return (
     <div style={{ flex: '1 1 320px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
@@ -98,7 +104,7 @@ export function DashboardMetrics() {
           <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados correctamente por sensores e IA</p>
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', flexWrap: 'wrap', gap: 14 }}>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{(kgSaved * 0.08).toFixed(1)} kg CO₂ evitado</span>
-            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>{KPI_DATA.totalEst || 'Red Activa'}</span>
+            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>{KPI_DATA.totalEst ?? '0 est.'}</span>
           </div>
         </div>
       </div>
@@ -141,7 +147,7 @@ export function DashboardMetrics() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, alignItems: 'center', marginTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <ConfRing value={KPI_DATA.aiConf || 94} />
+            <ConfRing value={KPI_DATA.aiConf ?? 0} />
             <div>
               <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', color: '#a3e635', textShadow: '0 0 24px rgba(163,230,53,0.4)', lineHeight: 1 }}>
                 {accuracy > 100 ? (accuracy / 10).toFixed(1) : accuracy}%
@@ -150,7 +156,7 @@ export function DashboardMetrics() {
                 Precisión global
               </div>
               <div style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.35)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
-                Conf. Media: {KPI_DATA.aiConf || 94}%
+                Conf. Media: {KPI_DATA.aiConf ?? 0}%
               </div>
             </div>
           </div>
@@ -183,7 +189,7 @@ export function DashboardMetrics() {
           <div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
               <div style={{ fontSize: 44, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#34d399', textShadow: '0 0 32px rgba(52,211,153,0.45)' }}>
-                {KPI_DATA.timeBetweenEmptying || '4.5'}
+                {KPI_DATA.timeBetweenEmptying ?? '0'}
               </div>
               <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(52,211,153,0.7)', letterSpacing: '-0.02em' }}>h</span>
             </div>
@@ -191,26 +197,26 @@ export function DashboardMetrics() {
               Promedio Red
             </div>
             <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.35)', marginTop: 2 }}>
-              vs. {KPI_DATA.timeBetweenEmptyingPrev || '5.2'}h mes anterior
+              vs. {KPI_DATA.timeBetweenEmptyingPrev ?? '0'}h mes anterior
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
               <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Frecuencia</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#f0fdf4', marginTop: 2 }}>{KPI_DATA.frequency || '2.1x/día'}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#f0fdf4', marginTop: 2 }}>{KPI_DATA.frequency ?? '0 / sem'}</div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
               <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Mín. Zona</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#22d3ee', marginTop: 2 }}>{KPI_DATA.minZoneTime || '3.2h'}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#22d3ee', marginTop: 2 }}>{KPI_DATA.minZoneTime ?? '0h'}</div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
               <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Máx. Zona</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a78bfa', marginTop: 2 }}>{KPI_DATA.maxZoneTime || '6.8h'}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a78bfa', marginTop: 2 }}>{KPI_DATA.maxZoneTime ?? '0h'}</div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
               <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Red Total</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a3e635', marginTop: 2 }}>{KPI_DATA.totalEst || '8 Est.'}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a3e635', marginTop: 2 }}>{KPI_DATA.totalEst ?? '0 est.'}</div>
             </div>
           </div>
         </div>

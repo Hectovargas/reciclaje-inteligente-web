@@ -4,7 +4,9 @@ import { decodeJwt } from 'jose'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('auth_token')?.value
+  const token =
+    request.cookies.get('access_token')?.value ||
+    request.cookies.get('auth_token')?.value
 
   // Helper: build redirect URL
   const redirectTo = (path: string) => {
@@ -21,6 +23,12 @@ export function middleware(request: NextRequest) {
     } catch {
       payload = null
     }
+  }
+
+  // If already logged in and visiting /login or /register, redirect to destination
+  if ((pathname === '/login' || pathname === '/register') && payload) {
+    if (payload.role === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
+    return NextResponse.redirect(new URL('/app', request.url))
   }
 
   // Protect /admin/** — only ADMIN role
@@ -47,5 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/admin/:path*', '/app/:path*'],
+  matcher: ['/', '/login', '/register', '/admin/:path*', '/app/:path*'],
 }

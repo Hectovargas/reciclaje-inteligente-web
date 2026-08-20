@@ -8,8 +8,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (email: string, password: string, name: string) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   clearError: () => void;
@@ -39,18 +39,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     setLoading(true);
     setError(null);
     try {
       const response = await authApi.login({ email, password });
-      setUser(response.user || {
+      const loggedUser: User = response.user || {
         id: response.id,
         email: response.email,
         name: response.name,
         role: response.role,
         walletAddress: response.walletAddress,
-      });
+      };
+      setUser(loggedUser);
+      return loggedUser;
     } catch (err: any) {
       const message = err instanceof ApiError ? err.message : (err?.message || 'Error al iniciar sesión');
       setError(message);
@@ -60,18 +62,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string): Promise<User> => {
     setLoading(true);
     setError(null);
     try {
       const response = await authApi.register({ email, password, name });
-      setUser(response.user || {
+      const registeredUser: User = response.user || {
         id: response.id,
         email: response.email,
         name: response.name,
         role: response.role,
         walletAddress: response.walletAddress,
-      });
+      };
+      setUser(registeredUser);
+      return registeredUser;
     } catch (err: any) {
       const message = err instanceof ApiError ? err.message : (err?.message || 'Error al registrarse');
       setError(message);

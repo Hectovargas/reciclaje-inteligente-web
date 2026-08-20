@@ -1,0 +1,58 @@
+# Multi-stage production Dockerfile for Frontend (Next.js PWA)
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace configuration and manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/pwa/package.json ./apps/pwa/
+COPY packages/contracts/package.json ./packages/contracts/
+
+# Install dependencies across monorepo
+RUN pnpm install
+
+# Copy source code
+COPY packages/contracts ./packages/contracts
+COPY apps/pwa ./apps/pwa
+
+# Build Next.js PWA
+WORKDIR /app/apps/pwa
+ARG BACKEND_URL
+ARG NEXT_PUBLIC_API_URL
+ENV BACKEND_URL=${BACKEND_URL}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NODE_ENV=production
+
+RUN pnpm build
+
+# Production Runner Stage
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/pwa/package.json ./apps/pwa/
+COPY packages/contracts/package.json ./packages/contracts/
+
+# Install production dependencies only
+RUN pnpm install --prod
+
+# Copy built Next.js artifacts and public assets
+COPY --from=builder /app/apps/pwa/.next ./apps/pwa/.next
+COPY --from=builder /app/apps/pwa/public ./apps/pwa/public
+COPY --from=builder /app/apps/pwa/next.config.js ./apps/pwa/next.config.js
+
+WORKDIR /app/apps/pwa
+
+EXPOSE 3000
+
+CMD ["pnpm", "start"]

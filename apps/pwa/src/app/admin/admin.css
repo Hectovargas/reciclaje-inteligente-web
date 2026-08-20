@@ -254,3 +254,22 @@
 @media (max-width: 768px) {
   .glass-card { border-radius: 12px; }
 }
+
+.nav-link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: rgba(240, 253, 244, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+.nav-link-item:hover {
+  background: rgba(163, 230, 53, 0.08);
+  color: #a3e635;
+}
+

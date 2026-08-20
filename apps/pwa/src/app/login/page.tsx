@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Recycle, LogIn, Mail, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Recycle, LogIn, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const { login, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -30,153 +31,98 @@ export default function LoginPage() {
       router.push('/');
     } catch (err: any) {
       console.warn('Login error:', err);
-      setLocalError(err?.message || 'Credenciales inválidas o error de conexión.');
+      setLocalError(err?.message || 'Credenciales inválidas o error de conexión con el servidor.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="pwa-container">
-      <header className="header">
-        <Link
-          href="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            color: '#94a3b8',
-            textDecoration: 'none',
-            fontSize: '0.85rem',
-          }}
-        >
-          <ArrowLeft size={16} />
-          <span>Volver al Inicio</span>
-        </Link>
-      </header>
-
-      <main className="main-content" style={{ justifyContent: 'center' }}>
-        <div
-          style={{
-            background: 'rgba(22, 31, 53, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '2rem 1.5rem',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-          }}
-        >
-          {/* Logo & Title */}
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+    <div className="auth-wrapper">
+      <div className="auth-container">
+        {/* Main Card */}
+        <div className="auth-card">
+          {/* Logo & Header */}
+          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <div
               style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '14px',
+                width: '58px',
+                height: '58px',
+                borderRadius: '16px',
                 background: 'linear-gradient(135deg, #10b981, #06b6d4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 0.75rem',
-                color: '#0a0f1d',
-                boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)',
+                margin: '0 auto 1rem',
+                color: '#070b14',
+                boxShadow: '0 0 25px rgba(16, 185, 129, 0.45)',
+                animation: 'pulseGlow 3s infinite ease-in-out',
               }}
             >
-              <Recycle size={28} strokeWidth={2.5} />
+              <Recycle size={32} strokeWidth={2.4} />
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Iniciar Sesión
-            </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.825rem', marginTop: '0.25rem' }}>
-              Ingresa a CleanCity PWA y administra tus tokens RECI
+            </h1>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.35rem', lineHeight: 1.4 }}>
+              Ingresa a CleanCity y administra tus puntos de reciclaje
             </p>
           </div>
 
+          {/* Feedback alert */}
           {(localError || error) && (
-            <div
-              style={{
-                background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '10px',
-                padding: '0.75rem',
-                marginBottom: '1.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#f87171',
-                fontSize: '0.8rem',
-              }}
-            >
-              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+            <div className="alert-box alert-error" style={{ marginBottom: '1.25rem' }}>
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
               <span>{localError || error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.35rem', fontWeight: 500 }}>
-                Correo Electrónico:
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+            <div className="form-group">
+              <label className="form-label">
+                Correo Electrónico
               </label>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  padding: '0 0.75rem',
-                }}
-              >
-                <Mail size={16} color="#64748b" />
+              <div className="input-box">
+                <Mail size={17} color="#64748b" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="usuario@ejemplo.com"
                   required
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    padding: '0.75rem 0.5rem',
-                    color: '#f8fafc',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                  }}
+                  className="form-input"
+                  autoComplete="email"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.35rem', fontWeight: 500 }}>
-                Contraseña:
-              </label>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  padding: '0 0.75rem',
-                }}
-              >
-                <Lock size={16} color="#64748b" />
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="form-label">
+                  Contraseña
+                </label>
+              </div>
+              <div className="input-box">
+                <Lock size={17} color="#64748b" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  style={{
-                    width: '100%',
-                    background: 'transparent',
-                    border: 'none',
-                    padding: '0.75rem 0.5rem',
-                    color: '#f8fafc',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                  }}
+                  className="form-input"
+                  autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="input-icon-btn"
+                  title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -184,29 +130,33 @@ export default function LoginPage() {
               type="submit"
               className="btn-primary"
               disabled={submitting}
-              style={{ marginTop: '0.5rem' }}
+              style={{ marginTop: '0.35rem' }}
             >
               {submitting ? (
-                <span>Ingresando...</span>
+                <>
+                  <span style={{ width: 16, height: 16, border: '2px solid #04140d', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                  <span>Ingresando...</span>
+                </>
               ) : (
                 <>
-                  <LogIn size={16} />
+                  <LogIn size={17} strokeWidth={2.4} />
                   <span>Iniciar Sesión</span>
                 </>
               )}
             </button>
           </form>
 
-          <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1rem' }}>
-            <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+          {/* Bottom links */}
+          <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem' }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
               ¿No tienes una cuenta aún?{' '}
-              <Link href="/register" style={{ color: '#10b981', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/register" style={{ color: '#10b981', fontWeight: 700, textDecoration: 'none', marginLeft: '0.2rem' }}>
                 Regístrate aquí
               </Link>
             </span>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

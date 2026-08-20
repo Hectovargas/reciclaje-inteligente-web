@@ -30,9 +30,9 @@ export default function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
   const totalNetworkCount = ZONES.reduce((acc: number, z: any) => acc + (z.todayCount || 0), 0)
   const participationPct = totalNetworkCount > 0 && zone.todayCount ? Math.round((zone.todayCount / totalNetworkCount) * 100) : 0
   const todayCount = zone.todayCount || 0
-  const prevCount = zone.prevCount || 1
+  const prevCount = zone.prevCount || 0
   const diffCount = todayCount - prevCount
-  const diffPct = Math.round((diffCount / prevCount) * 100)
+  const diffPct = prevCount > 0 ? Math.round((diffCount / prevCount) * 100) : 0
   const diffColor = diffPct >= 0 ? '#34d399' : '#ef4444'
   const diffSign = diffPct >= 0 ? '+' : ''
   const fullStations: Station[] = zone.stations.map((s: any) => getStationFromZoneItem(s, zone.name))
@@ -55,7 +55,7 @@ export default function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, width: '100%', maxWidth: 420 }}>
             {[
-              { label: 'Volumen hoy', value: todayCount.toLocaleString(), color: zc, subtext: `${diffSign}${diffPct}% vs ayer`, subtextColor: diffColor },
+              { label: 'Volumen hoy', value: todayCount.toLocaleString(), color: zc, subtext: prevCount > 0 ? `${diffSign}${diffPct}% vs ayer` : 'Sin datos previos', subtextColor: diffColor },
               { label: 'Participación red', value: `${participationPct}%`, color: '#22d3ee', subtext: 'del total', subtextColor: 'rgba(240,253,244,0.35)' },
               { label: 'Estaciones activas', value: `${activeCount}/${zone.stations.length}`, color: '#a78bfa', subtext: 'operativas', subtextColor: 'rgba(240,253,244,0.35)' },
             ].map(p => (

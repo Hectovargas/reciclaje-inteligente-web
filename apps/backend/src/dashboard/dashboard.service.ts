@@ -8,11 +8,27 @@ export class DashboardService {
   async obtenerMetricasAgregadas() {
     const totalEventos = await this.prisma.eventoClasificacion.count();
     
-    const papelCount = await this.prisma.eventoClasificacion.count({ where: { categoria: 'Papel' } });
-    const plasticoCount = await this.prisma.eventoClasificacion.count({ where: { categoria: 'Plástico' } });
-    const metalCount = await this.prisma.eventoClasificacion.count({ where: { categoria: 'Metal' } });
+    const [papelCount, plasticoCount, metalCount] = await Promise.all([
+      this.prisma.eventoClasificacion.count({ where: { categoria: 'Papel' } }),
+      this.prisma.eventoClasificacion.count({ where: { categoria: 'Plástico' } }),
+      this.prisma.eventoClasificacion.count({ where: { categoria: 'Metal' } }),
+    ]);
 
     const total = totalEventos || 1;
+
+    const [avgAll, avgPapel, avgPlastico, avgMetal] = await Promise.all([
+      this.prisma.eventoClasificacion.aggregate({ _avg: { confianza: true } }),
+      this.prisma.eventoClasificacion.aggregate({ where: { categoria: 'Papel' }, _avg: { confianza: true } }),
+      this.prisma.eventoClasificacion.aggregate({ where: { categoria: 'Plástico' }, _avg: { confianza: true } }),
+      this.prisma.eventoClasificacion.aggregate({ where: { categoria: 'Metal' }, _avg: { confianza: true } }),
+    ]);
+
+    const accuracyVal = avgAll._avg.confianza ? Math.round(avgAll._avg.confianza * 1000) / 10 : 0;
+    const aiConfVal = avgAll._avg.confianza ? Math.round(avgAll._avg.confianza * 100) : 0;
+
+    const papelVal = avgPapel._avg.confianza ? Math.round(avgPapel._avg.confianza * 1000) / 10 : 0;
+    const plasticoVal = avgPlastico._avg.confianza ? Math.round(avgPlastico._avg.confianza * 1000) / 10 : 0;
+    const metalVal = avgMetal._avg.confianza ? Math.round(avgMetal._avg.confianza * 1000) / 10 : 0;
     
     const recentEvents = await this.prisma.eventoClasificacion.findMany({
       take: 10,
@@ -30,33 +46,29 @@ export class DashboardService {
 
     const totalStationsCount = await this.prisma.station.count();
 
-    const zones = await this.prisma.zone.findMany({
-      where: { isActive: true },
-      include: { stations: true }
-    });
-    
-    const zonesData = zones.map(z => ({
-      id: z.id,
-      name: z.name,
-      value: 0,
-      todayCount: 0,
-      prevCount: 0,
-      stations: z.stations.map(s => ({
-        id: s.id,
-        name: s.name,
-        fill: s.capacity,
-        status: s.status.toLowerCase(),
-        last: ''
-      }))
-    }));
-
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
     const startOfWeek = new Date(startOfToday);
     startOfWeek.setDate(startOfWeek.getDate() - 7);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    const [eventsToday, eventsWeek, eventsYear] = await Promise.all([
+    const zones = await this.prisma.zone.findMany({
+      where: { isActive: true },
+      include: {
+        stations: {
+          include: {
+            telemetrias: {
+              orderBy: { timestamp: 'desc' },
+              take: 1,
+            },
+          },
+        },
+      },
+    });
+
+    const [eventsToday, eventsWeek, eventsYear, totalEventsTodayCount] = await Promise.all([
       this.prisma.eventoClasificacion.findMany({
         where: { timestamp: { gte: startOfToday } },
         select: { timestamp: true }
@@ -68,8 +80,46 @@ export class DashboardService {
       this.prisma.eventoClasificacion.findMany({
         where: { timestamp: { gte: startOfYear } },
         select: { timestamp: true, categoria: true }
-      })
+      }),
+      this.prisma.eventoClasificacion.count({
+        where: { timestamp: { gte: startOfToday } },
+      }),
     ]);
+
+    const zonesData = await Promise.all(
+      zones.map(async (z) => {
+        const stationIds = z.stations.map((s) => s.id);
+        const [todayCount, prevCount] = await Promise.all([
+          this.prisma.eventoClasificacion.count({
+            where: { stationId: { in: stationIds }, timestamp: { gte: startOfToday } },
+          }),
+          this.prisma.eventoClasificacion.count({
+            where: { stationId: { in: stationIds }, timestamp: { gte: startOfYesterday, lt: startOfToday } },
+          }),
+        ]);
+        const value = totalEventsTodayCount > 0 ? Math.round((todayCount / totalEventsTodayCount) * 100) : 0;
+        return {
+          id: z.id,
+          name: z.name,
+          value,
+          todayCount,
+          prevCount,
+          stations: z.stations.map((s) => {
+            const lastTelem = s.telemetrias?.[0];
+            const fillLevel = lastTelem
+              ? Math.round((lastTelem.nivelPapel + lastTelem.nivelPlastico + lastTelem.nivelMetal) / 3)
+              : 0;
+            return {
+              id: s.id,
+              name: s.name,
+              fill: fillLevel,
+              status: s.status.toLowerCase(),
+              last: lastTelem ? lastTelem.timestamp.toISOString() : '',
+            };
+          }),
+        };
+      })
+    );
 
     const hoyArr = Array(24).fill(0);
     for (const evt of eventsToday) {
@@ -100,8 +150,8 @@ export class DashboardService {
     return {
       kgTotal: totalEventos * 1.5,
       kgSaved: totalEventos * 1.3,
-      accuracy: totalEventos > 0 ? 98.3 : 0,
-      aiConf: totalEventos > 0 ? 96 : 0,
+      accuracy: accuracyVal,
+      aiConf: aiConfVal,
       timeBetweenEmptying: 0,
       timeBetweenEmptyingPrev: 0,
       efficiencyGainPct: 0,
@@ -115,9 +165,9 @@ export class DashboardService {
         { name: 'Metal', count: metalCount, pct: totalEventos > 0 ? ((metalCount/total)*100).toFixed(1) : '0.0', color: '#a78bfa' },
       ],
       iaAccuracyBreakdown: [
-        { label: 'Papel', color: '#a3e635', val: totalEventos > 0 ? 99.1 : 0 },
-        { label: 'Plástico', color: '#22d3ee', val: totalEventos > 0 ? 97.8 : 0 },
-        { label: 'Metal', color: '#a78bfa', val: totalEventos > 0 ? 98.2 : 0 },
+        { label: 'Papel', color: '#a3e635', val: papelVal },
+        { label: 'Plástico', color: '#22d3ee', val: plasticoVal },
+        { label: 'Metal', color: '#a78bfa', val: metalVal },
       ],
       peakData: {
         hoy: hoyArr,
@@ -131,7 +181,7 @@ export class DashboardService {
 
   async getStations() {
     const stations = await this.prisma.station.findMany({
-      include: { zone: true, events: true },
+      include: { zone: true, events: true, telemetrias: { orderBy: { timestamp: 'desc' }, take: 1 } },
     });
     return stations.map((s) => ({
       id: s.id,
@@ -143,6 +193,10 @@ export class DashboardService {
       zoneId: s.zoneId,
       today: s.events?.length || 0,
       token: s.token,
+      macAddress: s.macAddress,
+      provisioningToken: s.provisioningToken,
+      lastPingAt: s.lastPingAt,
+      lastTelemetry: s.telemetrias?.[0] || null,
     }));
   }
 

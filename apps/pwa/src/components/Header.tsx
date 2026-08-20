@@ -37,7 +37,7 @@ export function Header() {
               CleanCity
             </div>
             <div style={{ color: '#10b981', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-              RECICLAJE PWA
+              RECICLAJE INTELIGENTE
             </div>
           </div>
         </Link>
@@ -63,11 +63,11 @@ export function Header() {
                 gap: '0.4rem',
                 transition: 'all 0.2s ease',
               }}
-              title="Ver Perfil y Wallet"
+              title="Ver mi Perfil"
             >
-              <Wallet size={15} />
+              <UserIcon size={15} />
               <span style={{ fontWeight: 600 }}>
-                {user.walletAddress ? shortenAddress(user.walletAddress) : user.name.split(' ')[0]}
+                {user.name ? user.name.split(' ')[0] : shortenAddress(user.walletAddress)}
               </span>
               <ChevronDown size={14} />
             </button>

@@ -7,11 +7,28 @@ import {
   User,
 } from '../types';
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? `${window.location.protocol}//${window.location.hostname}:3000`
-    : 'http://localhost:3000');
+export function resolveApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const publicEnv = process.env.NEXT_PUBLIC_API_URL;
+    // If NEXT_PUBLIC_API_URL is set and is a valid external URL (not an internal docker network name like 'http://backend:...')
+    if (publicEnv && !publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
+      return publicEnv.replace(/\/$/, '');
+    }
+    // Dynamic fallback to the browser's current host on port 3000 (standard backend port)
+    const protocol = window.location.protocol || 'http:';
+    const hostname = window.location.hostname || 'localhost';
+    return `${protocol}//${hostname}:3000`;
+  }
+
+  // Server-side execution (Node / SSR)
+  return (
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://backend:3000'
+  ).replace(/\/$/, '');
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   status: number;
@@ -29,9 +46,10 @@ export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const baseUrl = typeof window !== 'undefined' ? resolveApiBaseUrl() : API_BASE_URL;
   const url = endpoint.startsWith('http')
     ? endpoint
-    : `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    : `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
   const headers = new Headers(options.headers || {});
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {

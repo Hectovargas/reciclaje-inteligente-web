@@ -14,16 +14,15 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
   const zoneName = getStationZoneName(station);
 
   const lastTelem = station.lastTelemetry || (station.telemetrias && station.telemetrias[0]);
-  const papelLevel = lastTelem ? lastTelem.nivelPapel : Math.min(100, Math.round(station.capacity * 0.45));
-  const plasticoLevel = lastTelem ? lastTelem.nivelPlastico : Math.min(100, Math.round(station.capacity * 0.35));
-  const metalLevel = lastTelem ? lastTelem.nivelMetal : Math.min(100, Math.round(station.capacity * 0.2));
+  const papelLevel = lastTelem ? lastTelem.nivelPapel : 0;
+  const plasticoLevel = lastTelem ? lastTelem.nivelPlastico : 0;
+  const metalLevel = lastTelem ? lastTelem.nivelMetal : 0;
   const maxBinLevel = Math.max(papelLevel, plasticoLevel, metalLevel);
 
   const isOffline = station.status === 'OFFLINE' || station.status === 'offline';
   const isPending = station.status === 'PENDING_ACTIVATION' || station.status === 'pending_activation';
 
-  const estHours = Math.max(1, Math.round((100 - maxBinLevel) / 8));
-  const estMinutes = (maxBinLevel * 7) % 60;
+  const estHours = lastTelem && maxBinLevel > 0 ? Math.max(1, Math.round((100 - maxBinLevel) / 8)) : null;
 
   return (
     <div
@@ -151,7 +150,7 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
               color: maxBinLevel >= 80 ? '#fbbf24' : '#22d3ee',
             }}
           >
-            ~{estHours}h {estMinutes > 0 ? `${estMinutes}m` : ''}
+            {estHours !== null ? `~${estHours}h` : '> 24h'}
           </div>
         </div>
       ) : isPending ? (

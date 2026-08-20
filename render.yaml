@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: cleancity-pwa
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: npm install -g pnpm && pnpm install && pnpm build:pwa
+    startCommand: pnpm --filter pwa start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_URL
+        sync: false
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

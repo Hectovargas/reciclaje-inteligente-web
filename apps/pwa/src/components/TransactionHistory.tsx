@@ -218,7 +218,7 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
             Aún no tienes recompensas registradas.
           </p>
           <span style={{ fontSize: '0.75rem', color: '#475569' }}>
-            Escanea tu primer código QR para recibir tokens RECI.
+            Escanea tu primer código QR para acumular puntos.
           </span>
         </div>
       )}
@@ -251,23 +251,11 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
                 <span>{formatDate(tx.createdAt)}</span>
                 {tx.txHash ? (
-                  <a
-                    href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#06b6d4',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.2rem',
-                    }}
-                  >
+                  <span style={{ color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <span>{`${tx.txHash.substring(0, 6)}...${tx.txHash.substring(tx.txHash.length - 4)}`}</span>
-                    <ExternalLink size={11} />
-                  </a>
+                  </span>
                 ) : (
-                  <span style={{ color: '#64748b' }}>Batch BullMQ</span>
+                  <span style={{ color: '#64748b' }}>En procesamiento</span>
                 )}
               </div>
             </div>

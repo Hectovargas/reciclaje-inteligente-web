@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, QrCode, Upload, Sparkles, AlertCircle, RefreshCw, CheckCircle, VideoOff } from 'lucide-react';
+import { Camera, QrCode, Upload, AlertCircle, RefreshCw, VideoOff } from 'lucide-react';
 import type { Html5Qrcode } from 'html5-qrcode';
 
 interface QrScannerProps {
@@ -10,10 +10,9 @@ interface QrScannerProps {
 }
 
 export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
-  const [mode, setMode] = useState<'camera' | 'file' | 'manual'>('camera');
+  const [mode, setMode] = useState<'camera' | 'file'>('camera');
   const [isScanning, setIsScanning] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [manualCode, setManualCode] = useState('');
   const [cameras, setCameras] = useState<Array<{ id: string; label: string }>>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string>('');
   const [fileScanError, setFileScanError] = useState<string | null>(null);
@@ -131,19 +130,6 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
     }
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (manualCode.trim()) {
-      handleSuccessScan(manualCode.trim());
-    }
-  };
-
-  const handleDemoPreset = (material: string) => {
-    const demoCode = `QR-${material.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-    setManualCode(demoCode);
-    handleSuccessScan(demoCode);
-  };
-
   return (
     <div className="scan-card">
       {/* Mode Switch Tabs */}
@@ -209,32 +195,6 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
           <Upload size={14} />
           <span>Subir QR</span>
         </button>
-
-        <button
-          onClick={() => {
-            stopScanner();
-            setMode('manual');
-          }}
-          style={{
-            flex: 1,
-            padding: '0.5rem',
-            borderRadius: '9px',
-            border: 'none',
-            background: mode === 'manual' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-            color: mode === 'manual' ? '#10b981' : '#94a3b8',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.35rem',
-            transition: 'all 0.2s',
-          }}
-        >
-          <Sparkles size={14} />
-          <span>Manual / Demo</span>
-        </button>
       </div>
 
       {/* 1. Camera View */}
@@ -274,7 +234,7 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
                 Escáner QR en Tiempo Real
               </h3>
               <p style={{ color: '#94a3b8', fontSize: '0.825rem', maxWidth: '300px', margin: '0 auto 1.25rem' }}>
-                Apunta con la cámara al código QR que aparece en la pantalla OLED de la estación CleanCity.
+                Apunta con la cámara al código QR que aparece en la pantalla de la estación de reciclaje.
               </p>
               <button
                 className="btn-primary"
@@ -358,22 +318,6 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
               <AlertCircle size={16} style={{ flexShrink: 0 }} />
               <div>
                 <span>{cameraError}</span>
-                <div style={{ marginTop: '0.25rem' }}>
-                  <button
-                    onClick={() => setMode('manual')}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#06b6d4',
-                      textDecoration: 'underline',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      padding: 0,
-                    }}
-                  >
-                    Usar modo manual o demo
-                  </button>
-                </div>
               </div>
             </div>
           )}
@@ -430,69 +374,6 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
               <span>{fileScanError}</span>
             </div>
           )}
-        </div>
-      )}
-
-      {/* 3. Manual / Demo View */}
-      {mode === 'manual' && (
-        <div style={{ width: '100%', textAlign: 'left' }}>
-          <form onSubmit={handleManualSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <label style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>
-              Código o Token QR:
-            </label>
-            <input
-              type="text"
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
-              placeholder="Ej: QR-PLASTICO-1723680000-abcd1234"
-              style={{
-                width: '100%',
-                background: 'rgba(15, 23, 42, 0.8)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '10px',
-                padding: '0.75rem',
-                color: '#f8fafc',
-                fontSize: '0.85rem',
-                outline: 'none',
-              }}
-            />
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={!manualCode.trim() || isProcessing}
-            >
-              <CheckCircle size={16} />
-              <span>Verificar y Procesar</span>
-            </button>
-          </form>
-
-          {/* Quick Demo Buttons for Testnet / Lab testing */}
-          <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>
-              DEMO PRESETS (SIMULACIÓN DE ESTACIÓN):
-            </span>
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-              {['Plastico', 'Metal', 'Papel', 'Vidrio'].map((mat) => (
-                <button
-                  key={mat}
-                  type="button"
-                  onClick={() => handleDemoPreset(mat)}
-                  style={{
-                    background: 'rgba(30, 41, 59, 0.6)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    borderRadius: '8px',
-                    padding: '0.4rem 0.7rem',
-                    color: '#10b981',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  +{mat === 'Metal' ? '15' : mat === 'Papel' ? '5' : mat === 'Vidrio' ? '8' : '10'} RECI ({mat})
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>

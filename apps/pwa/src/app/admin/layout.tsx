@@ -32,9 +32,7 @@ function AdminSidebar() {
         <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.4)', fontWeight: 600, letterSpacing: '0.06em', marginTop: 2 }}>CLEANCITY ADMIN</div>
       </div>
       {navItems.map(item => (
-        <a key={item.href} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, color: 'rgba(240,253,244,0.6)', fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s', fontFamily: 'var(--font-sans)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(163,230,53,0.08)'; e.currentTarget.style.color = '#a3e635' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(240,253,244,0.6)' }}>
+        <a key={item.href} href={item.href} className="nav-link-item">
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 16 }}>{item.icon}</span>
           {item.label}
         </a>

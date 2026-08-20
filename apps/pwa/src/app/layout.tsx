@@ -4,13 +4,13 @@ import { AuthProvider } from '../context/AuthContext';
 import { OfflineBanner } from '../components/OfflineBanner';
 
 export const metadata: Metadata = {
-  title: 'CleanCity PWA - Escanea & Gana Tokens RECI',
-  description: 'Aplicación PWA móvil para escanear códigos QR de reciclaje inteligente y recibir tokens ERC-20 on-chain.',
+  title: 'CleanCity - Reciclaje Inteligente',
+  description: 'Aplicación de reciclaje inteligente para escanear códigos QR y recibir recompensas ecológicas.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'CleanCity PWA',
+    title: 'CleanCity',
   },
 };
 

@@ -15,7 +15,8 @@ describe('DashboardService', () => {
           useValue: {
             eventoClasificacion: { 
               count: jest.fn().mockResolvedValue(10),
-              findMany: jest.fn().mockResolvedValue([])
+              findMany: jest.fn().mockResolvedValue([]),
+              aggregate: jest.fn().mockResolvedValue({ _avg: { confianza: 0.95 } }),
             },
             station: { 
               count: jest.fn().mockResolvedValue(0),

@@ -6,83 +6,61 @@ import { WifiOff, RefreshCw, Recycle, Home } from 'lucide-react';
 
 export default function OfflinePage() {
   return (
-    <div className="pwa-container">
-      <header className="header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontWeight: 700 }}>
-          <Recycle size={22} />
-          <span>CleanCity PWA</span>
-        </div>
-      </header>
-
-      <main className="main-content" style={{ justifyContent: 'center', textAlign: 'center' }}>
-        <div
-          style={{
-            background: 'rgba(22, 31, 53, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '2.5rem 1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
+    <div className="auth-wrapper">
+      <div className="auth-container" style={{ maxWidth: '420px' }}>
+        {/* Main Card */}
+        <div className="auth-card" style={{ textAlign: 'center' }}>
+          {/* Offline icon badge */}
           <div
             style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
+              width: '68px',
+              height: '68px',
+              borderRadius: '20px',
               background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              margin: '0 auto 1.25rem',
               color: '#ef4444',
+              boxShadow: '0 0 25px rgba(239, 68, 68, 0.25)',
             }}
           >
-            <WifiOff size={32} />
+            <WifiOff size={34} />
           </div>
 
-          <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
             Sin Conexión a Internet
-          </h2>
+          </h1>
 
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', maxWidth: '280px', lineHeight: 1.4 }}>
-            No se ha podido establecer conexión con los servidores de CleanCity. La PWA mantendrá tu sesión en caché.
+          <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
+            No se ha podido conectar con el servicio de CleanCity. Tus datos se sincronizarán al recuperar la conexión a internet.
           </p>
 
-          <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '280px', marginTop: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.75rem' }}>
             <button
               onClick={() => window.location.reload()}
               className="btn-primary"
-              style={{ flex: 1, padding: '0.7rem' }}
             >
-              <RefreshCw size={15} />
-              <span>Reintentar</span>
+              <RefreshCw size={16} />
+              <span>Reintentar Conexión</span>
             </button>
             <Link
               href="/"
-              style={{
-                flex: 1,
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
-                padding: '0.7rem',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.35rem',
-              }}
+              className="btn-secondary"
             >
-              <Home size={15} />
-              <span>Inicio</span>
+              <Home size={16} />
+              <span>Volver a Inicio</span>
             </Link>
           </div>
         </div>
-      </main>
+
+        {/* Brand footer */}
+        <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.75rem' }}>
+          <Recycle size={14} color="#10b981" />
+          <span>CleanCity • Reciclaje Inteligente</span>
+        </div>
+      </div>
     </div>
   );
 }

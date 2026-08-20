@@ -1,0 +1,56 @@
+# Multi-stage production Dockerfile for Backend (NestJS + Prisma)
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm and openssl for Prisma
+RUN npm install -g pnpm && apk add --no-cache openssl
+
+# Copy workspace configurations and manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/backend/package.json ./apps/backend/
+COPY packages/contracts/package.json ./packages/contracts/
+
+# Install dependencies across monorepo
+RUN pnpm install
+
+# Copy source files
+COPY packages/contracts ./packages/contracts
+COPY apps/backend ./apps/backend
+
+# Generate Prisma Client & Build backend
+WORKDIR /app/apps/backend
+RUN npx prisma generate
+RUN pnpm build
+
+# Production Runner Stage
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN npm install -g pnpm && apk add --no-cache openssl
+
+# Set environment to production
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/backend/package.json ./apps/backend/
+COPY packages/contracts/package.json ./packages/contracts/
+
+# Install production dependencies only
+RUN pnpm install --prod
+
+# Copy Prisma schema, migrations, and compiled dist from builder
+COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
+
+WORKDIR /app/apps/backend
+
+EXPOSE 3000
+
+# Run migrations and start server
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

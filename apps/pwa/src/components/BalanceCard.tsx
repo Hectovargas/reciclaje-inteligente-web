@@ -88,7 +88,7 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
           Tu Billetera de Reciclaje
         </h3>
         <p style={{ color: '#94a3b8', fontSize: '0.825rem', marginBottom: '1rem' }}>
-          Inicia sesión o regístrate para acceder a tu wallet custodial y acumular tokens $RECI.
+          Inicia sesión o regístrate para acumular tus puntos y recompensas de reciclaje.
         </p>
         <Link
           href="/login"
@@ -118,23 +118,10 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <Shield size={15} color="#10b981" />
           <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500 }}>
-            Saldo Custodial Web3
+            Saldo Acumulado
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span
-            style={{
-              fontSize: '0.65rem',
-              color: '#06b6d4',
-              background: 'rgba(6, 182, 212, 0.1)',
-              padding: '0.2rem 0.5rem',
-              borderRadius: '6px',
-              fontWeight: 600,
-              border: '1px solid rgba(6, 182, 212, 0.2)',
-            }}
-          >
-            Sepolia ERC-20
-          </span>
           <button
             onClick={fetchBalance}
             disabled={loading}
@@ -199,7 +186,7 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Wallet:</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>ID de Cuenta:</span>
             <code style={{ fontSize: '0.75rem', color: '#cbd5e1', fontWeight: 600 }}>
               {shortenAddress(user.walletAddress)}
             </code>

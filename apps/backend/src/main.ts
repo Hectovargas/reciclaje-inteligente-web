@@ -14,19 +14,36 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   // Allowed CORS origins
-  const allowedOrigins = [
+  const baseAllowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
     'http://localhost:8080',
   ];
+
   if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
+    const customOrigins = process.env.FRONTEND_URL.split(',').map((url) => url.trim());
+    baseAllowedOrigins.push(...customOrigins);
   }
 
   // Security
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or same-origin server requests)
+      if (!origin) return callback(null, true);
+
+      // In development or if explicitly allowed
+      if (
+        process.env.NODE_ENV === 'development' ||
+        baseAllowedOrigins.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        origin.endsWith('.up.railway.app')
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
     credentials: true,
   });
   app.use(helmet());

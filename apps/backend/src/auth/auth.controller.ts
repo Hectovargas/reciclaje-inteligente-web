@@ -22,10 +22,13 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const { access_token, user } = await this.authService.register(registerDto);
 
+    const sameSiteMode = (process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax')) as 'none' | 'lax' | 'strict';
+    const isSecure = process.env.NODE_ENV === 'production' || sameSiteMode === 'none';
+
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite: sameSiteMode,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -35,6 +38,7 @@ export class AuthController {
       name: user.name,
       role: user.role,
       walletAddress: user.walletAddress,
+      access_token,
       user,
     };
   }
@@ -48,10 +52,13 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { access_token, user } = await this.authService.login(loginDto);
     
+    const sameSiteMode = (process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax')) as 'none' | 'lax' | 'strict';
+    const isSecure = process.env.NODE_ENV === 'production' || sameSiteMode === 'none';
+
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite: sameSiteMode,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     });
 
@@ -61,6 +68,7 @@ export class AuthController {
       name: user.name,
       role: user.role,
       walletAddress: user.walletAddress,
+      access_token,
       user,
     };
   }
@@ -70,10 +78,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout user and clear secure cookie' })
   @ApiResponse({ status: 200, description: 'Clear access_token cookie' })
   logout(@Res({ passthrough: true }) res: Response) {
+    const sameSiteMode = (process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax')) as 'none' | 'lax' | 'strict';
+    const isSecure = process.env.NODE_ENV === 'production' || sameSiteMode === 'none';
+
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite: sameSiteMode,
     });
     return { message: 'Logged out successfully' };
   }

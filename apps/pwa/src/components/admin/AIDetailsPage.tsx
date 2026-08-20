@@ -23,7 +23,7 @@ export function AIDetailsPage() {
   const eventsList = useMemo(() => {
     const rawList: any[] = eventsRes?.data || []
     return rawList.map((evt: any) => {
-      const material = evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal'
+      const material: 'paper' | 'plastic' | 'metal' = evt.categoria === 'Papel' ? 'paper' : evt.categoria === 'Plástico' ? 'plastic' : 'metal'
       const imagePlaceholderText = evt.categoria === 'Papel' ? 'Papel / Cartón' : evt.categoria === 'Plástico' ? 'Botella / Envase' : 'Metal / Lata'
       const confidence = Math.round((evt.confianza ?? 0) * 100)
       return {
@@ -66,7 +66,7 @@ export function AIDetailsPage() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ padding: '10px 18px', borderRadius: 12, background: 'rgba(163,230,53,0.08)', border: '1px solid rgba(163,230,53,0.22)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#a3e635', fontFamily: 'var(--font-mono)' }}>{KPI_DATA.aiConf}%</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#a3e635', fontFamily: 'var(--font-mono)' }}>{KPI_DATA.aiConf ?? 0}%</span>
               <span style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.45)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Conf. Promedio</span>
             </div>
             {IA_ACCURACY_BREAKDOWN.map((item: any) => (

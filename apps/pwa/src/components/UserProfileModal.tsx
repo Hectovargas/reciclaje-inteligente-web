@@ -123,7 +123,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
           </div>
         </div>
 
-        {/* Custodial Wallet Box */}
+        {/* Account Box */}
         <div
           style={{
             background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.08))',
@@ -139,7 +139,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <ShieldCheck size={16} color="#10b981" />
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#10b981' }}>
-                Wallet Custodial EVM (Ethereum / Sepolia)
+                Identificador de Cuenta
               </span>
             </div>
             <span
@@ -152,7 +152,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 fontWeight: 600,
               }}
             >
-              AES-256 Cifrado
+              Protegida
             </span>
           </div>
 
@@ -176,7 +176,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                 wordBreak: 'break-all',
               }}
             >
-              {user.walletAddress || 'Sin dirección asignada'}
+              {user.walletAddress || 'Sin identificador asignado'}
             </span>
             {user.walletAddress && (
               <button
@@ -196,7 +196,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
                   transition: 'all 0.2s',
                   flexShrink: 0,
                 }}
-                title="Copiar dirección"
+                title="Copiar identificador"
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />}
                 <span>{copied ? 'Copiado' : 'Copiar'}</span>
@@ -204,7 +204,7 @@ export function UserProfileModal({ isOpen, onClose, user }: UserProfileModalProp
             )}
           </div>
           <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>
-            Tus tokens RECI ganados se acumulan y mintean directamente en esta dirección custodial.
+            Tus puntos de reciclaje se acumulan de forma segura en esta cuenta.
           </p>
         </div>
 

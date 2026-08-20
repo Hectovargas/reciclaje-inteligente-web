@@ -28,7 +28,7 @@ export default function CitizenPwaPage() {
       <Header />
 
       <main className="main-content">
-        {/* Live Custodial RECI Token Balance */}
+        {/* Live RECI Balance */}
         <BalanceCard user={user} refreshTrigger={refreshTrigger} />
 
         {/* Real Camera QR Scanner Component */}

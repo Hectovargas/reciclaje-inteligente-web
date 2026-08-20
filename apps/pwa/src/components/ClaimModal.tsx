@@ -164,7 +164,7 @@ export function ClaimModal({
             <div>
               <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', fontWeight: 600 }}>Verificando Código QR</h3>
               <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                Validando firma Keccak256 y estado en blockchain...
+                Validando código de reciclaje...
               </p>
             </div>
           </div>
@@ -210,7 +210,7 @@ export function ClaimModal({
               </p>
             </div>
 
-            {/* Blockchain Batch Status Box */}
+            {/* Status Box */}
             <div
               style={{
                 background: 'rgba(30, 41, 59, 0.6)',
@@ -226,7 +226,7 @@ export function ClaimModal({
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#06b6d4', fontSize: '0.8rem', fontWeight: 600 }}>
                   <Layers size={15} />
-                  <span>Estado de Transacción:</span>
+                  <span>Estado:</span>
                 </div>
                 <span
                   style={{
@@ -238,13 +238,13 @@ export function ClaimModal({
                     color: claimResult.txStatus === 'CONFIRMED' ? '#10b981' : '#06b6d4',
                   }}
                 >
-                  {claimResult.txStatus || 'QUEUED'}
+                  {claimResult.txStatus || 'COMPLETADO'}
                 </span>
               </div>
               <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
                 {claimResult.txStatus === 'QUEUED'
-                  ? 'Tus tokens han sido encolados en BullMQ para minteo en lote ERC-20 hacia tu wallet custodial.'
-                  : 'Tokens confirmados en la red blockchain.'}
+                  ? 'Tus puntos han sido registrados exitosamente en tu cuenta.'
+                  : 'Puntos acreditados exitosamente.'}
               </p>
             </div>
 
@@ -278,7 +278,7 @@ export function ClaimModal({
                 }}
               >
                 <ShieldCheck size={14} />
-                <span>QR Criptográfico Válido</span>
+                <span>Código de Reciclaje Válido</span>
               </div>
               <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
                 Recompensa de Reciclaje
@@ -333,7 +333,7 @@ export function ClaimModal({
                 }}
               >
                 <Clock size={12} />
-                <span>Token: <code style={{ color: '#cbd5e1' }}>{verificationResult.codigo}</code></span>
+                <span>Código: <code style={{ color: '#cbd5e1' }}>{verificationResult.codigo}</code></span>
               </div>
             </div>
 
@@ -356,7 +356,7 @@ export function ClaimModal({
                         animation: 'spin 1s linear infinite',
                       }}
                     />
-                    <span>Reclamando tokens...</span>
+                    <span>Acreditando puntos...</span>
                   </>
                 ) : (
                   <>
@@ -376,7 +376,7 @@ export function ClaimModal({
                 }}
               >
                 <p style={{ color: '#f8fafc', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 500 }}>
-                  Inicia sesión para acreditar estos tokens en tu wallet custodial.
+                  Inicia sesión para acumular estos puntos en tu cuenta.
                 </p>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Link

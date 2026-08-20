@@ -24,14 +24,49 @@ import { IotModule } from './iot/iot.module';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST', '127.0.0.1'),
-          port: Number(configService.get<number>('REDIS_PORT', 6379)),
-          password: configService.get<string>('REDIS_PASSWORD') || undefined,
-          maxRetriesPerRequest: null,
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL') || process.env.REDIS_URL;
+        if (redisUrl) {
+          try {
+            const parsed = new URL(redisUrl);
+            return {
+              connection: {
+                host: parsed.hostname,
+                port: Number(parsed.port) || 6379,
+                username: parsed.username ? decodeURIComponent(parsed.username) : undefined,
+                password: parsed.password ? decodeURIComponent(parsed.password) : undefined,
+                tls: parsed.protocol === 'rediss:' ? {} : undefined,
+                maxRetriesPerRequest: null,
+              },
+            };
+          } catch {
+            // Fallback if URL parsing fails
+          }
+        }
+
+        return {
+          connection: {
+            host:
+              configService.get<string>('REDIS_HOST') ||
+              configService.get<string>('REDISHOST') ||
+              '127.0.0.1',
+            port: Number(
+              configService.get<number>('REDIS_PORT') ||
+              configService.get<number>('REDISPORT') ||
+              6379,
+            ),
+            password:
+              configService.get<string>('REDIS_PASSWORD') ||
+              configService.get<string>('REDISPASSWORD') ||
+              undefined,
+            username:
+              configService.get<string>('REDIS_USER') ||
+              configService.get<string>('REDISUSER') ||
+              undefined,
+            maxRetriesPerRequest: null,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     PrismaModule,

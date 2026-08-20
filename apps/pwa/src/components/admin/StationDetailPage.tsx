@@ -58,12 +58,11 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
   }
 
   const lastTelem = station.lastTelemetry || (station.telemetrias && station.telemetrias[0])
-  const papelLevel = lastTelem ? lastTelem.nivelPapel : Math.min(100, Math.round(station.capacity * 0.45))
-  const plasticoLevel = lastTelem ? lastTelem.nivelPlastico : Math.min(100, Math.round(station.capacity * 0.35))
-  const metalLevel = lastTelem ? lastTelem.nivelMetal : Math.min(100, Math.round(station.capacity * 0.20))
+  const papelLevel = lastTelem ? lastTelem.nivelPapel : 0
+  const plasticoLevel = lastTelem ? lastTelem.nivelPlastico : 0
+  const metalLevel = lastTelem ? lastTelem.nivelMetal : 0
   const avgLevel = Math.round((papelLevel + plasticoLevel + metalLevel) / 3)
-  const estHours = Math.max(1, Math.round((100 - avgLevel) / 8))
-  const estMinutes = (avgLevel * 7) % 60
+  const estHours = lastTelem && avgLevel > 0 ? Math.max(1, Math.round((100 - avgLevel) / 8)) : null
 
   return (
     <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 24, minHeight: '100%' }}>
@@ -117,7 +116,7 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
         <div className="glass-card" style={{ padding: 20 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Vaciado aproximado</span>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 26, fontWeight: 800, color: '#22d3ee', textShadow: '0 0 16px rgba(34,211,238,0.4)', marginTop: 8 }}>
-            {(station.status === 'OFFLINE' || station.status === 'offline') ? 'N/A' : `~${estHours}h ${estMinutes > 0 ? `${estMinutes}m` : ''}`}
+            {(station.status === 'OFFLINE' || station.status === 'offline' || !lastTelem) ? 'N/A' : (estHours !== null ? `~${estHours}h` : '> 24h')}
           </div>
           <div style={{ fontSize: 11, color: 'rgba(240,253,244,0.4)', marginTop: 4 }}>Próxima recolección estimada</div>
         </div>
@@ -141,7 +140,7 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
         <div className="glass-card" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,253,244,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Niveles de Compartimento ultrasónicos (IoT)</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#a3e635' }}>{lastTelem ? 'Telemetría en tiempo real' : 'Estimación por eventos'}</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#a3e635' }}>{lastTelem ? 'Telemetría en tiempo real' : 'Sin telemetría registrada'}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[

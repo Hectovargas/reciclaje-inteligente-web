@@ -1,6 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+function resolveConfigApiBase(): string {
+  if (typeof window !== 'undefined') {
+    const publicEnv = process.env.NEXT_PUBLIC_API_URL;
+    if (publicEnv && !publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
+      return publicEnv.replace(/\/$/, '');
+    }
+    const protocol = window.location.protocol || 'http:';
+    const hostname = window.location.hostname || 'localhost';
+    return `${protocol}//${hostname}:3000`;
+  }
+  return (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://backend:3000').replace(/\/$/, '');
+}
+
+const API_BASE = resolveConfigApiBase();
 const API_URL = `${API_BASE}/api/v1`;
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
@@ -266,6 +279,6 @@ export function getStationFromZoneItem(
     status: validStatus as StationStatus,
     capacity: cap,
     today: 0,
-    token: `tk_${s.id.toLowerCase().replace(/[^a-z0-9]/g, '')}_auth`,
+    token: '',
   };
 }
