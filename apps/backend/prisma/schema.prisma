@@ -46,7 +46,7 @@ model Station {
   id                 String                @id @default(uuid())
   name               String
   location           String
-  status             StationStatus         @default(ACTIVE)
+  status             StationStatus         @default(PENDING_ACTIVATION)
   capacity           Int                   @default(100)
   token              String?               @unique
   macAddress         String?               @unique
@@ -57,11 +57,28 @@ model Station {
   zone               Zone                  @relation(fields: [zoneId], references: [id])
   events             EventoClasificacion[]
   telemetrias        Telemetria[]
+  provisionTokens    ProvisionToken[]
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
 
   @@map("stations")
   @@index([zoneId])
+}
+
+model ProvisionToken {
+  id            String    @id @default(uuid())
+  token         String    @unique
+  stationId     String    @map("station_id")
+  station       Station   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  expiresAt     DateTime  @map("expira_en")
+  used          Boolean   @default(false) @map("usado")
+  associatedMac String?   @map("mac_asociada")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("provision_tokens")
+  @@index([token])
+  @@index([stationId])
 }
 
 enum StationStatus {

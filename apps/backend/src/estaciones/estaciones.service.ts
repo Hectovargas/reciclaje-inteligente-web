@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProvisioningService } from '../provisioning/provisioning.service';
 import { CreateStationDto } from './dto/create-station.dto';
 import { UpdateStationDto } from './dto/update-station.dto';
 import { StationStatus } from '@prisma/client';
@@ -7,7 +8,10 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class EstacionesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly provisioningService: ProvisioningService,
+  ) {}
 
   async findAll(filter?: { zoneId?: string; status?: StationStatus }) {
     const where: any = {};
@@ -106,9 +110,9 @@ export class EstacionesService {
       }
     }
 
-    const token = 'tk_' + crypto.randomBytes(8).toString('hex');
-    const provisioningToken = 'prov_' + crypto.randomBytes(8).toString('hex');
-    const initialStatus = dto.macAddress ? StationStatus.PENDING_ACTIVATION : StationStatus.ACTIVE;
+    const token = 'tk_' + crypto.randomBytes(16).toString('hex');
+    const deviceSecret = 'sec_' + crypto.randomBytes(16).toString('hex');
+    const initialStatus = StationStatus.PENDING_ACTIVATION;
 
     const station = await this.prisma.station.create({
       data: {
@@ -119,12 +123,15 @@ export class EstacionesService {
         macAddress: dto.macAddress || null,
         status: initialStatus,
         token,
-        provisioningToken,
+        deviceSecret,
       },
       include: {
         zone: true,
       },
     });
+
+    // Generate 30-min short provision token
+    const provResult = await this.provisioningService.generateTokenForStation(station.id, 30);
 
     return {
       id: station.id,
@@ -134,7 +141,8 @@ export class EstacionesService {
       capacity: station.capacity,
       token: station.token,
       macAddress: station.macAddress,
-      provisioningToken: station.provisioningToken,
+      provisioningToken: provResult.token,
+      expiresAt: provResult.expiresAt,
       zoneId: station.zoneId,
       zone: station.zone ? { id: station.zone.id, name: station.zone.name, isActive: station.zone.isActive } : null,
       today: 0,
@@ -221,6 +229,33 @@ export class EstacionesService {
     };
   }
 
+  async regenerarToken(id: string) {
+    const existing = await this.prisma.station.findUnique({
+      where: { id },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Estación con ID ${id} no encontrada`);
+    }
+
+    const provResult = await this.provisioningService.generateTokenForStation(id, 30);
+
+    // If station was not yet active, ensure it stays in PENDING_ACTIVATION
+    if (existing.status !== StationStatus.ACTIVE) {
+      await this.prisma.station.update({
+        where: { id },
+        data: { status: StationStatus.PENDING_ACTIVATION },
+      });
+    }
+
+    return {
+      message: 'Token de aprovisionamiento regenerado exitosamente (válido por 30 minutos)',
+      token: provResult.token,
+      provisioningToken: provResult.token,
+      expiresAt: provResult.expiresAt,
+      stationId: id,
+    };
+  }
+
   async revokeToken(id: string) {
     const existing = await this.prisma.station.findUnique({
       where: { id },
@@ -229,14 +264,13 @@ export class EstacionesService {
       throw new NotFoundException(`Estación con ID ${id} no encontrada`);
     }
 
-    const newToken = 'tk_' + crypto.randomBytes(8).toString('hex');
-    const newProvisioningToken = 'prov_' + crypto.randomBytes(8).toString('hex');
+    const newToken = 'tk_' + crypto.randomBytes(16).toString('hex');
+    const provResult = await this.provisioningService.generateTokenForStation(id, 30);
 
     const updated = await this.prisma.station.update({
       where: { id },
       data: {
         token: newToken,
-        provisioningToken: newProvisioningToken,
       },
       include: { zone: true },
     });
@@ -244,12 +278,13 @@ export class EstacionesService {
     return {
       message: 'Token de acceso revocado y regenerado exitosamente',
       token: updated.token,
-      provisioningToken: updated.provisioningToken,
+      provisioningToken: provResult.token,
+      expiresAt: provResult.expiresAt,
       station: {
         id: updated.id,
         name: updated.name,
         token: updated.token,
-        provisioningToken: updated.provisioningToken,
+        provisioningToken: provResult.token,
         status: updated.status,
       },
     };

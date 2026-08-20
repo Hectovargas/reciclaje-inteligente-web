@@ -11,11 +11,12 @@ describe('EstacionesController', () => {
     id: 'station-1',
     name: 'Estación Central',
     location: 'Plaza Principal',
-    status: StationStatus.ACTIVE,
+    status: StationStatus.PENDING_ACTIVATION,
     capacity: 100,
     token: 'tk_123456',
-    macAddress: 'AA:BB:CC:DD:EE:FF',
-    provisioningToken: 'prov_123456',
+    macAddress: null,
+    provisioningToken: 'ABC123',
+    expiresAt: new Date(Date.now() + 30 * 60 * 1000),
     lastPingAt: null,
     zoneId: 'zone-1',
     zone: { id: 'zone-1', name: 'Zona Centro', isActive: true },
@@ -37,6 +38,13 @@ describe('EstacionesController', () => {
             create: jest.fn().mockResolvedValue(mockStation),
             update: jest.fn().mockResolvedValue(mockStation),
             remove: jest.fn().mockResolvedValue({ id: 'station-1', message: 'deleted' }),
+            regenerarToken: jest.fn().mockResolvedValue({
+              message: 'Token de aprovisionamiento regenerado exitosamente',
+              token: 'XYZ789',
+              provisioningToken: 'XYZ789',
+              expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+              stationId: 'station-1',
+            }),
             revokeToken: jest.fn().mockResolvedValue({
               token: 'tk_new',
               provisioningToken: 'prov_new',
@@ -75,17 +83,23 @@ describe('EstacionesController', () => {
     expect(service.findOne).toHaveBeenCalledWith('station-1');
   });
 
-  it('create should call service.create', async () => {
+  it('create should call service.create and return station with provision token', async () => {
     const dto = {
       name: 'Estación Central',
       location: 'Plaza Principal',
       zoneId: 'zone-1',
-      macAddress: 'AA:BB:CC:DD:EE:FF',
       capacity: 100,
     };
     const result = await controller.create(dto);
     expect(result.id).toBe('station-1');
+    expect(result.provisioningToken).toBe('ABC123');
     expect(service.create).toHaveBeenCalledWith(dto);
+  });
+
+  it('regenerarToken should call service.regenerarToken', async () => {
+    const result = await controller.regenerarToken('station-1');
+    expect(result).toHaveProperty('token', 'XYZ789');
+    expect(service.regenerarToken).toHaveBeenCalledWith('station-1');
   });
 
   it('activar should call service.activarEstacion', async () => {

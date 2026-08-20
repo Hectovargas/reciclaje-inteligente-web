@@ -92,6 +92,18 @@ export class EstacionesController {
     return this.estacionesService.remove(id);
   }
 
+  @Post(':id/regenerar-token')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Regenerar token de aprovisionamiento de 30 minutos para una estación' })
+  @ApiResponse({ status: 200, description: 'Token de aprovisionamiento regenerado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Estación no encontrada' })
+  async regenerarToken(@Param('id') id: string) {
+    return this.estacionesService.regenerarToken(id);
+  }
+
   @Post(':id/revoke-token')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)

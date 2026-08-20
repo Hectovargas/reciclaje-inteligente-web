@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EstacionesService } from './estaciones.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProvisioningService } from '../provisioning/provisioning.service';
 import { NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { StationStatus } from '@prisma/client';
 
 describe('EstacionesService', () => {
   let service: EstacionesService;
   let prisma: PrismaService;
+  let provisioningService: ProvisioningService;
 
   const mockZone = {
     id: 'zone-1',
@@ -18,11 +20,12 @@ describe('EstacionesService', () => {
     id: 'station-1',
     name: 'Estación Central',
     location: 'Plaza Principal',
-    status: StationStatus.ACTIVE,
+    status: StationStatus.PENDING_ACTIVATION,
     capacity: 100,
     token: 'tk_123456',
-    macAddress: 'AA:BB:CC:DD:EE:FF',
-    provisioningToken: 'prov_123456',
+    macAddress: null,
+    provisioningToken: 'ABC123',
+    deviceSecret: null,
     lastPingAt: null,
     zoneId: 'zone-1',
     zone: mockZone,
@@ -58,11 +61,21 @@ describe('EstacionesService', () => {
             },
           },
         },
+        {
+          provide: ProvisioningService,
+          useValue: {
+            generateTokenForStation: jest.fn().mockResolvedValue({
+              token: 'ABC123',
+              expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+            }),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<EstacionesService>(EstacionesService);
     prisma = module.get<PrismaService>(PrismaService);
+    provisioningService = module.get<ProvisioningService>(ProvisioningService);
   });
 
   it('should be defined', () => {
@@ -108,9 +121,8 @@ describe('EstacionesService', () => {
   });
 
   describe('create', () => {
-    it('should create station in PENDING_ACTIVATION when macAddress is provided', async () => {
+    it('should create station in PENDING_ACTIVATION and generate 30-min provisioning token', async () => {
       jest.spyOn(prisma.zone, 'findUnique').mockResolvedValue(mockZone as any);
-      jest.spyOn(prisma.station, 'findUnique').mockResolvedValue(null);
       jest.spyOn(prisma.station, 'create').mockResolvedValue({
         ...mockStation,
         status: StationStatus.PENDING_ACTIVATION,
@@ -120,16 +132,17 @@ describe('EstacionesService', () => {
         name: 'Nueva Estacion',
         location: 'Parque Norte',
         zoneId: 'zone-1',
-        macAddress: '11:22:33:44:55:66',
         capacity: 120,
       });
 
       expect(result).toBeDefined();
+      expect(provisioningService.generateTokenForStation).toHaveBeenCalledWith('station-1', 30);
+      expect(result.provisioningToken).toBe('ABC123');
+      expect(result.expiresAt).toBeDefined();
       expect(prisma.station.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: StationStatus.PENDING_ACTIVATION,
-            macAddress: '11:22:33:44:55:66',
           }),
         }),
       );
@@ -215,18 +228,38 @@ describe('EstacionesService', () => {
     });
   });
 
+  describe('regenerarToken', () => {
+    it('should call provisioningService and return new 30-min token', async () => {
+      jest.spyOn(prisma.station, 'findUnique').mockResolvedValue(mockStation as any);
+      jest.spyOn(prisma.station, 'update').mockResolvedValue(mockStation as any);
+
+      const result = await service.regenerarToken('station-1');
+
+      expect(provisioningService.generateTokenForStation).toHaveBeenCalledWith('station-1', 30);
+      expect(result.token).toBe('ABC123');
+      expect(result.provisioningToken).toBe('ABC123');
+      expect(result.expiresAt).toBeDefined();
+      expect(result.stationId).toBe('station-1');
+    });
+
+    it('should throw NotFoundException if station does not exist', async () => {
+      jest.spyOn(prisma.station, 'findUnique').mockResolvedValue(null);
+
+      await expect(service.regenerarToken('invalid-id')).rejects.toThrow(NotFoundException);
+    });
+  });
+
   describe('revokeToken', () => {
-    it('should regenerate tokens and return updated credentials', async () => {
+    it('should regenerate runtime token and provision token', async () => {
       jest.spyOn(prisma.station, 'findUnique').mockResolvedValue(mockStation as any);
       jest.spyOn(prisma.station, 'update').mockResolvedValue({
         ...mockStation,
-        token: 'tk_newtoken123',
-        provisioningToken: 'prov_newtoken123',
+        token: 'tk_new_key_123',
       } as any);
 
       const result = await service.revokeToken('station-1');
-      expect(result.token).toBe('tk_newtoken123');
-      expect(result.provisioningToken).toBe('prov_newtoken123');
+      expect(result.token).toBe('tk_new_key_123');
+      expect(result.provisioningToken).toBe('ABC123');
       expect(result.message).toContain('revocado');
     });
 
@@ -234,51 +267,6 @@ describe('EstacionesService', () => {
       jest.spyOn(prisma.station, 'findUnique').mockResolvedValue(null);
 
       await expect(service.revokeToken('invalid-id')).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('activarEstacion', () => {
-    it('should activate station when provisioningToken and MAC match', async () => {
-      jest.spyOn(prisma.station, 'findFirst').mockResolvedValue({
-        ...mockStation,
-        status: StationStatus.PENDING_ACTIVATION,
-      } as any);
-      jest.spyOn(prisma.station, 'update').mockResolvedValue({
-        ...mockStation,
-        status: StationStatus.ACTIVE,
-        lastPingAt: new Date(),
-      } as any);
-
-      const result = await service.activarEstacion({
-        macAddress: 'AA:BB:CC:DD:EE:FF',
-        provisioningToken: 'prov_123456',
-      });
-
-      expect(result.status).toBe(StationStatus.ACTIVE);
-      expect(result.stationId).toBe('station-1');
-      expect(result.message).toContain('exitosamente');
-    });
-
-    it('should throw UnauthorizedException if provisioningToken is invalid', async () => {
-      jest.spyOn(prisma.station, 'findFirst').mockResolvedValue(null);
-
-      await expect(
-        service.activarEstacion({
-          macAddress: 'AA:BB:CC:DD:EE:FF',
-          provisioningToken: 'invalid',
-        }),
-      ).rejects.toThrow(UnauthorizedException);
-    });
-
-    it('should throw UnauthorizedException if MAC does not match registered station MAC', async () => {
-      jest.spyOn(prisma.station, 'findFirst').mockResolvedValue(mockStation as any);
-
-      await expect(
-        service.activarEstacion({
-          macAddress: '11:22:33:44:55:66',
-          provisioningToken: 'prov_123456',
-        }),
-      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

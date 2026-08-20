@@ -15,6 +15,7 @@ import { HealthModule } from './health/health.module';
 import { ZonesModule } from './zones/zones.module';
 import { EstacionesModule } from './estaciones/estaciones.module';
 import { IotModule } from './iot/iot.module';
+import { ProvisioningModule } from './provisioning/provisioning.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { IotModule } from './iot/iot.module';
     ZonesModule,
     EstacionesModule,
     IotModule,
+    ProvisioningModule,
   ],
   providers: [
     {
