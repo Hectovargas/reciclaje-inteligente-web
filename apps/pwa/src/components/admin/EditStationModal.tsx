@@ -128,7 +128,7 @@ export function EditStationModal({ station, onClose, onUpdate, onDelete }: EditS
               Editar Estación
             </h2>
             <p style={{ fontSize: 12, color: 'rgba(240,253,244,0.45)', margin: '4px 0 0', fontFamily: 'var(--font-mono)' }}>
-              ID: {station.id}
+              ID: {station.id.length > 12 ? `${station.id.substring(0, 8)}...` : station.id}
             </p>
           </div>
           <button

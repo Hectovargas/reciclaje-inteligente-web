@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, QrCode, Upload, AlertCircle, RefreshCw, VideoOff, Sparkles, ChevronRight, ScanLine } from 'lucide-react';
+import { Camera, QrCode, Upload, AlertCircle, RefreshCw, VideoOff } from 'lucide-react';
 import type { Html5Qrcode } from 'html5-qrcode';
 
 interface QrScannerProps {
@@ -138,29 +138,6 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
         boxSizing: 'border-box',
       }}
     >
-      {/* Module Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
-          <ScanLine size={13} color="#22d3ee" style={{ flexShrink: 0 }} />
-          <span
-            className="tech-label"
-            style={{
-              color: 'rgba(240, 253, 244, 0.5)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: 'clamp(8px, 2.4vw, 9.5px)',
-            }}
-          >
-            Captura Óptica en Tiempo Real
-          </span>
-        </div>
-        <div className="tech-chip" style={{ borderColor: 'rgba(34, 211, 238, 0.25)', color: '#22d3ee', flexShrink: 0 }}>
-          <span className="pulse-dot-cyan" style={{ width: '5px', height: '5px' }} />
-          <span style={{ fontSize: '9px' }}>ACTIVO</span>
-        </div>
-      </div>
-
       {/* Mode Switch Tabs */}
       <div className="glass-tabs" style={{ boxSizing: 'border-box' }}>
         <button
@@ -364,18 +341,18 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
 
           {/* Micro-Guide Steps */}
           {!isScanning && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '4px', width: '100%', marginTop: '12px' }}>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
-                <span className="step-num">1</span>
-                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Deposita material</span>
+            <div className="steps-container">
+              <div className="step-card">
+                <span className="step-badge step-badge-1">1</span>
+                <span className="step-label">Deposita material</span>
               </div>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
-                <span className="step-num" style={{ color: '#22d3ee', background: 'rgba(34, 211, 238, 0.12)' }}>2</span>
-                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Clasificación IA</span>
+              <div className="step-card">
+                <span className="step-badge step-badge-2">2</span>
+                <span className="step-label">Clasificación IA</span>
               </div>
-              <div className="step-item" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '6px 2px', minWidth: 0 }}>
-                <span className="step-num" style={{ color: '#34d399', background: 'rgba(52, 211, 153, 0.12)' }}>3</span>
-                <span style={{ fontSize: 'clamp(8.5px, 2.3vw, 10px)', fontWeight: 600, color: 'rgba(240, 253, 244, 0.7)', lineHeight: 1.2, marginTop: '2px' }}>Escanea código</span>
+              <div className="step-card">
+                <span className="step-badge step-badge-3">3</span>
+                <span className="step-label">Escanea código</span>
               </div>
             </div>
           )}

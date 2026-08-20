@@ -301,6 +301,75 @@
   box-shadow: none;
 }
 
+/* Steps / Micro-Guide */
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.step-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 4px;
+  background: rgba(11, 16, 26, 0.5);
+  border: 1px solid rgba(99, 231, 182, 0.1);
+  border-radius: 12px;
+  min-width: 0;
+  transition: all 0.2s ease;
+}
+
+.step-card:hover {
+  background: rgba(11, 16, 26, 0.75);
+  border-color: rgba(99, 231, 182, 0.25);
+}
+
+.step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.step-badge-1 {
+  background: rgba(163, 230, 53, 0.15);
+  color: var(--accent-lime);
+  border: 1px solid rgba(163, 230, 53, 0.35);
+  box-shadow: 0 0 10px rgba(163, 230, 53, 0.2);
+}
+
+.step-badge-2 {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+}
+
+.step-badge-3 {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+.step-label {
+  font-size: clamp(9px, 2.4vw, 10.5px);
+  font-weight: 600;
+  color: rgba(240, 253, 244, 0.75);
+  line-height: 1.25;
+}
+
 /* Icon Buttons with Cyber Glass */
 .btn-glass-icon {
   background: rgba(11, 16, 26, 0.6);

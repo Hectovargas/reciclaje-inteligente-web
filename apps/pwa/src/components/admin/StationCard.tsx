@@ -39,7 +39,7 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
       {isPending && <div className="scan-line" />}
 
       {/* Card header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div
@@ -52,24 +52,31 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: s.color, fontWeight: 700 }}>
-              {station.id}
-            </span>
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: '#f0fdf4',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                letterSpacing: '-0.02em',
+              }}
+              title={station.name}
+            >
+              {station.name}
+            </div>
           </div>
           <div
             style={{
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#f0fdf4',
-              marginTop: 6,
+              fontSize: 11.5,
+              color: 'rgba(240,253,244,0.45)',
+              marginTop: 4,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             }}
           >
-            {station.name}
-          </div>
-          <div style={{ fontSize: 11, color: 'rgba(240,253,244,0.45)', marginTop: 2 }}>
             <span style={{ color: '#a3e635', fontWeight: 600 }}>{zoneName}</span> · {station.location}
           </div>
         </div>

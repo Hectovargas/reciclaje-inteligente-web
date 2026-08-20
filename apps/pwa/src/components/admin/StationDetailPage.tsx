@@ -91,7 +91,9 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, flexWrap: 'wrap' }}>
               <div style={{ width: 12, height: 12, borderRadius: '50%', background: s.color, boxShadow: `0 0 14px ${s.color}` }} />
               <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: '-0.04em', color: '#f0fdf4' }}>{station.name}</h1>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'rgba(240,253,244,0.5)', padding: '3px 8px', borderRadius: 6, background: 'rgba(240,253,244,0.06)' }}>{station.id}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'rgba(240,253,244,0.5)', padding: '3px 8px', borderRadius: 6, background: 'rgba(240,253,244,0.06)' }}>
+                ID: {station.id.length > 12 ? `${station.id.substring(0, 8)}...` : station.id}
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: 13, color: 'rgba(240,253,244,0.45)' }}>
               <span>Zona: <strong style={{ color: '#a3e635' }}>{zoneName}</strong></span>
