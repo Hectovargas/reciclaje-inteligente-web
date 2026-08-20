@@ -293,4 +293,17 @@
   box-shadow: 0 0 18px rgba(34, 211, 238, 0.2);
 }
 
+.menu-toggle-btn:hover {
+  background: rgba(163, 230, 53, 0.18) !important;
+  border-color: rgba(163, 230, 53, 0.45) !important;
+  box-shadow: 0 0 14px rgba(163, 230, 53, 0.25);
+}
+
+.drawer-close-btn:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #ef4444 !important;
+}
+
+
 
