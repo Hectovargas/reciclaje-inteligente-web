@@ -9,20 +9,9 @@ import {
 
 export function resolveApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
-    let publicEnv = process.env.NEXT_PUBLIC_API_URL;
-    if (publicEnv) {
-      publicEnv = publicEnv.trim().replace(/\/$/, '');
-      if (!publicEnv.startsWith('http://') && !publicEnv.startsWith('https://')) {
-        publicEnv = `https://${publicEnv}`;
-      }
-      if (!publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
-        return publicEnv;
-      }
-    }
-    // Dynamic fallback to the browser's current host on port 3000 (standard backend port)
-    const protocol = window.location.protocol || 'http:';
-    const hostname = window.location.hostname || 'localhost';
-    return `${protocol}//${hostname}:3000`;
+    // In browser, use relative path ("") so Next.js rewrites proxy all /api/v1/* requests
+    // directly to Railway on the server side (eliminates CORS and third-party cookie blocking)
+    return '';
   }
 
   // Server-side execution (Node / SSR)

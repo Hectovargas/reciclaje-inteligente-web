@@ -26,27 +26,23 @@ async function bootstrap() {
     baseAllowedOrigins.push(...customOrigins);
   }
 
-  // Security
+  // Security & CORS
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or same-origin server requests)
-      if (!origin) return callback(null, true);
-
-      // In development or if explicitly allowed
-      if (
-        process.env.NODE_ENV === 'development' ||
-        baseAllowedOrigins.includes(origin) ||
-        origin.endsWith('.onrender.com') ||
-        origin.endsWith('.up.railway.app')
-      ) {
-        return callback(null, true);
-      }
-
-      return callback(null, false);
-    },
+    origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Cookie',
+      'X-Station-Token',
+    ],
+    exposedHeaders: ['Set-Cookie'],
   });
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: false }));
   app.use(cookieParser());
 
   // Versioning
