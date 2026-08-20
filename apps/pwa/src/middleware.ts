@@ -16,10 +16,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  let payload: { role?: string; sub?: string } | null = null
+  let payload: { role?: string; sub?: string; exp?: number } | null = null
+  let isExpired = false
   if (token) {
     try {
-      payload = decodeJwt(token) as { role?: string; sub?: string }
+      const decoded = decodeJwt(token) as { role?: string; sub?: string; exp?: number }
+      if (decoded && typeof decoded.exp === 'number' && decoded.exp * 1000 <= Date.now()) {
+        isExpired = true
+        payload = null
+      } else if (decoded && decoded.role) {
+        payload = decoded
+      }
     } catch {
       payload = null
     }
@@ -33,25 +40,51 @@ export function middleware(request: NextRequest) {
 
   // Protect /admin/** — only ADMIN role
   if (pathname.startsWith('/admin')) {
-    if (!payload) return redirectTo('/login')
+    if (!payload) {
+      const res = redirectTo('/login')
+      if (isExpired) {
+        res.cookies.delete('access_token')
+        res.cookies.delete('auth_token')
+      }
+      return res
+    }
     if (payload.role !== 'ADMIN') return redirectTo('/app')
     return NextResponse.next()
   }
 
   // Protect /app/** — any authenticated user
   if (pathname.startsWith('/app')) {
-    if (!payload) return redirectTo('/login')
+    if (!payload) {
+      const res = redirectTo('/login')
+      if (isExpired) {
+        res.cookies.delete('access_token')
+        res.cookies.delete('auth_token')
+      }
+      return res
+    }
     return NextResponse.next()
   }
 
   // Root redirect based on role
   if (pathname === '/') {
-    if (!payload) return NextResponse.redirect(new URL('/login', request.url))
+    if (!payload) {
+      const res = NextResponse.redirect(new URL('/login', request.url))
+      if (isExpired) {
+        res.cookies.delete('access_token')
+        res.cookies.delete('auth_token')
+      }
+      return res
+    }
     if (payload.role === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
     return NextResponse.redirect(new URL('/app', request.url))
   }
 
-  return NextResponse.next()
+  const response = NextResponse.next()
+  if (isExpired) {
+    response.cookies.delete('access_token')
+    response.cookies.delete('auth_token')
+  }
+  return response
 }
 
 export const config = {

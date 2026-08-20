@@ -27,8 +27,12 @@ export default function LoginPage() {
     clearError();
 
     try {
-      await login(email, password);
-      router.push('/');
+      const loggedUser = await login(email, password);
+      if (loggedUser?.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/app');
+      }
     } catch (err: any) {
       console.warn('Login error:', err);
       setLocalError(err?.message || 'Credenciales inválidas o error de conexión con el servidor.');
