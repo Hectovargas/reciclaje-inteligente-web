@@ -9,10 +9,15 @@ import {
 
 export function resolveApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
-    const publicEnv = process.env.NEXT_PUBLIC_API_URL;
-    // If NEXT_PUBLIC_API_URL is set and is a valid external URL (not an internal docker network name like 'http://backend:...')
-    if (publicEnv && !publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
-      return publicEnv.replace(/\/$/, '');
+    let publicEnv = process.env.NEXT_PUBLIC_API_URL;
+    if (publicEnv) {
+      publicEnv = publicEnv.trim().replace(/\/$/, '');
+      if (!publicEnv.startsWith('http://') && !publicEnv.startsWith('https://')) {
+        publicEnv = `https://${publicEnv}`;
+      }
+      if (!publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
+        return publicEnv;
+      }
     }
     // Dynamic fallback to the browser's current host on port 3000 (standard backend port)
     const protocol = window.location.protocol || 'http:';
@@ -21,11 +26,17 @@ export function resolveApiBaseUrl(): string {
   }
 
   // Server-side execution (Node / SSR)
-  return (
+  let serverEnv = (
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     'http://backend:3000'
-  ).replace(/\/$/, '');
+  ).trim().replace(/\/$/, '');
+
+  if (serverEnv && !serverEnv.startsWith('http://') && !serverEnv.startsWith('https://')) {
+    serverEnv = `https://${serverEnv}`;
+  }
+
+  return serverEnv;
 }
 
 export const API_BASE_URL = resolveApiBaseUrl();

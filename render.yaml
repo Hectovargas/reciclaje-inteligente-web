@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     rootDir: .
-    buildCommand: npx pnpm install && npx pnpm build:pwa
+    buildCommand: npx pnpm install --no-frozen-lockfile && npx pnpm build:pwa
     startCommand: npx pnpm --filter pwa start
     envVars:
       - key: NODE_ENV
