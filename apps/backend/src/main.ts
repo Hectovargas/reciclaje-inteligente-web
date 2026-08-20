@@ -68,8 +68,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+  // Root health probe for Railway / cloud load balancers
+  app.getHttpAdapter().get('/', (req: any, res: any) => {
+    res.status(200).json({ status: 'ok', service: 'CleanCity API', timestamp: new Date().toISOString() });
+  });
+
   const port = process.env.PORT || 3000;
-  await app.listen(port);
-  console.log(`Backend de Reciclaje Inteligente corriendo en el puerto: ${port}`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`Backend de Reciclaje Inteligente corriendo en http://0.0.0.0:${port}`);
 }
 bootstrap();
