@@ -35,7 +35,6 @@ describe('BalanceCard Component', () => {
     await waitFor(() => {
       expect(screen.getByText('150.0')).toBeInTheDocument();
       expect(screen.getByText('RECI')).toBeInTheDocument();
-      expect(screen.getByText('0x7099...79C8')).toBeInTheDocument();
     });
   });
 });

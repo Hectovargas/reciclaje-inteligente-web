@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Award, RefreshCw, Copy, Check, Shield, AlertCircle, LogIn } from 'lucide-react';
+import { Award, RefreshCw, Shield, AlertCircle, LogIn } from 'lucide-react';
 import { User, BalanceResponse } from '../types';
 import { blockchainApi } from '../lib/api';
 import Link from 'next/link';
@@ -15,7 +15,6 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
   const [balanceData, setBalanceData] = useState<BalanceResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const fetchBalance = useCallback(async () => {
     if (!user || !user.walletAddress) {
@@ -40,19 +39,6 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
   useEffect(() => {
     fetchBalance();
   }, [fetchBalance, refreshTrigger]);
-
-  const handleCopy = () => {
-    if (user?.walletAddress) {
-      navigator.clipboard.writeText(user.walletAddress);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const shortenAddress = (addr?: string) => {
-    if (!addr) return '';
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
 
   const formattedBalance = balanceData?.balance !== undefined
     ? parseFloat(balanceData.balance).toFixed(1)
@@ -170,47 +156,6 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
         >
           <AlertCircle size={14} />
           <span>{error}</span>
-        </div>
-      )}
-
-      {user.walletAddress && (
-        <div
-          style={{
-            background: 'rgba(10, 15, 29, 0.6)',
-            borderRadius: '10px',
-            padding: '0.5rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>ID de Cuenta:</span>
-            <code style={{ fontSize: '0.75rem', color: '#cbd5e1', fontWeight: 600 }}>
-              {shortenAddress(user.walletAddress)}
-            </code>
-          </div>
-          <button
-            onClick={handleCopy}
-            style={{
-              background: copied ? '#10b981' : 'rgba(255, 255, 255, 0.08)',
-              color: copied ? '#0a0f1d' : '#94a3b8',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '0.25rem 0.45rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-            <span>{copied ? 'Copiado' : 'Copiar'}</span>
-          </button>
         </div>
       )}
     </div>
