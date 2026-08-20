@@ -103,7 +103,7 @@ export function DashboardMetrics() {
           <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>artículos</span>
           <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados correctamente por sensores e IA</p>
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{(kgSaved * 0.08).toFixed(1)} kg CO₂ evitado</span>
+            <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{kgSaved.toLocaleString('es-ES')} unidades evitadas</span>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>{KPI_DATA.totalEst ?? '0 est.'}</span>
           </div>
         </div>

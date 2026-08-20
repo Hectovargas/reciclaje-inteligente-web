@@ -120,13 +120,13 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span className="tech-label" style={{ color: 'rgba(240, 253, 244, 0.5)' }}>
-            Saldo Acumulado · ERC-20
+            Saldo Acumulado
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="tech-chip">
             <span className="pulse-dot" style={{ width: '6px', height: '6px' }} />
-            <span style={{ fontSize: '10px' }}>SEPOLIA L1</span>
+            <span style={{ fontSize: '10px' }}>RED ACTIVA</span>
           </div>
           <button
             onClick={fetchBalance}
@@ -213,7 +213,7 @@ export function BalanceCard({ user, refreshTrigger = 0 }: BalanceCardProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
             <Leaf size={13} color="#34d399" />
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#34d399', fontWeight: 700 }}>
-              ~{(rawBalanceNum * 0.08).toFixed(1)} kg CO₂
+              {Math.round(rawBalanceNum)} unidades
             </span>
           </div>
         </div>

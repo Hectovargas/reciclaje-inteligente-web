@@ -146,7 +146,7 @@ export function QrScanner({ onScan, isProcessing = false }: QrScannerProps) {
         </div>
         <div className="tech-chip" style={{ borderColor: 'rgba(34, 211, 238, 0.25)', color: '#22d3ee' }}>
           <span className="pulse-dot-cyan" style={{ width: '5px', height: '5px' }} />
-          <span>IA READY</span>
+          <span>ACTIVO</span>
         </div>
       </div>
 

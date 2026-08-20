@@ -1,7 +1,7 @@
 {
   "name": "CleanCity - Reciclaje Inteligente PWA",
   "short_name": "CleanCity",
-  "description": "Escanea códigos QR de reciclaje y recibe recompensas en tokens RECI ERC-20.",
+  "description": "Escanea códigos QR de reciclaje y recibe recompensas en tokens RECI.",
   "start_url": "/app",
   "scope": "/app",
   "id": "/app",
