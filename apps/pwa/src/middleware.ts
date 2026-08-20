@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
 
   // If already logged in and visiting /login or /register, redirect to destination
   if ((pathname === '/login' || pathname === '/register') && payload) {
-    if (payload.role === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
+    if (payload.role?.toUpperCase() === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
     return NextResponse.redirect(new URL('/app', request.url))
   }
 
@@ -48,7 +48,7 @@ export function middleware(request: NextRequest) {
       }
       return res
     }
-    if (payload.role !== 'ADMIN') return redirectTo('/app')
+    if (payload.role?.toUpperCase() !== 'ADMIN') return redirectTo('/app')
     return NextResponse.next()
   }
 
@@ -75,7 +75,7 @@ export function middleware(request: NextRequest) {
       }
       return res
     }
-    if (payload.role === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
+    if (payload.role?.toUpperCase() === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
     return NextResponse.redirect(new URL('/app', request.url))
   }
 

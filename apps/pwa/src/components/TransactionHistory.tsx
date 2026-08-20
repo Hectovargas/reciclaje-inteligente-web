@@ -12,6 +12,7 @@ import {
   ExternalLink,
   RefreshCw,
   Award,
+  Link as LinkIcon,
 } from 'lucide-react';
 
 interface TransactionHistoryProps {
@@ -69,17 +70,19 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              padding: '0.2rem 0.5rem',
+              gap: '4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 7px',
               borderRadius: '6px',
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#10b981',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              background: 'rgba(52, 211, 153, 0.12)',
+              color: '#34d399',
+              border: '1px solid rgba(52, 211, 153, 0.3)',
+              fontFamily: 'var(--font-mono)',
+              boxShadow: '0 0 10px rgba(52, 211, 153, 0.1)',
             }}
           >
-            <CheckCircle2 size={12} />
+            <CheckCircle2 size={11} />
             <span>CONFIRMADO</span>
           </span>
         );
@@ -89,17 +92,18 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              padding: '0.2rem 0.5rem',
+              gap: '4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 7px',
               borderRadius: '6px',
-              background: 'rgba(147, 51, 234, 0.15)',
-              color: '#c084fc',
-              border: '1px solid rgba(147, 51, 234, 0.3)',
+              background: 'rgba(167, 139, 250, 0.12)',
+              color: '#a78bfa',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
+              fontFamily: 'var(--font-mono)',
             }}
           >
-            <Layers size={12} />
+            <Layers size={11} />
             <span>EN LOTE</span>
           </span>
         );
@@ -109,17 +113,18 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              padding: '0.2rem 0.5rem',
+              gap: '4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 7px',
               borderRadius: '6px',
-              background: 'rgba(245, 158, 11, 0.15)',
+              background: 'rgba(245, 158, 11, 0.12)',
               color: '#fbbf24',
               border: '1px solid rgba(245, 158, 11, 0.3)',
+              fontFamily: 'var(--font-mono)',
             }}
           >
-            <Clock size={12} />
+            <Clock size={11} />
             <span>EN COLA</span>
           </span>
         );
@@ -129,17 +134,18 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.7rem',
-              fontWeight: 600,
-              padding: '0.2rem 0.5rem',
+              gap: '4px',
+              fontSize: '10px',
+              fontWeight: 700,
+              padding: '2px 7px',
               borderRadius: '6px',
-              background: 'rgba(239, 68, 68, 0.15)',
+              background: 'rgba(239, 68, 68, 0.12)',
               color: '#f87171',
               border: '1px solid rgba(239, 68, 68, 0.3)',
+              fontFamily: 'var(--font-mono)',
             }}
           >
-            <AlertCircle size={12} />
+            <AlertCircle size={11} />
             <span>{status}</span>
           </span>
         );
@@ -152,51 +158,56 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
 
   return (
     <div
+      className="glass-card"
       style={{
-        background: 'rgba(22, 31, 53, 0.85)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '16px',
-        padding: '1.25rem',
+        padding: '18px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
+        gap: '14px',
       }}
     >
+      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <History size={18} color="#06b6d4" />
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc', margin: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <History size={15} color="#22d3ee" />
+          <span className="tech-label" style={{ color: 'rgba(240, 253, 244, 0.5)' }}>
             Historial de Recompensas
-          </h3>
+          </span>
         </div>
-        <button
-          onClick={fetchTransactions}
-          disabled={loading}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: loading ? '#06b6d4' : '#94a3b8',
-            cursor: 'pointer',
-            padding: '0.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            animation: loading ? 'spin 1s linear infinite' : 'none',
-          }}
-          title="Refrescar historial"
-        >
-          <RefreshCw size={14} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="tech-chip">
+            {transactions.length} {transactions.length === 1 ? 'REG' : 'REGS'}
+          </span>
+          <button
+            onClick={fetchTransactions}
+            disabled={loading}
+            className="btn-glass-icon"
+            style={{ width: '28px', height: '28px', padding: 0 }}
+            title="Refrescar historial on-chain"
+          >
+            <RefreshCw size={13} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          </button>
+        </div>
       </div>
 
       {loading && transactions.length === 0 && (
-        <div style={{ padding: '1.5rem 0', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-          Cargando transacciones...
+        <div style={{ padding: '24px 0', textAlign: 'center', color: 'rgba(240, 253, 244, 0.4)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          Consultando registros en la blockchain...
         </div>
       )}
 
       {error && (
-        <div style={{ color: '#f87171', fontSize: '0.8rem', textAlign: 'center', padding: '0.5rem' }}>
+        <div
+          style={{
+            color: '#fca5a5',
+            fontSize: '12px',
+            textAlign: 'center',
+            padding: '10px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            borderRadius: '8px',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+          }}
+        >
           {error}
         </div>
       )}
@@ -204,58 +215,77 @@ export function TransactionHistory({ user, refreshTrigger = 0 }: TransactionHist
       {!loading && transactions.length === 0 && !error && (
         <div
           style={{
-            padding: '2rem 1rem',
+            padding: '32px 16px',
             textAlign: 'center',
-            color: '#64748b',
+            color: 'rgba(240, 253, 244, 0.4)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '8px',
+            background: 'rgba(11, 16, 26, 0.4)',
+            borderRadius: '12px',
+            border: '1px dashed rgba(99, 231, 182, 0.15)',
           }}
         >
-          <Award size={32} strokeWidth={1.5} color="#475569" />
-          <p style={{ fontSize: '0.85rem', margin: 0 }}>
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '12px',
+              background: 'rgba(99, 231, 182, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(240, 253, 244, 0.3)',
+              marginBottom: '2px',
+            }}
+          >
+            <Award size={24} />
+          </div>
+          <p style={{ fontSize: '13px', fontWeight: 700, color: '#f0fdf4', margin: 0 }}>
             Aún no tienes recompensas registradas.
           </p>
-          <span style={{ fontSize: '0.75rem', color: '#475569' }}>
+          <span style={{ fontSize: '11.5px', color: 'rgba(240, 253, 244, 0.45)', maxWidth: '280px', lineHeight: 1.4 }}>
             Escanea tu primer código QR para acumular puntos.
           </span>
         </div>
       )}
 
       {transactions.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {transactions.map((tx) => (
             <div
               key={tx.id}
               style={{
-                background: 'rgba(15, 23, 42, 0.7)',
+                background: 'rgba(11, 16, 26, 0.65)',
                 borderRadius: '12px',
-                padding: '0.875rem',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
+                padding: '12px 14px',
+                border: '1px solid rgba(99, 231, 182, 0.1)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.5rem',
+                gap: '8px',
+                transition: 'all 0.2s ease',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Award size={16} color="#10b981" />
-                  <span style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.95rem' }}>
-                    +{tx.amount} <span style={{ color: '#10b981', fontSize: '0.75rem' }}>RECI</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Award size={15} color="#a3e635" />
+                  <span style={{ color: '#f0fdf4', fontWeight: 800, fontSize: '14px', fontFamily: 'var(--font-mono)' }}>
+                    +{tx.amount} <span style={{ color: '#a3e635', fontSize: '11px' }}>RECI</span>
                   </span>
                 </div>
                 {getStatusBadge(tx.status)}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
-                <span>{formatDate(tx.createdAt)}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'rgba(240, 253, 244, 0.45)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)' }}>{formatDate(tx.createdAt)}</span>
                 {tx.txHash ? (
-                  <span style={{ color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <span style={{ color: '#22d3ee', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'var(--font-mono)' }}>
+                    <LinkIcon size={10} />
                     <span>{`${tx.txHash.substring(0, 6)}...${tx.txHash.substring(tx.txHash.length - 4)}`}</span>
                   </span>
                 ) : (
-                  <span style={{ color: '#64748b' }}>En procesamiento</span>
+                  <span style={{ color: 'rgba(240, 253, 244, 0.35)', fontFamily: 'var(--font-mono)' }}>En procesamiento</span>
                 )}
               </div>
             </div>

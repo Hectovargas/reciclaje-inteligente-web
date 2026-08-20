@@ -12,7 +12,6 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
   const [name, setName] = useState('');
   const [zoneId, setZoneId] = useState('');
   const [location, setLocation] = useState('');
-  const [macAddress, setMacAddress] = useState('');
   const [capacity, setCapacity] = useState<number>(100);
 
   const [generatedToken, setGeneratedToken] = useState('');
@@ -53,10 +52,6 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
         capacity: Number(capacity) || 100,
       };
 
-      if (macAddress.trim()) {
-        payload.macAddress = macAddress.trim().toUpperCase();
-      }
-
       const res = await fetchWithAuth('/estaciones', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -68,7 +63,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
         zone: selectedZoneObj ? { id: selectedZoneObj.id, name: selectedZoneObj.name } : res.zone || zoneId,
       };
 
-      setGeneratedToken(res.token);
+      setGeneratedToken(res.token || '');
       setGeneratedProvToken(res.provisioningToken || '');
       setCreatedStationId(res.id);
       onAdd(newStation);
@@ -146,7 +141,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
           </div>
         )}
 
-        {generatedToken ? (
+        {generatedToken || generatedProvToken ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div
               style={{
@@ -156,7 +151,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
                 border: '1px solid rgba(52,211,153,0.3)',
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#34d399' }}>✓ Estación Registrada con Éxito</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#34d399' }}>✓ Estación Creada en Estado Pendiente</div>
               <div style={{ fontSize: 11, color: 'rgba(240,253,244,0.6)', marginTop: 4 }}>
                 Identificador asignado:{' '}
                 <span style={{ fontFamily: 'var(--font-mono)', color: '#f0fdf4', fontWeight: 700 }}>
@@ -165,99 +160,67 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
               </div>
             </div>
 
-            <div>
-              <label
+            {generatedProvToken && (
+              <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'rgba(240,253,244,0.7)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
+                  padding: '14px 16px',
+                  borderRadius: 12,
+                  background: 'rgba(163,230,53,0.08)',
+                  border: '1px solid rgba(163,230,53,0.3)',
                 }}
               >
-                Token de Telemetría (Auth Bearer)
-              </label>
-              <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                <input
-                  readOnly
-                  value={generatedToken}
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    background: 'rgba(22,32,50,0.8)',
-                    border: '1px solid rgba(99,231,182,0.2)',
-                    color: '#22d3ee',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 11,
-                    outline: 'none',
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={copyToken}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: copiedToken ? 'rgba(52,211,153,0.2)' : 'rgba(34,211,238,0.15)',
-                    color: copiedToken ? '#34d399' : '#22d3ee',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: 12,
-                  }}
-                >
-                  {copiedToken ? 'Copiado ✓' : 'Copiar'}
-                </button>
-              </div>
-            </div>
-
-            {generatedProvToken && (
-              <div>
-                <label
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: 'rgba(240,253,244,0.7)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  Token de Aprovisionamiento (Zero-Touch)
-                </label>
-                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                  <input
-                    readOnly
-                    value={generatedProvToken}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: '#a3e635',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    Token de Aprovisionamiento (ESP32)
+                  </label>
+                  <span style={{ fontSize: 10, color: '#fbbf24', fontWeight: 600 }}>⏱ Válido por 30 minutos</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <div
                     style={{
                       flex: 1,
-                      padding: '8px 12px',
+                      padding: '10px 14px',
                       borderRadius: 8,
-                      background: 'rgba(22,32,50,0.8)',
-                      border: '1px solid rgba(99,231,182,0.2)',
+                      background: 'rgba(11,16,26,0.9)',
+                      border: '1px solid rgba(163,230,53,0.35)',
                       color: '#a3e635',
                       fontFamily: 'var(--font-mono)',
-                      fontSize: 11,
-                      outline: 'none',
+                      fontSize: 18,
+                      fontWeight: 800,
+                      letterSpacing: '0.15em',
+                      textAlign: 'center',
                     }}
-                  />
+                  >
+                    {generatedProvToken}
+                  </div>
                   <button
                     type="button"
                     onClick={copyProvToken}
                     style={{
-                      padding: '8px 14px',
+                      padding: '8px 16px',
                       borderRadius: 8,
                       border: 'none',
-                      background: copiedProv ? 'rgba(52,211,153,0.2)' : 'rgba(163,230,53,0.15)',
+                      background: copiedProv ? 'rgba(52,211,153,0.25)' : 'rgba(163,230,53,0.2)',
                       color: copiedProv ? '#34d399' : '#a3e635',
                       cursor: 'pointer',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: 12,
                     }}
                   >
-                    {copiedProv ? 'Copiado ✓' : 'Copiar'}
+                    {copiedProv ? 'Copiado ✓' : 'Copiar Token'}
                   </button>
                 </div>
+                <p style={{ fontSize: 11, color: 'rgba(240,253,244,0.55)', margin: '8px 0 0', lineHeight: 1.4 }}>
+                  Ingresa este código en tu ESP32. En el primer arranque llamará a <code style={{ color: '#22d3ee' }}>/dispositivos/provision</code>, registrará automáticamente su MAC y activará la estación.
+                </p>
               </div>
             )}
 
@@ -265,7 +228,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
               type="button"
               onClick={onClose}
               style={{
-                marginTop: 10,
+                marginTop: 6,
                 width: '100%',
                 padding: '12px 0',
                 borderRadius: 10,
@@ -277,7 +240,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
                 cursor: 'pointer',
               }}
             >
-              Cerrar y Ver Estación
+              Finalizar y Ver Estaciones
             </button>
           </div>
         ) : (
@@ -405,37 +368,6 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
                   border: '1px solid rgba(99,231,182,0.16)',
                   color: '#f0fdf4',
                   fontSize: 13,
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            <div>
-              <label
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: 'rgba(240,253,244,0.6)',
-                  display: 'block',
-                  marginBottom: 5,
-                }}
-              >
-                Dirección MAC Física (Opcional - Zero Touch)
-              </label>
-              <input
-                type="text"
-                placeholder="Ej. 24:6F:28:XX:XX:XX"
-                value={macAddress}
-                onChange={(e) => setMacAddress(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: 8,
-                  background: 'rgba(22,32,50,0.6)',
-                  border: '1px solid rgba(99,231,182,0.16)',
-                  color: '#22d3ee',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 12,
                   outline: 'none',
                 }}
               />

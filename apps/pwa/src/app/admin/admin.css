@@ -267,9 +267,30 @@
   text-decoration: none;
   transition: all 0.2s;
   font-family: var(--font-sans);
+  border: 1px solid transparent;
 }
 .nav-link-item:hover {
   background: rgba(163, 230, 53, 0.08);
   color: #a3e635;
 }
+.nav-link-item.active {
+  background: rgba(163, 230, 53, 0.12);
+  color: #a3e635;
+  border-color: rgba(163, 230, 53, 0.25);
+  box-shadow: 0 0 15px rgba(163, 230, 53, 0.08);
+}
+
+.citizen-switch-btn {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(163, 230, 53, 0.08));
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  color: #22d3ee;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.08);
+}
+.citizen-switch-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(163, 230, 53, 0.15));
+  border-color: rgba(34, 211, 238, 0.45);
+  color: #f0fdf4;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.2);
+}
+
 

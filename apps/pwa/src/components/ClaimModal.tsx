@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   LogIn,
   ArrowRight,
+  Cpu,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -97,74 +98,46 @@ export function ClaimModal({
     if (mat.includes('metal') || mat.includes('aluminio')) return '#f59e0b';
     if (mat.includes('papel') || mat.includes('cart')) return '#3b82f6';
     if (mat.includes('vidrio')) return '#06b6d4';
-    return '#10b981'; // plastic / default
+    return '#a3e635'; // plastic / default
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(5, 10, 20, 0.85)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: '#0f172a',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: '24px',
-          width: '100%',
-          maxWidth: '420px',
-          padding: '1.75rem 1.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.25rem',
-          position: 'relative',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button
           onClick={onClose}
+          className="btn-glass-icon"
           style={{
             position: 'absolute',
-            top: '1.25rem',
-            right: '1.25rem',
-            background: 'transparent',
-            border: 'none',
-            color: '#94a3b8',
-            cursor: 'pointer',
-            padding: '0.25rem',
+            top: '16px',
+            right: '16px',
+            width: '28px',
+            height: '28px',
+            padding: 0,
+            zIndex: 10,
           }}
         >
-          <X size={20} />
+          <X size={15} />
         </button>
 
         {/* 1. Loading Verification State */}
         {verifying && (
-          <div style={{ padding: '2rem 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ padding: '32px 0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
             <div
               style={{
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
-                border: '3px solid rgba(16, 185, 129, 0.2)',
-                borderTopColor: '#10b981',
-                animation: 'spin 1s linear infinite',
+                border: '3px solid rgba(163, 230, 53, 0.15)',
+                borderTopColor: '#a3e635',
+                animation: 'spin 0.8s linear infinite',
               }}
             />
             <div>
-              <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', fontWeight: 600 }}>Verificando Código QR</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                Validando código de reciclaje...
+              <h3 style={{ fontSize: '1.1rem', color: '#f0fdf4', fontWeight: 800 }}>Verificando Código QR</h3>
+              <p style={{ color: 'rgba(240, 253, 244, 0.5)', fontSize: '0.8rem', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+                Validando firma criptográfica con nodo...
               </p>
             </div>
           </div>
@@ -172,19 +145,20 @@ export function ClaimModal({
 
         {/* 2. Success Claimed State */}
         {!verifying && claimResult && (
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div
               style={{
                 width: '64px',
                 height: '64px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
+                borderRadius: '16px',
+                background: 'radial-gradient(circle, rgba(163, 230, 53, 0.25) 0%, rgba(34, 211, 238, 0.1) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto',
-                color: '#10b981',
-                border: '2px solid #10b981',
+                color: '#a3e635',
+                border: '1px solid rgba(163, 230, 53, 0.4)',
+                boxShadow: '0 0 24px rgba(163, 230, 53, 0.3)',
               }}
             >
               <CheckCircle2 size={36} />
@@ -193,65 +167,77 @@ export function ClaimModal({
             <div>
               <span
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#10b981',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  color: '#a3e635',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.08em',
+                  fontFamily: 'var(--font-mono)',
                 }}
               >
                 ¡Reclamo Exitoso!
               </span>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f8fafc', margin: '0.25rem 0' }}>
-                +{claimResult.puntos} <span style={{ color: '#10b981' }}>RECI</span>
+              <h2
+                style={{
+                  fontSize: '2.2rem',
+                  fontWeight: 800,
+                  color: '#a3e635',
+                  fontFamily: 'var(--font-mono)',
+                  margin: '4px 0',
+                  textShadow: '0 0 24px rgba(163, 230, 53, 0.4)',
+                }}
+              >
+                +{claimResult.puntos} <span style={{ color: '#f0fdf4', fontSize: '1.2rem' }}>RECI</span>
               </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-                Material reciclado: <strong style={{ color: '#f8fafc' }}>{claimResult.material || 'Residuo'}</strong>
+              <p style={{ color: 'rgba(240, 253, 244, 0.6)', fontSize: '0.85rem' }}>
+                Material reciclado: <strong style={{ color: '#f0fdf4' }}>{claimResult.material || 'Residuo'}</strong>
               </p>
             </div>
 
             {/* Status Box */}
             <div
               style={{
-                background: 'rgba(30, 41, 59, 0.6)',
+                background: 'rgba(11, 16, 26, 0.65)',
                 borderRadius: '12px',
-                padding: '0.875rem',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                padding: '12px 14px',
+                border: '1px solid rgba(99, 231, 182, 0.12)',
                 textAlign: 'left',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.5rem',
+                gap: '6px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#06b6d4', fontSize: '0.8rem', fontWeight: 600 }}>
-                  <Layers size={15} />
-                  <span>Estado:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#22d3ee', fontSize: '11px', fontWeight: 700 }}>
+                  <Layers size={14} />
+                  <span>Estado On-Chain:</span>
                 </div>
                 <span
                   style={{
-                    fontSize: '0.7rem',
-                    padding: '0.2rem 0.5rem',
+                    fontSize: '10px',
+                    padding: '2px 8px',
                     borderRadius: '6px',
                     fontWeight: 700,
-                    background: claimResult.txStatus === 'CONFIRMED' ? 'rgba(16,185,129,0.2)' : 'rgba(6,182,212,0.2)',
-                    color: claimResult.txStatus === 'CONFIRMED' ? '#10b981' : '#06b6d4',
+                    fontFamily: 'var(--font-mono)',
+                    background: claimResult.txStatus === 'CONFIRMED' ? 'rgba(52,211,153,0.15)' : 'rgba(34,211,238,0.15)',
+                    color: claimResult.txStatus === 'CONFIRMED' ? '#34d399' : '#22d3ee',
+                    border: `1px solid ${claimResult.txStatus === 'CONFIRMED' ? 'rgba(52,211,153,0.3)' : 'rgba(34,211,238,0.3)'}`,
                   }}
                 >
                   {claimResult.txStatus || 'COMPLETADO'}
                 </span>
               </div>
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
+              <p style={{ fontSize: '11px', color: 'rgba(240, 253, 244, 0.5)', margin: 0, lineHeight: 1.35 }}>
                 {claimResult.txStatus === 'QUEUED'
-                  ? 'Tus puntos han sido registrados exitosamente en tu cuenta.'
-                  : 'Puntos acreditados exitosamente.'}
+                  ? 'Tus puntos han sido registrados exitosamente en tu cuenta y encolados para batch minting.'
+                  : 'Puntos acreditados exitosamente en la blockchain.'}
               </p>
             </div>
 
             <button
-              className="btn-primary"
+              className="btn-cyber-primary"
               onClick={onClose}
-              style={{ marginTop: '0.5rem' }}
+              style={{ marginTop: '4px' }}
             >
               <Sparkles size={16} />
               <span>Aceptar y Continuar</span>
@@ -261,26 +247,28 @@ export function ClaimModal({
 
         {/* 3. Verified & Ready to Claim State */}
         {!verifying && !claimResult && verificationResult && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ textAlign: 'center' }}>
               <div
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
-                  padding: '0.3rem 0.8rem',
+                  gap: '6px',
+                  padding: '4px 10px',
                   borderRadius: '20px',
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  color: '#10b981',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  marginBottom: '0.5rem',
+                  background: 'rgba(163, 230, 53, 0.12)',
+                  color: '#a3e635',
+                  border: '1px solid rgba(163, 230, 53, 0.25)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  marginBottom: '6px',
+                  fontFamily: 'var(--font-mono)',
                 }}
               >
-                <ShieldCheck size={14} />
+                <ShieldCheck size={13} />
                 <span>Código de Reciclaje Válido</span>
               </div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f0fdf4', margin: 0, letterSpacing: '-0.02em' }}>
                 Recompensa de Reciclaje
               </h3>
             </div>
@@ -288,22 +276,22 @@ export function ClaimModal({
             {/* Reward Preview Card */}
             <div
               style={{
-                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
-                borderRadius: '16px',
-                padding: '1.25rem',
+                background: 'linear-gradient(135deg, rgba(22, 32, 50, 0.8), rgba(11, 16, 26, 0.95))',
+                borderRadius: '14px',
+                padding: '16px',
                 border: `1px solid ${getMaterialColor(verificationResult.material)}40`,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.75rem',
+                gap: '10px',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Material Clasificado:</span>
+                <span style={{ color: 'rgba(240, 253, 244, 0.55)', fontSize: '12px' }}>Material Clasificado:</span>
                 <span
                   style={{
                     color: getMaterialColor(verificationResult.material),
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
+                    fontWeight: 800,
+                    fontSize: '13px',
                     textTransform: 'capitalize',
                   }}
                 >
@@ -312,35 +300,35 @@ export function ClaimModal({
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Puntos a Recibir:</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Award size={18} color="#10b981" />
-                  <span style={{ color: '#f8fafc', fontWeight: 800, fontSize: '1.2rem' }}>
-                    +{verificationResult.puntos} <span style={{ color: '#10b981', fontSize: '0.85rem' }}>RECI</span>
+                <span style={{ color: 'rgba(240, 253, 244, 0.55)', fontSize: '12px' }}>Puntos a Recibir:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Award size={18} color="#a3e635" />
+                  <span style={{ color: '#a3e635', fontWeight: 800, fontSize: '1.4rem', fontFamily: 'var(--font-mono)' }}>
+                    +{verificationResult.puntos} <span style={{ color: '#f0fdf4', fontSize: '12px' }}>RECI</span>
                   </span>
                 </div>
               </div>
 
               <div
                 style={{
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                  paddingTop: '0.5rem',
+                  borderTop: '1px solid rgba(99, 231, 182, 0.1)',
+                  paddingTop: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
-                  color: '#64748b',
-                  fontSize: '0.75rem',
+                  gap: '6px',
+                  color: 'rgba(240, 253, 244, 0.4)',
+                  fontSize: '11px',
                 }}
               >
                 <Clock size={12} />
-                <span>Código: <code style={{ color: '#cbd5e1' }}>{verificationResult.codigo}</code></span>
+                <span>Código: <code style={{ color: '#22d3ee', fontFamily: 'var(--font-mono)' }}>{verificationResult.codigo}</code></span>
               </div>
             </div>
 
-            {/* Auth check: Logged in vs Not logged in */}
+            {/* Auth check */}
             {user ? (
               <button
-                className="btn-primary"
+                className="btn-cyber-primary"
                 onClick={handleClaim}
                 disabled={claiming}
               >
@@ -353,14 +341,14 @@ export function ClaimModal({
                         borderRadius: '50%',
                         border: '2px solid rgba(0,0,0,0.3)',
                         borderTopColor: '#000',
-                        animation: 'spin 1s linear infinite',
+                        animation: 'spin 0.8s linear infinite',
                       }}
                     />
                     <span>Acreditando puntos...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles size={18} />
+                    <Sparkles size={16} />
                     <span>Reclamar Recompensa</span>
                   </>
                 )}
@@ -368,37 +356,37 @@ export function ClaimModal({
             ) : (
               <div
                 style={{
-                  background: 'rgba(6, 182, 212, 0.08)',
-                  border: '1px solid rgba(6, 182, 212, 0.25)',
-                  borderRadius: '14px',
-                  padding: '1rem',
+                  background: 'rgba(34, 211, 238, 0.06)',
+                  border: '1px solid rgba(34, 211, 238, 0.2)',
+                  borderRadius: '12px',
+                  padding: '14px',
                   textAlign: 'center',
                 }}
               >
-                <p style={{ color: '#f8fafc', fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 500 }}>
+                <p style={{ color: '#f0fdf4', fontSize: '12px', marginBottom: '10px', fontWeight: 500 }}>
                   Inicia sesión para acumular estos puntos en tu cuenta.
                 </p>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <Link
                     href="/login"
                     onClick={onClose}
                     style={{
                       flex: 1,
-                      background: 'rgba(30, 41, 59, 0.9)',
-                      color: '#f8fafc',
-                      padding: '0.6rem',
-                      borderRadius: '10px',
-                      fontSize: '0.8rem',
+                      background: 'rgba(22, 32, 50, 0.8)',
+                      color: '#f0fdf4',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
                       fontWeight: 600,
                       textDecoration: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.35rem',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      gap: '5px',
+                      border: '1px solid rgba(99, 231, 182, 0.2)',
                     }}
                   >
-                    <LogIn size={14} />
+                    <LogIn size={13} />
                     <span>Ingresar</span>
                   </Link>
                   <Link
@@ -406,21 +394,21 @@ export function ClaimModal({
                     onClick={onClose}
                     style={{
                       flex: 1,
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      color: '#0a0f1d',
-                      padding: '0.6rem',
-                      borderRadius: '10px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #a3e635, #10b981)',
+                      color: '#06110a',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: 800,
                       textDecoration: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.35rem',
+                      gap: '5px',
                     }}
                   >
                     <span>Registrarse</span>
-                    <ArrowRight size={14} />
+                    <ArrowRight size={13} />
                   </Link>
                 </div>
               </div>
@@ -430,28 +418,30 @@ export function ClaimModal({
 
         {/* 4. Error State */}
         {!verifying && error && (
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '14px', padding: '12px 0' }}>
             <div
               style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
+                width: '52px',
+                height: '52px',
+                borderRadius: '14px',
                 background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto',
                 color: '#ef4444',
+                boxShadow: '0 0 20px rgba(239, 68, 68, 0.2)',
               }}
             >
-              <AlertTriangle size={30} />
+              <AlertTriangle size={26} />
             </div>
 
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f0fdf4' }}>
                 No se pudo procesar el código
               </h3>
-              <p style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+              <p style={{ color: '#fca5a5', fontSize: '12.5px', marginTop: '6px', lineHeight: 1.4 }}>
                 {error}
               </p>
             </div>
@@ -459,14 +449,15 @@ export function ClaimModal({
             <button
               onClick={onClose}
               style={{
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                padding: '0.7rem',
+                background: 'rgba(22, 32, 50, 0.8)',
+                color: '#f0fdf4',
+                border: '1px solid rgba(99, 231, 182, 0.2)',
+                padding: '10px',
                 borderRadius: '10px',
-                fontSize: '0.85rem',
+                fontSize: '12.5px',
                 cursor: 'pointer',
-                fontWeight: 600,
+                fontWeight: 700,
+                fontFamily: 'var(--font-sans)',
               }}
             >
               Cerrar

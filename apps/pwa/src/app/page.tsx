@@ -13,7 +13,7 @@ export default function RootPage() {
     if (!loading) {
       if (!user) {
         router.replace('/login');
-      } else if (user.role === 'ADMIN') {
+      } else if (user.role?.toUpperCase() === 'ADMIN') {
         router.replace('/admin');
       } else {
         router.replace('/app');
