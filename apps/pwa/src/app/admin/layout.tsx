@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import './admin.css'
 
 export const metadata: Metadata = {
@@ -32,15 +33,15 @@ function AdminSidebar() {
         <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.4)', fontWeight: 600, letterSpacing: '0.06em', marginTop: 2 }}>CLEANCITY ADMIN</div>
       </div>
       {navItems.map(item => (
-        <a key={item.href} href={item.href} className="nav-link-item">
+        <Link key={item.href} href={item.href} className="nav-link-item">
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 16 }}>{item.icon}</span>
           {item.label}
-        </a>
+        </Link>
       ))}
       <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid rgba(99,231,182,0.1)' }}>
-        <a href="/app" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'rgba(240,253,244,0.4)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
+        <Link href="/app" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'rgba(240,253,244,0.4)', textDecoration: 'none', fontFamily: 'var(--font-sans)' }}>
           ← Vista Ciudadano
-        </a>
+        </Link>
       </div>
     </aside>
   )
@@ -57,7 +58,7 @@ function AdminMobileHeader() {
           { href: '/admin/zonas-admin', label: '⬢' },
           { href: '/admin/ia-details', label: '◉' },
         ].map(item => (
-          <a key={item.href} href={item.href} style={{ padding: '8px 12px', borderRadius: 8, color: 'rgba(240,253,244,0.7)', fontSize: 18, textDecoration: 'none' }}>{item.label}</a>
+          <Link key={item.href} href={item.href} style={{ padding: '8px 12px', borderRadius: 8, color: 'rgba(240,253,244,0.7)', fontSize: 18, textDecoration: 'none' }}>{item.label}</Link>
         ))}
       </nav>
     </header>

@@ -2,23 +2,35 @@ import { useState, useEffect, useCallback } from 'react';
 
 function resolveConfigApiBase(): string {
   if (typeof window !== 'undefined') {
-    const publicEnv = process.env.NEXT_PUBLIC_API_URL;
-    if (publicEnv && !publicEnv.includes('://backend') && !publicEnv.startsWith('backend')) {
-      return publicEnv.replace(/\/$/, '');
-    }
-    const protocol = window.location.protocol || 'http:';
-    const hostname = window.location.hostname || 'localhost';
-    return `${protocol}//${hostname}:3000`;
+    // In browser, use relative path ("") so Next.js rewrites proxy all /api/v1/* requests
+    // directly to the backend on the server side (eliminates CORS, port mismatch, and third-party cookie blocking)
+    return '';
   }
-  return (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://backend:3000').replace(/\/$/, '');
+
+  // Server-side execution (Node / SSR)
+  let serverEnv = (
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://backend:3000'
+  ).trim().replace(/\/$/, '');
+
+  if (serverEnv && !serverEnv.startsWith('http://') && !serverEnv.startsWith('https://')) {
+    serverEnv = `https://${serverEnv}`;
+  }
+
+  return serverEnv;
 }
 
 const API_BASE = resolveConfigApiBase();
-const API_URL = `${API_BASE}/api/v1`;
+const API_URL = API_BASE ? `${API_BASE}/api/v1` : '/api/v1';
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const res = await fetch(`${API_URL}${normalizedEndpoint}`, {
+  const url = normalizedEndpoint.startsWith('/api/v1')
+    ? (API_BASE ? `${API_BASE}${normalizedEndpoint}` : normalizedEndpoint)
+    : `${API_URL}${normalizedEndpoint}`;
+
+  const res = await fetch(url, {
     ...options,
     credentials: 'include',
     headers: {
