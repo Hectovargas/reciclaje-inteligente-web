@@ -1,56 +1,45 @@
-# Multi-stage production Dockerfile for Backend (NestJS + Prisma)
+# Builder stage
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+RUN apk add --no-cache openssl
+RUN npm install -g pnpm
 
-# Install pnpm and openssl for Prisma
-RUN npm install -g pnpm && apk add --no-cache openssl
-
-# Copy workspace configurations and manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace configuration and backend package.json
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/backend/package.json ./apps/backend/
-COPY packages/contracts/package.json ./packages/contracts/
 
-# Install dependencies across monorepo
-RUN pnpm install
+# Install backend dependencies in monorepo context
+RUN pnpm install --filter backend... --prod=false
 
-# Copy source files
-COPY packages/contracts ./packages/contracts
+# Copy Prisma schema and generate client
+COPY apps/backend/prisma ./apps/backend/prisma
+RUN cd apps/backend && npx prisma generate
+
+# Copy backend source code and build
 COPY apps/backend ./apps/backend
+RUN cd apps/backend && pnpm build
 
-# Generate Prisma Client & Build backend
-WORKDIR /app/apps/backend
-RUN npx prisma generate
-RUN pnpm build
-
-# Production Runner Stage
+# Production runner stage
 FROM node:20-alpine AS runner
 
 WORKDIR /app
+RUN apk add --no-cache openssl
 
-RUN npm install -g pnpm && apk add --no-cache openssl
-
-# Set environment to production
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-COPY packages/contracts/package.json ./packages/contracts/
-
-# Install production dependencies only
-RUN pnpm install --prod
-
-# Copy Prisma schema, migrations, and compiled dist from builder
-COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+# Copy node_modules and built assets from builder
+COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/backend/node_modules ./apps/backend/node_modules
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
+COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 
 WORKDIR /app/apps/backend
 
 EXPOSE 3000
 
-# Run migrations and start server
+# Run database migrations and start server
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

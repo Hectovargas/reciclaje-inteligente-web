@@ -5,8 +5,8 @@ services:
     plan: free
     region: oregon
     rootDir: .
-    buildCommand: npm install -g pnpm && pnpm install && pnpm build:pwa
-    startCommand: pnpm --filter pwa start
+    buildCommand: npx pnpm install && npx pnpm build:pwa
+    startCommand: npx pnpm --filter pwa start
     envVars:
       - key: NODE_ENV
         value: production

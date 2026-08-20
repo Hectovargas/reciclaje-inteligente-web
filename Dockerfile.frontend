@@ -2,20 +2,16 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Install pnpm
 RUN npm install -g pnpm
 
-# Copy workspace configuration and manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace configuration and PWA package.json
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/pwa/package.json ./apps/pwa/
-COPY packages/contracts/package.json ./packages/contracts/
 
-# Install dependencies across monorepo
-RUN pnpm install
+# Install PWA dependencies in monorepo context
+RUN pnpm install --filter pwa... --prod=false
 
-# Copy source code
-COPY packages/contracts ./packages/contracts
+# Copy PWA source code
 COPY apps/pwa ./apps/pwa
 
 # Build Next.js PWA
@@ -32,19 +28,16 @@ RUN pnpm build
 FROM node:20-alpine AS runner
 
 WORKDIR /app
-
 RUN npm install -g pnpm
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/pwa/package.json ./apps/pwa/
-COPY packages/contracts/package.json ./packages/contracts/
-
-# Install production dependencies only
-RUN pnpm install --prod
+# Copy workspace files and production dependencies
+COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/pwa/node_modules ./apps/pwa/node_modules
+COPY --from=builder /app/apps/pwa/package.json ./apps/pwa/package.json
 
 # Copy built Next.js artifacts and public assets
 COPY --from=builder /app/apps/pwa/.next ./apps/pwa/.next
