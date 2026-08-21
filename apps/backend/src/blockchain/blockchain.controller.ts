@@ -69,7 +69,32 @@ export class BlockchainController {
       throw new BadRequestException(`Dirección EVM inválida: ${address}`);
     }
 
-    return this.blockchainService.getBalance(ethers.getAddress(address));
+    const normalized = ethers.getAddress(address);
+    const balanceResult = await this.blockchainService.getBalance(normalized);
+
+    // If on-chain balance is 0 or contract is in queue mode, check database events
+    const onChainNum = parseFloat(balanceResult.balance || '0');
+    const dbSum = await this.prisma.blockchainEvent.aggregate({
+      _sum: { amount: true },
+      where: {
+        OR: [
+          { toAddress: normalized },
+          { toAddress: address },
+          { toAddress: address.toLowerCase() },
+        ],
+      },
+    });
+    const totalDb = dbSum._sum.amount || 0;
+
+    if (totalDb > onChainNum) {
+      return {
+        ...balanceResult,
+        balance: totalDb.toFixed(1),
+        rawBalance: totalDb.toString(),
+      };
+    }
+
+    return balanceResult;
   }
 
   @Get('transactions/:address')
@@ -94,7 +119,12 @@ export class BlockchainController {
 
     const events = await this.prisma.blockchainEvent.findMany({
       where: {
-        OR: [{ toAddress: normalized }, { fromAddress: normalized }],
+        OR: [
+          { toAddress: normalized },
+          { toAddress: address },
+          { toAddress: address.toLowerCase() },
+          { fromAddress: normalized },
+        ],
       },
       orderBy: {
         createdAt: 'desc',

@@ -285,10 +285,8 @@ export class QrService implements OnModuleInit {
         data: { usado: true },
       });
 
-      const puntos = this.calcularPuntos(qrToken.categoria);
-      const toAddress =
-        user.walletAddress ||
-        `0x${user.id.replace(/-/g, '').padEnd(40, '0')}`;
+      const rawTo = user.walletAddress || `0x${user.id.replace(/-/g, '').padEnd(40, '0')}`;
+      const toAddress = ethers.isAddress(rawTo) ? ethers.getAddress(rawTo) : rawTo;
       const fromAddress = this.operatorAddress || '0x0000000000000000000000000000000000000000';
 
       // Registro de evento blockchain en estado PENDING para procesamiento asíncrono BullMQ
