@@ -38,7 +38,7 @@ describe('DashboardService', () => {
 
   it('should return aggregated metrics', async () => {
     const metrics = await service.obtenerMetricasAgregadas();
-    expect(metrics.kgTotal).toBe(15);
-    expect(metrics.kgSaved).toBe(13);
+    expect(metrics.kgTotal).toBe(10);
+    expect(metrics.kgSaved).toBe(10);
   });
 });

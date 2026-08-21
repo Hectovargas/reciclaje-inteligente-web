@@ -148,8 +148,8 @@ export class DashboardService {
     }
 
     return {
-      kgTotal: totalEventos * 1.5,
-      kgSaved: totalEventos * 1.3,
+      kgTotal: totalEventos,
+      kgSaved: totalEventos,
       accuracy: accuracyVal,
       aiConf: aiConfVal,
       timeBetweenEmptying: 0,
