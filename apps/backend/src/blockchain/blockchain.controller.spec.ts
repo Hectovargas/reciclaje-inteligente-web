@@ -79,6 +79,7 @@ describe('BlockchainController', () => {
                   updatedAt: new Date(),
                 },
               ]),
+              aggregate: jest.fn().mockResolvedValue({ _sum: { amount: 100 } }),
             },
           },
         },

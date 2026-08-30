@@ -279,6 +279,9 @@ export class QrService implements OnModuleInit {
         throw new BadRequestException('Firma de QR inválida');
       }
 
+      // Calcular los puntos de recompensa según el material del token
+      const puntos = this.calcularPuntos(qrToken.categoria);
+
       // Quema atómica del token para evitar doble reclamo
       await tx.qRToken.update({
         where: { id: qrToken.id },

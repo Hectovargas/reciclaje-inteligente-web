@@ -80,6 +80,14 @@ const withPWA = withPWAInit({
   },
   workboxOptions: {
     disableDevLogs: true,
+    manifestTransforms: [
+      async (manifestEntries, compilation) => {
+        const manifest = manifestEntries.filter(
+          (entry) => !entry.url.includes('/admin')
+        );
+        return { manifest, warnings: [] };
+      }
+    ],
     // Ensure Workbox navigation fallback never triggers on admin or API routes
     navigateFallbackDenylist: [
       /^\/admin/,

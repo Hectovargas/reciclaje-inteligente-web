@@ -20,10 +20,10 @@ describe('ProvisioningService', () => {
     location: 'Edificio A',
     status: StationStatus.PENDING_ACTIVATION,
     capacity: 100,
-    token: null,
+    token: 'tk_test_runtime_key',
     macAddress: null,
     provisioningToken: 'ABC123',
-    deviceSecret: null,
+    deviceSecret: 'sec_test_secret',
     zoneId: 'zone-1',
     zone: { id: 'zone-1', name: 'Zona Centro' },
   };

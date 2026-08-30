@@ -34,9 +34,12 @@ describe('PWA Service Worker & Scoping Isolation (Empirical Verification)', () =
     expect(swContent).toContain('"/manifest.json"');
 
     // Admin routes must NEVER be in precache
-    expect(swContent).not.toContain('"/admin"');
-    expect(swContent).not.toContain('"/admin/estaciones"');
-    expect(swContent).not.toContain('"/admin/zonas"');
+    // We check for 'url:"/admin' and 'chunks/app/admin' instead of just '"/admin"'
+    // because the runtime caching logic explicitly contains the string '"/admin"' to bypass it.
+    expect(swContent).not.toMatch(/url:"\/admin/);
+    expect(swContent).not.toContain('chunks/app/admin');
+    expect(swContent).not.toContain('url:"/admin/estaciones"');
+    expect(swContent).not.toContain('url:"/admin/zonas"');
   });
 
   describe('Adversarial Route Matching Matrix (NetworkOnly Regex)', () => {
