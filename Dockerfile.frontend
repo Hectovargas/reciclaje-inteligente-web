@@ -9,7 +9,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/pwa/package.json ./apps/pwa/
 
 # Install PWA dependencies in monorepo context
-RUN pnpm install --filter pwa... --prod=false
+RUN pnpm install --filter pwa...
 
 # Copy PWA source code
 COPY apps/pwa ./apps/pwa

@@ -10,7 +10,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/backend/package.json ./apps/backend/
 
 # Install backend dependencies in monorepo context
-RUN pnpm install --filter backend... --prod=false
+RUN pnpm install --filter backend...
 
 # Copy Prisma schema and generate client
 COPY apps/backend/prisma ./apps/backend/prisma
