@@ -32,6 +32,14 @@ export class ClasificacionController {
     return this.clasificacionService.registrarEvento(dto);
   }
 
+  @Get('demo-station')
+  @UseGuards(StationTokenGuard)
+  @ApiOperation({ summary: 'Obtener (o crear) la estación demo para el prototipo Recycle_AI' })
+  @ApiResponse({ status: 200, description: 'ID de la estación demo lista para usar' })
+  async obtenerEstacionDemo() {
+    return this.clasificacionService.ensureDemoStation();
+  }
+
   @Get()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)

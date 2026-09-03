@@ -19,6 +19,35 @@ async function main() {
     },
   });
   console.log(`User created: ${admin.email}`);
+
+  // 2. Create Zona Prototipo & Estacion_prototipo_v1
+  const zone = await prisma.zone.upsert({
+    where: { name: 'Zona Prototipo' },
+    update: { isActive: true },
+    create: {
+      name: 'Zona Prototipo',
+      isActive: true,
+    },
+  });
+
+  const station = await prisma.station.upsert({
+    where: { token: 'tk_prototipo_v1_recycle_ai_2026' },
+    update: {
+      name: 'Estacion_prototipo_v1',
+      status: StationStatus.ACTIVE,
+      zoneId: zone.id,
+    },
+    create: {
+      name: 'Estacion_prototipo_v1',
+      location: 'Laboratorio Prototipo / Taller Recycle_AI',
+      status: StationStatus.ACTIVE,
+      capacity: 100,
+      token: 'tk_prototipo_v1_recycle_ai_2026',
+      zoneId: zone.id,
+    },
+  });
+  console.log(`Station created: ${station.name} (${station.id}) with token ${station.token}`);
+
   console.log('Seeding completed.');
 }
 
