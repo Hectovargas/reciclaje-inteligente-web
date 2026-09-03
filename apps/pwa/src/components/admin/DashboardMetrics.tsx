@@ -101,7 +101,7 @@ export function DashboardMetrics() {
             {kgSaved.toLocaleString('es-ES')}
           </div>
           <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(34,211,238,0.5)', marginTop: 2, display: 'block' }}>artículos</span>
-          <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados correctamente por sensores e IA</p>
+          <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>clasificados con alta certeza (&gt;75% acierto)</p>
           <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(99,231,182,0.07)', display: 'flex', flexWrap: 'wrap', gap: 14 }}>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>~{kgSaved.toLocaleString('es-ES')} unidades evitadas</span>
             <span style={{ fontSize: 11, color: 'rgba(240,253,244,0.5)' }}>{KPI_DATA.totalEst ?? '0 est.'}</span>
@@ -145,34 +145,39 @@ export function DashboardMetrics() {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 16, alignItems: 'center', marginTop: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <ConfRing value={KPI_DATA.aiConf ?? 0} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16 }}>
+          {/* Lado izquierdo: Donut ring + precisión global */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+            <ConfRing value={Math.round(KPI_DATA.aiConf ?? 0)} size={72} />
             <div>
-              <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', color: '#a3e635', textShadow: '0 0 24px rgba(163,230,53,0.4)', lineHeight: 1 }}>
-                {accuracy > 100 ? (accuracy / 10).toFixed(1) : accuracy}%
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.04em', color: '#a3e635', textShadow: '0 0 20px rgba(163,230,53,0.4)', lineHeight: 1 }}>
+                {Math.round(accuracy > 100 ? accuracy / 10 : accuracy)}%
               </div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,253,244,0.6)', marginTop: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,253,244,0.6)', marginTop: 3, whiteSpace: 'nowrap' }}>
                 Precisión global
               </div>
-              <div style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.35)', marginTop: 2, fontFamily: 'var(--font-mono)' }}>
-                Conf. Media: {KPI_DATA.aiConf ?? 0}%
+              <div style={{ fontSize: 9.5, color: 'rgba(240,253,244,0.35)', marginTop: 2, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                Conf. Media: {Math.round(KPI_DATA.aiConf ?? 0)}%
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
-            {IA_ACCURACY_BREAKDOWN.map((m: any) => (
-              <div key={m.label}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
-                  <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.label}</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: m.color, fontWeight: 700 }}>{m.val}%</span>
+          {/* Lado derecho: Barras por material */}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
+            {IA_ACCURACY_BREAKDOWN.map((m: any) => {
+              const cleanVal = typeof m.val === 'number' ? Math.round(m.val) : Math.round(parseFloat(m.val) || 0);
+              return (
+                <div key={m.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
+                    <span style={{ color: 'rgba(240,253,244,0.6)', fontWeight: 600 }}>{m.label}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', color: m.color, fontWeight: 700 }}>{cleanVal}%</span>
+                  </div>
+                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(240,253,244,0.06)' }}>
+                    <div style={{ height: '100%', borderRadius: 2, width: `${Math.min(100, cleanVal)}%`, background: m.color, boxShadow: `0 0 6px ${m.color}50` }} />
+                  </div>
                 </div>
-                <div style={{ height: 4, borderRadius: 2, background: 'rgba(240,253,244,0.06)' }}>
-                  <div style={{ height: '100%', borderRadius: 2, width: `${m.val}%`, background: m.color, boxShadow: `0 0 6px ${m.color}50` }} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

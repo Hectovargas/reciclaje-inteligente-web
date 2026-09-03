@@ -22,7 +22,40 @@ export function PeakHoursChart() {
   const { data: metrics } = useApi<any>('/dashboard/metrics');
 
   const PEAK_DATA = metrics?.peakData || { hoy: Array(24).fill(0), semana: Array(24).fill(0) };
-  const data = PEAK_DATA[view] && PEAK_DATA[view].length > 0 ? PEAK_DATA[view] : Array(24).fill(0);
+
+  // Agrupar en la zona horaria real del navegador del usuario si vienen los eventos
+  const clientHoyArr = React.useMemo(() => {
+    if (metrics?.peakData?.todayEvents && Array.isArray(metrics.peakData.todayEvents)) {
+      const arr = Array(24).fill(0);
+      const todayDateStr = new Date().toDateString();
+      metrics.peakData.todayEvents.forEach((ts: string) => {
+        const d = new Date(ts);
+        if (d.toDateString() === todayDateStr) {
+          const hour = d.getHours();
+          if (hour >= 0 && hour < 24) arr[hour]++;
+        }
+      });
+      return arr;
+    }
+    return PEAK_DATA.hoy && PEAK_DATA.hoy.length === 24 ? PEAK_DATA.hoy : Array(24).fill(0);
+  }, [metrics?.peakData?.todayEvents, PEAK_DATA.hoy]);
+
+  const clientSemanaArr = React.useMemo(() => {
+    if (metrics?.peakData?.weekEvents && Array.isArray(metrics.peakData.weekEvents)) {
+      const arr = Array(24).fill(0);
+      metrics.peakData.weekEvents.forEach((ts: string) => {
+        const d = new Date(ts);
+        const hour = d.getHours();
+        if (hour >= 0 && hour < 24) arr[hour]++;
+      });
+      return arr.map((val) => Math.round((val / 7) * 10) / 10);
+    }
+    return PEAK_DATA.semana && PEAK_DATA.semana.length === 24 ? PEAK_DATA.semana : Array(24).fill(0);
+  }, [metrics?.peakData?.weekEvents, PEAK_DATA.semana]);
+
+  const data = view === 'hoy' ? clientHoyArr : clientSemanaArr;
+  const maxVal = Math.max(...data, 0);
+  const suggestedMax = Math.max(10, Math.ceil(maxVal * 1.25));
 
   const labels = Array.from({ length: 24 }, (_, i) => `${i}h`);
 
@@ -30,7 +63,7 @@ export function PeakHoursChart() {
     labels,
     datasets: [
       {
-        label: 'Actividad',
+        label: 'Artículos',
         data,
         borderColor: (context: any) => {
           const chart = context.chart;
@@ -60,9 +93,10 @@ export function PeakHoursChart() {
         pointRadius: (context: any) => {
           const index = context.dataIndex;
           const inPeak = PEAK_RANGES.some((r) => index >= r.start && index <= r.end);
-          return inPeak && data[index] > 0 ? 3 : 0;
+          if (data[index] > 0) return inPeak ? 5 : 4;
+          return 0;
         },
-        pointHoverRadius: 5,
+        pointHoverRadius: 6,
       },
     ],
   };
@@ -73,11 +107,14 @@ export function PeakHoursChart() {
     scales: {
       y: {
         beginAtZero: true,
-        max: 100,
+        suggestedMax,
         ticks: {
-          stepSize: 25,
+          precision: 0,
           color: 'rgba(240,253,244,0.28)',
           font: { family: 'var(--font-mono)', size: 10 },
+          callback: function (val: any) {
+            return `${val}`;
+          },
         },
         grid: {
           color: 'rgba(240,253,244,0.05)',
@@ -117,7 +154,14 @@ export function PeakHoursChart() {
         displayColors: false,
         callbacks: {
           title: (items: any) => `Hora: ${items[0].label}`,
-          label: (item: any) => `Actividad: ${item.raw}%`,
+          label: (item: any) => {
+            const val = item.raw || 0;
+            const plural = val === 1 ? 'artículo' : 'artículos';
+            if (view === 'hoy') {
+              return ` ${val} ${plural}`;
+            }
+            return ` ${val} ${plural}/día promedio`;
+          },
         },
       },
     },
@@ -133,7 +177,7 @@ export function PeakHoursChart() {
         <div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#f0fdf4' }}>Horas pico de uso</span>
           <span style={{ marginLeft: 10, fontSize: 10, color: 'rgba(240,253,244,0.35)', fontFamily: 'var(--font-mono)' }}>
-            actividad por hora · red completa
+            artículos por hora · red completa
           </span>
         </div>
         <div

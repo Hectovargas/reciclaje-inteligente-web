@@ -7,6 +7,14 @@ export class DashboardService {
 
   async obtenerMetricasAgregadas() {
     const totalEventos = await this.prisma.eventoClasificacion.count();
+    const totalAltaConfianza = await this.prisma.eventoClasificacion.count({
+      where: {
+        OR: [
+          { confianza: { gte: 0.75, lte: 1.0 } },
+          { confianza: { gte: 75 } }
+        ]
+      }
+    });
     
     const [papelCount, plasticoCount, metalCount] = await Promise.all([
       this.prisma.eventoClasificacion.count({ where: { categoria: 'Papel' } }),
@@ -23,12 +31,12 @@ export class DashboardService {
       this.prisma.eventoClasificacion.aggregate({ where: { categoria: 'Metal' }, _avg: { confianza: true } }),
     ]);
 
-    const accuracyVal = avgAll._avg.confianza ? Math.round(avgAll._avg.confianza * 1000) / 10 : 0;
+    const accuracyVal = avgAll._avg.confianza ? Math.round(avgAll._avg.confianza * 100) : 0;
     const aiConfVal = avgAll._avg.confianza ? Math.round(avgAll._avg.confianza * 100) : 0;
 
-    const papelVal = avgPapel._avg.confianza ? Math.round(avgPapel._avg.confianza * 1000) / 10 : 0;
-    const plasticoVal = avgPlastico._avg.confianza ? Math.round(avgPlastico._avg.confianza * 1000) / 10 : 0;
-    const metalVal = avgMetal._avg.confianza ? Math.round(avgMetal._avg.confianza * 1000) / 10 : 0;
+    const papelVal = avgPapel._avg.confianza ? Math.round(avgPapel._avg.confianza * 100) : 0;
+    const plasticoVal = avgPlastico._avg.confianza ? Math.round(avgPlastico._avg.confianza * 100) : 0;
+    const metalVal = avgMetal._avg.confianza ? Math.round(avgMetal._avg.confianza * 100) : 0;
     
     const recentEvents = await this.prisma.eventoClasificacion.findMany({
       take: 10,
@@ -70,7 +78,7 @@ export class DashboardService {
 
     const [eventsToday, eventsWeek, eventsYear, totalEventsTodayCount] = await Promise.all([
       this.prisma.eventoClasificacion.findMany({
-        where: { timestamp: { gte: startOfToday } },
+        where: { timestamp: { gte: startOfYesterday } },
         select: { timestamp: true }
       }),
       this.prisma.eventoClasificacion.findMany({
@@ -123,7 +131,9 @@ export class DashboardService {
 
     const hoyArr = Array(24).fill(0);
     for (const evt of eventsToday) {
-      hoyArr[evt.timestamp.getHours()]++;
+      if (evt.timestamp >= startOfToday) {
+        hoyArr[evt.timestamp.getHours()]++;
+      }
     }
 
     const semanaArr = Array(24).fill(0);
@@ -149,7 +159,7 @@ export class DashboardService {
 
     return {
       kgTotal: totalEventos,
-      kgSaved: totalEventos,
+      kgSaved: totalAltaConfianza,
       accuracy: accuracyVal,
       aiConf: aiConfVal,
       timeBetweenEmptying: 0,
@@ -172,6 +182,8 @@ export class DashboardService {
       peakData: {
         hoy: hoyArr,
         semana: semanaArr,
+        todayEvents: eventsToday.map((e) => e.timestamp.toISOString()),
+        weekEvents: eventsWeek.map((e) => e.timestamp.toISOString()),
       },
       monthlyData,
       feedInit,

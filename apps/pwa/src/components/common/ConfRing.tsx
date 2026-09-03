@@ -2,12 +2,12 @@
 
 import React from 'react';
 
-export function ConfRing({ value }: { value: number }) {
+export function ConfRing({ value, size = 80 }: { value: number; size?: number }) {
   const R = 38;
   const C = 2 * Math.PI * R;
   return (
-    <div style={{ position: 'relative', width: 96, height: 96, flexShrink: 0 }}>
-      <svg width={96} height={96} viewBox="0 0 96 96" style={{ transform: 'rotate(-90deg)' }}>
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} viewBox="0 0 96 96" style={{ transform: 'rotate(-90deg)' }}>
         <defs>
           <linearGradient id="rg" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#a3e635" />
