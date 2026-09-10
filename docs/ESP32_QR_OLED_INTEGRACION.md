@@ -148,7 +148,7 @@ Logs esperados al arrancar:
 [OLED] SSD1306 128x64 inicializado (SDA=21, SCL=22)
 [WiFi] Conectado a <SSID> (IP: ...)
 [HTTP] 201 bytes recibidos
-[QR] payload=QR-PLASTICO-... | len=32 | v2 (25 mods) | escala=2 px
+[QR] payload=QR-PLASTICO-... | len=34 | v3 (29 mods) | escala=2 px
 ```
 
 Si el escaneo con el móvil funciona sobre el PNG generado en la PC, funcionará
@@ -216,8 +216,8 @@ Versión máxima soportada por el firmware: **v3 (29 módulos)**. Capacidad en
 
 - El firmware calcula la versión mínima automáticamente y la escala para que
   quepa en 64 px de alto con 1 módulo de zona de silencio.
-- El formato actual del backend (`QR-CAT-<timestamp>-<8hex>` ≈ 32–40 chars)
-  produce v1–v2, ideal.
+- El formato actual del backend (`QR-CAT-<13dígitos>-<8hex>` ≈ 34 chars)
+  cae en **v3 (29 módulos)** y se dibuja a escala 2 px (58 px) — cabe en 64 px.
 - Si el payload supera 53 bytes, el firmware muestra `PAYLOAD DEMASIADO LARGO`
   en vez de un QR ilegible.
 
@@ -263,7 +263,7 @@ pio run -t upload && pio device monitor
 ## 12. Checklist de puesta en marcha con hardware real
 
 1. [ ] Cablear OLED: SDA→21, SCL→22, VCC→3.3V, GND→GND.
-2. [ ] Levantar backend con Docker: `docker compose up -d db vault redis backend`.
+2. [ ] Levantar backend con Docker: `docker compose up -d`.
 3. [ ] Confirmar que el seed creó la estación demo (token `tk_prototipo_v1_recycle_ai_2026`) en `docker compose logs` o `curl http://localhost:3000/api/docs`.
 4. [ ] Configurar `WIFI_SSID`, `WIFI_PASS`, `API_BASE`, `STATION_TOKEN`.
 5. [ ] `pio run -t upload`.
