@@ -57,6 +57,7 @@ services:
     container_name: recicla_backend
     working_dir: /app
     command: sh -c "apk add --no-cache openssl && npm install -g pnpm && pnpm install --frozen-lockfile --prefer-offline && pnpm --filter backend prisma:generate && pnpm --filter backend prisma:deploy && (cd apps/backend && npx prisma db seed) && pnpm --filter backend start:dev"
+    # network_mode: host  # Descomenta SOLO en Linux para alcanzar ESP32 en LAN (192.168.43.200)
     ports:
       - "3000:3000"
     environment:
@@ -70,6 +71,7 @@ services:
       - CONTRACT_ADDRESS=0x0000000000000000000000000000000000000000
       - VAULT_ADDR=http://vault:8200
       - VAULT_TOKEN=root
+      - ESP32_HOST=192.168.43.200
     volumes:
       - ./apps/backend:/app/apps/backend
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
