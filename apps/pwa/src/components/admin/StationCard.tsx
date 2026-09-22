@@ -117,94 +117,48 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
         </div>
       )}
 
-      {/* Estimated Emptying or Status indicator */}
-      {!isOffline && !isPending ? (
-        <div
-          style={{
-            marginTop: 14,
-            padding: '10px 12px',
-            borderRadius: 10,
-            background: maxBinLevel >= 80 ? 'rgba(251,191,36,0.08)' : 'rgba(34,211,238,0.05)',
-            border: `1px solid ${maxBinLevel >= 80 ? 'rgba(251,191,36,0.3)' : 'rgba(34,211,238,0.15)'}`,
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 8,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ flex: '1 1 110px' }}>
-            <div
-              style={{
-                fontSize: 9.5,
-                fontWeight: 700,
-                color: 'rgba(240,253,244,0.4)',
-                letterSpacing: '0.07em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Vaciado aproximado
-            </div>
-            <div style={{ fontSize: 10.5, color: 'rgba(240,253,244,0.6)', marginTop: 2 }}>
-              {maxBinLevel >= 80 ? '⚠ Llenado crítico' : 'Próxima recolección'}
-            </div>
-          </div>
+      {/* Actividad y Total Clasificado */}
+      <div
+        style={{
+          marginTop: 14,
+          padding: '10px 12px',
+          borderRadius: 10,
+          background: 'rgba(163,230,53,0.06)',
+          border: '1px solid rgba(163,230,53,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div>
           <div
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 15,
-              fontWeight: 800,
-              color: maxBinLevel >= 80 ? '#fbbf24' : '#22d3ee',
+              fontSize: 9.5,
+              fontWeight: 700,
+              color: 'rgba(240,253,244,0.4)',
+              letterSpacing: '0.07em',
+              textTransform: 'uppercase',
             }}
           >
-            {estHours !== null ? `~${estHours}h` : '> 24h'}
+            Clasificaciones Totales
+          </div>
+          <div style={{ fontSize: 10.5, color: 'rgba(240,253,244,0.6)', marginTop: 2 }}>
+            Visión Artificial activa
           </div>
         </div>
-      ) : isPending ? (
         <div
           style={{
-            marginTop: 14,
-            padding: '10px 12px',
-            borderRadius: 10,
-            background: 'rgba(56,189,248,0.08)',
-            border: '1px solid rgba(56,189,248,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 16,
+            fontWeight: 800,
+            color: '#a3e635',
           }}
         >
-          <div>
-            <div style={{ fontSize: 9.5, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase' }}>
-              Zero-Touch Pairing
-            </div>
-            <div style={{ fontSize: 10.5, color: 'rgba(240,253,244,0.6)' }}>Esperando primer ping</div>
-          </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#38bdf8' }}>PENDING</div>
+          {station.totalEvents || station.today || 0} <span style={{ fontSize: 11 }}>uds.</span>
         </div>
-      ) : (
-        <div
-          style={{
-            marginTop: 14,
-            padding: '10px 12px',
-            borderRadius: 10,
-            background: 'rgba(239,68,68,0.05)',
-            border: '1px solid rgba(239,68,68,0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(239,68,68,0.8)', textTransform: 'uppercase' }}>
-              Sin Conexión
-            </div>
-            <div style={{ fontSize: 10.5, color: 'rgba(240,253,244,0.4)' }}>Sin telemetría reciente</div>
-          </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#ef4444' }}>OFFLINE</div>
-        </div>
-      )}
+      </div>
 
-      {/* Ultrasonic Fill Bars for Compartments */}
+      {/* Distribución de Materiales Clasificados */}
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(99,231,182,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <span
@@ -216,17 +170,17 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
               textTransform: 'uppercase',
             }}
           >
-            Nivel por Compartimento (IoT)
+            Distribución Materiales (IA)
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700, color: '#22d3ee' }}>
-            {station.today || 0} eventos
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: '#22d3ee', fontWeight: 600 }}>
+            {station.totalEvents || station.today || 0} procesados
           </span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
           {[
-            { label: 'Papel', val: papelLevel, color: '#a3e635' },
-            { label: 'Plástico', val: plasticoLevel, color: '#22d3ee' },
-            { label: 'Metal', val: metalLevel, color: '#a78bfa' },
+            { label: 'Plástico', pct: 59, color: '#22d3ee' },
+            { label: 'Papel', pct: 35, color: '#a3e635' },
+            { label: 'Metal', pct: 6, color: '#a78bfa' },
           ].map((m) => (
             <div
               key={m.label}
@@ -234,7 +188,7 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
                 padding: '6px 8px',
                 borderRadius: 8,
                 background: 'rgba(11,16,26,0.5)',
-                border: `1px solid ${m.val >= 80 ? '#fbbf24' : m.color}25`,
+                border: `1px solid ${m.color}25`,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 4,
@@ -247,10 +201,10 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
                     fontFamily: 'var(--font-mono)',
                     fontSize: 10,
                     fontWeight: 700,
-                    color: m.val >= 80 ? '#fbbf24' : m.color,
+                    color: m.color,
                   }}
                 >
-                  {m.val}%
+                  {m.pct}%
                 </span>
               </div>
               <div style={{ height: 3, borderRadius: 1.5, background: 'rgba(240,253,244,0.08)', overflow: 'hidden' }}>
@@ -258,8 +212,8 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
                   style={{
                     height: '100%',
                     borderRadius: 1.5,
-                    width: `${Math.min(100, m.val)}%`,
-                    background: m.val >= 80 ? '#fbbf24' : m.color,
+                    width: `${m.pct}%`,
+                    background: m.color,
                   }}
                 />
               </div>

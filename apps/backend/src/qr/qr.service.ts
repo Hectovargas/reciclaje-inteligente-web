@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { PrismaService } from '../prisma/prisma.service';
+import { BlockchainQueueService } from '../blockchain/blockchain-queue.service';
 import { BlockchainEventStatus } from '@prisma/client';
 import * as crypto from 'crypto';
 
@@ -17,7 +18,10 @@ export class QrService implements OnModuleInit {
   private operatorAddress!: string;
   private readonly logger = new Logger(QrService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly blockchainQueue: BlockchainQueueService,
+  ) {}
 
   async onModuleInit() {
     await this.initializePrivateKey();
@@ -258,7 +262,7 @@ export class QrService implements OnModuleInit {
       await this.initializePrivateKey();
     }
 
-    return await this.prisma.$transaction(async (tx) => {
+    const claimResult = await this.prisma.$transaction(async (tx) => {
       const qrToken = await tx.qRToken.findUnique({
         where: { codigo: cleanCode },
       });
@@ -303,14 +307,41 @@ export class QrService implements OnModuleInit {
       });
 
       return {
-        success: true,
         puntos,
         material: qrToken.categoria,
         categoria: qrToken.categoria,
-        txStatus: 'QUEUED',
         blockchainEventId: blockchainEvent.id,
-        message: 'Puntos reclamados exitosamente',
+        toAddress,
+        fromAddress,
       };
     });
+
+    // Encolar en BullMQ FUERA de la transacción de BD para evitar bloqueos
+    // Si Redis no está disponible o falla, el evento queda PENDING en PostgreSQL
+    // para ser recuperado automáticamente por el lote periódico.
+    let jobId = 'offline-pending';
+    try {
+      jobId = await this.blockchainQueue.enqueueExistingEvent(
+        claimResult.blockchainEventId,
+        claimResult.toAddress,
+        claimResult.puntos,
+        claimResult.fromAddress,
+      );
+    } catch (queueErr) {
+      this.logger.warn(
+        `No se pudo encolar evento ${claimResult.blockchainEventId} en BullMQ: ${(queueErr as Error).message}. Queda PENDING en BD.`,
+      );
+    }
+
+    return {
+      success: true,
+      puntos: claimResult.puntos,
+      material: claimResult.material,
+      categoria: claimResult.categoria,
+      txStatus: 'QUEUED',
+      blockchainEventId: claimResult.blockchainEventId,
+      jobId,
+      message: 'Puntos reclamados exitosamente',
+    };
   }
 }

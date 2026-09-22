@@ -58,6 +58,8 @@ describe('EstacionesService', () => {
             },
             eventoClasificacion: {
               deleteMany: jest.fn(),
+              count: jest.fn().mockResolvedValue(0),
+              aggregate: jest.fn().mockResolvedValue({ _avg: { confianza: 0.8 } }),
             },
           },
         },

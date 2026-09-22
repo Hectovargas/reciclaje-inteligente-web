@@ -26,6 +26,9 @@ export class EstacionesService {
           take: 10,
           orderBy: { timestamp: 'desc' },
         },
+        _count: {
+          select: { events: true },
+        },
         telemetrias: {
           take: 1,
           orderBy: { timestamp: 'desc' },
@@ -46,7 +49,8 @@ export class EstacionesService {
       lastPingAt: s.lastPingAt,
       zoneId: s.zoneId,
       zone: s.zone ? { id: s.zone.id, name: s.zone.name, isActive: s.zone.isActive } : null,
-      today: s.events?.length || 0,
+      totalEvents: s._count?.events || 0,
+      today: s._count?.events || 0,
       lastTelemetry: s.telemetrias?.[0] || null,
       createdAt: s.createdAt,
       updatedAt: s.updatedAt,
@@ -59,11 +63,11 @@ export class EstacionesService {
       include: {
         zone: true,
         events: {
-          take: 20,
+          take: 15,
           orderBy: { timestamp: 'desc' },
         },
         telemetrias: {
-          take: 10,
+          take: 1,
           orderBy: { timestamp: 'desc' },
         },
       },
@@ -72,6 +76,18 @@ export class EstacionesService {
     if (!station) {
       throw new NotFoundException(`Estación con ID ${id} no encontrada`);
     }
+
+    const totalEvents = await this.prisma.eventoClasificacion.count({ where: { stationId: id } });
+    const papelCount = await this.prisma.eventoClasificacion.count({ where: { stationId: id, categoria: 'Papel' } });
+    const plasticoCount = await this.prisma.eventoClasificacion.count({ where: { stationId: id, categoria: 'Plástico' } });
+    const metalCount = await this.prisma.eventoClasificacion.count({ where: { stationId: id, categoria: 'Metal' } });
+    const avgConf = await this.prisma.eventoClasificacion.aggregate({
+      where: { stationId: id },
+      _avg: { confianza: true },
+    });
+
+    const accuracy = avgConf._avg.confianza ? Math.round(avgConf._avg.confianza * 100) : 0;
+    const total = totalEvents || 1;
 
     return {
       id: station.id,
@@ -85,9 +101,16 @@ export class EstacionesService {
       lastPingAt: station.lastPingAt,
       zoneId: station.zoneId,
       zone: station.zone ? { id: station.zone.id, name: station.zone.name, isActive: station.zone.isActive } : null,
-      today: station.events?.length || 0,
+      totalEvents,
+      today: totalEvents,
+      accuracy,
+      materials: {
+        plastico: { count: plasticoCount, pct: totalEvents > 0 ? Math.round((plasticoCount / total) * 100) : 0 },
+        papel: { count: papelCount, pct: totalEvents > 0 ? Math.round((papelCount / total) * 100) : 0 },
+        metal: { count: metalCount, pct: totalEvents > 0 ? Math.round((metalCount / total) * 100) : 0 },
+      },
       events: station.events,
-      telemetrias: station.telemetrias,
+      lastTelemetry: station.telemetrias?.[0] || null,
       createdAt: station.createdAt,
       updatedAt: station.updatedAt,
     };

@@ -257,6 +257,13 @@ export type Station = {
   lastTelemetry?: TelemetryData | null;
   telemetrias?: TelemetryData[];
   events?: any[];
+  totalEvents?: number;
+  accuracy?: number;
+  materials?: {
+    plastico: { count: number; pct: number };
+    papel: { count: number; pct: number };
+    metal: { count: number; pct: number };
+  };
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };

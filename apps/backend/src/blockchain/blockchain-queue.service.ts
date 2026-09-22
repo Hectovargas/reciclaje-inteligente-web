@@ -1,4 +1,4 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,9 +8,9 @@ import { ethers } from 'ethers';
 export const BLOCKCHAIN_QUEUE_NAME = 'blockchain-batch-mint';
 
 export interface QueueMintPayload {
-  eventId: string;
-  recipient: string;
-  amount: number;
+  eventId?: string;
+  recipient?: string;
+  amount?: number;
   fromAddress?: string;
   timestamp: number;
 }
@@ -21,7 +21,7 @@ export interface QueueMintResult {
 }
 
 @Injectable()
-export class BlockchainQueueService {
+export class BlockchainQueueService implements OnModuleInit {
   private readonly logger = new Logger(BlockchainQueueService.name);
 
   constructor(
@@ -29,6 +29,26 @@ export class BlockchainQueueService {
     private readonly batchMintQueue: Queue,
     private readonly prisma: PrismaService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      await this.batchMintQueue.add(
+        'periodic-batch-flush',
+        { timestamp: Date.now() },
+        {
+          repeat: {
+            every: 60 * 1000, // Cada 60 segundos revisa y procesa eventos PENDING
+          },
+          jobId: 'periodic-batch-flush',
+          removeOnComplete: 10,
+          removeOnFail: 20,
+        },
+      );
+      this.logger.log('Batch minting programado: trabajo repetible encolado cada 60s en BullMQ.');
+    } catch (error) {
+      this.logger.warn(`No se pudo programar el trabajo repetible en BullMQ: ${(error as Error).message}`);
+    }
+  }
 
   /**
    * Enqueues a reward minting request and records a PENDING BlockchainEvent in the database.
@@ -93,6 +113,48 @@ export class BlockchainQueueService {
       event,
       jobId: job.id?.toString() || 'unknown',
     };
+  }
+
+  /**
+   * Encola un BlockchainEvent que YA existe en la BD (creado por QrService).
+   * No crea un registro nuevo — solo agrega el job a BullMQ.
+   */
+  async enqueueExistingEvent(
+    eventId: string,
+    recipient: string,
+    amount: number,
+    fromAddress?: string,
+  ): Promise<string> {
+    const normalizedRecipient = ethers.isAddress(recipient)
+      ? ethers.getAddress(recipient)
+      : recipient;
+    const normalizedFrom =
+      fromAddress && ethers.isAddress(fromAddress)
+        ? ethers.getAddress(fromAddress)
+        : '0x0000000000000000000000000000000000000000';
+
+    const job = await this.batchMintQueue.add(
+      'mint-reward',
+      {
+        eventId,
+        recipient: normalizedRecipient,
+        amount,
+        fromAddress: normalizedFrom,
+        timestamp: Date.now(),
+      } as QueueMintPayload,
+      {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 1500 },
+        removeOnComplete: 100,
+        removeOnFail: 500,
+      },
+    );
+
+    this.logger.log(
+      `Existing event ${eventId} enqueued in BullMQ (Job ID: ${job.id})`,
+    );
+
+    return job.id?.toString() || 'unknown';
   }
 
   /**
