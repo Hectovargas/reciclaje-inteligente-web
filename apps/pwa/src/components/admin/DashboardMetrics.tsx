@@ -29,15 +29,21 @@ export function DashboardMetrics() {
     kgSaved: 0,
     accuracy: 0,
     aiConf: 0,
-    timeBetweenEmptying: '0',
-    timeBetweenEmptyingPrev: '0',
-    frequency: '0 / sem',
-    minZoneTime: '0h',
-    maxZoneTime: '0h',
     totalEst: '0 est.',
+    zonesData: [],
     materialBreakdown: [],
     iaAccuracyBreakdown: [],
   };
+
+  // Llenado promedio real: artículos de hoy por estación (unidades),
+  // calculado desde zonesData del backend (sin valores simulados)
+  const zonesList: any[] = KPI_DATA.zonesData || [];
+  const stationsCount = zonesList.reduce((acc: number, z: any) => acc + (z.stations?.length || 0), 0);
+  const totalHoy = zonesList.reduce((acc: number, z: any) => acc + (z.todayCount || 0), 0);
+  const avgFill = stationsCount > 0 ? totalHoy / stationsCount : 0;
+  const avgFillDisplay = Number.isInteger(avgFill) ? `${avgFill}` : avgFill.toFixed(1);
+  const maxZone = zonesList.length > 0 ? zonesList.reduce((m: any, z: any) => ((z.todayCount || 0) > (m?.todayCount || 0) ? z : m)) : null;
+  const minZone = zonesList.length > 0 ? zonesList.reduce((m: any, z: any) => ((z.todayCount || 0) < (m?.todayCount || 0) ? z : m)) : null;
 
   const MATERIAL_CLASSIFIED_BREAKDOWN =
     KPI_DATA.materialBreakdown && KPI_DATA.materialBreakdown.length > 0
@@ -182,11 +188,11 @@ export function DashboardMetrics() {
         </div>
       </div>
 
-      {/* KPI · Tiempo entre vaciados */}
+      {/* KPI · Llenado promedio (unidades) */}
       <div className="glass-card" style={{ padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(240,253,244,0.38)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Tiempo entre vaciados
+            Llenado promedio
           </span>
         </div>
 
@@ -194,34 +200,38 @@ export function DashboardMetrics() {
           <div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
               <div style={{ fontSize: 44, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.05em', color: '#34d399', textShadow: '0 0 32px rgba(52,211,153,0.45)' }}>
-                {KPI_DATA.timeBetweenEmptying ?? '0'}
+                {avgFillDisplay}
               </div>
-              <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(52,211,153,0.7)', letterSpacing: '-0.02em' }}>h</span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(52,211,153,0.7)', letterSpacing: '-0.02em' }}>uds</span>
             </div>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'rgba(52,211,153,0.6)', marginTop: 4 }}>
               Promedio Red
             </div>
             <div style={{ fontSize: 10, color: 'rgba(240,253,244,0.35)', marginTop: 2 }}>
-              vs. {KPI_DATA.timeBetweenEmptyingPrev ?? '0'}h mes anterior
+              artículos por estación (hoy)
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, paddingLeft: 12, borderLeft: '1px solid rgba(99,231,182,0.08)' }}>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
-              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Frecuencia</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#f0fdf4', marginTop: 2 }}>{KPI_DATA.frequency ?? '0 / sem'}</div>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Hoy red</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#f0fdf4', marginTop: 2 }}>{totalHoy.toLocaleString('es-ES')} uds</div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
-              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Mín. Zona</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#22d3ee', marginTop: 2 }}>{KPI_DATA.minZoneTime ?? '0h'}</div>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Estaciones</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#22d3ee', marginTop: 2 }}>{stationsCount} est.</div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
-              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Máx. Zona</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a78bfa', marginTop: 2 }}>{KPI_DATA.maxZoneTime ?? '0h'}</div>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Máx. zona</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a78bfa', marginTop: 2 }} title={maxZone?.name || ''}>
+                {maxZone ? `${maxZone.todayCount} uds` : '—'}
+              </div>
             </div>
             <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(11,16,26,0.4)', border: '1px solid rgba(99,231,182,0.08)' }}>
-              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Red Total</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a3e635', marginTop: 2 }}>{KPI_DATA.totalEst ?? '0 est.'}</div>
+              <div style={{ fontSize: 8.5, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', fontWeight: 700 }}>Mín. zona</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color: '#a3e635', marginTop: 2 }} title={minZone?.name || ''}>
+                {minZone ? `${minZone.todayCount} uds` : '—'}
+              </div>
             </div>
           </div>
         </div>

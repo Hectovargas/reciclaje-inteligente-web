@@ -321,7 +321,7 @@ export function AddStationModal({ onClose, onAdd }: AddStationModalProps) {
                     marginBottom: 5,
                   }}
                 >
-                  Capacidad Total (Lts)
+                  Capacidad Total (unidades)
                 </label>
                 <input
                   type="number"

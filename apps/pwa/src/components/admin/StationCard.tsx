@@ -13,16 +13,12 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
   const s = getStatusConfig(station.status);
   const zoneName = getStationZoneName(station);
 
-  const lastTelem = station.lastTelemetry || (station.telemetrias && station.telemetrias[0]);
-  const papelLevel = lastTelem ? lastTelem.nivelPapel : 0;
-  const plasticoLevel = lastTelem ? lastTelem.nivelPlastico : 0;
-  const metalLevel = lastTelem ? lastTelem.nivelMetal : 0;
-  const maxBinLevel = Math.max(papelLevel, plasticoLevel, metalLevel);
+  const total = station.totalEvents ?? station.today ?? 0
+  const matPlastico = station.materials?.plastico.pct ?? 0
+  const matPapel = station.materials?.papel.pct ?? 0
+  const matMetal = station.materials?.metal.pct ?? 0
 
-  const isOffline = station.status === 'OFFLINE' || station.status === 'offline';
   const isPending = station.status === 'PENDING_ACTIVATION' || station.status === 'pending_activation';
-
-  const estHours = lastTelem && maxBinLevel > 0 ? Math.max(1, Math.round((100 - maxBinLevel) / 8)) : null;
 
   return (
     <div
@@ -154,7 +150,7 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
             color: '#a3e635',
           }}
         >
-          {station.totalEvents || station.today || 0} <span style={{ fontSize: 11 }}>uds.</span>
+          {station.totalEvents ?? station.today ?? 0} <span style={{ fontSize: 11 }}>uds.</span>
         </div>
       </div>
 
@@ -173,14 +169,14 @@ export function StationCard({ station, onClick, onEdit }: StationCardProps) {
             Distribución Materiales (IA)
           </span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: '#22d3ee', fontWeight: 600 }}>
-            {station.totalEvents || station.today || 0} procesados
+            {total} procesados
           </span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
           {[
-            { label: 'Plástico', pct: 59, color: '#22d3ee' },
-            { label: 'Papel', pct: 35, color: '#a3e635' },
-            { label: 'Metal', pct: 6, color: '#a78bfa' },
+            { label: 'Plástico', pct: matPlastico, color: '#22d3ee' },
+            { label: 'Papel', pct: matPapel, color: '#a3e635' },
+            { label: 'Metal', pct: matMetal, color: '#a78bfa' },
           ].map((m) => (
             <div
               key={m.label}

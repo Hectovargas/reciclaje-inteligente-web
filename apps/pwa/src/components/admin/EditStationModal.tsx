@@ -330,7 +330,7 @@ export function EditStationModal({ station, onClose, onUpdate, onDelete }: EditS
                   marginBottom: 5,
                 }}
               >
-                Capacidad (Lts)
+                Capacidad (unidades)
               </label>
               <input
                 type="number"

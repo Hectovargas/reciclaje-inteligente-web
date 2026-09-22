@@ -13,7 +13,7 @@ interface StationDetailPageProps {
 }
 
 export function StationDetailPage({ station: initialStation, onClose, onRevoke, onUpdate, onDelete }: StationDetailPageProps) {
-  const { data: detailData, refetch: refetchDetail } = useApi<Station>(`/estaciones/${initialStation.id}`)
+  const { data: detailData, loading: loadingDetail, refetch: refetchDetail } = useApi<Station>(`/estaciones/${initialStation.id}`)
   const [station, setStation] = useState<Station>(initialStation)
   const [currentToken, setCurrentToken] = useState(station.token)
   const [currentProvToken, setCurrentProvToken] = useState(station.provisioningToken || '')
@@ -67,17 +67,32 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
     onClose()
   }
 
-  // Métricas reales de clasificación de IA
+  // Métricas reales de clasificación de IA (sin valores simulados:
+  // mientras carga el detalle se muestra "—" en vez de datos falsos)
   const totalReciclajes = station.totalEvents ?? (station.today || 0)
-  const accuracy = station.accuracy ?? 61
+  const accuracy: number | null = station.accuracy ?? null
   const materials = station.materials || {
-    plastico: { count: Math.round(totalReciclajes * 0.59), pct: 59 },
-    papel: { count: Math.round(totalReciclajes * 0.35), pct: 35 },
-    metal: { count: Math.round(totalReciclajes * 0.06), pct: 6 },
+    plastico: { count: 0, pct: 0 },
+    papel: { count: 0, pct: 0 },
+    metal: { count: 0, pct: 0 },
   }
 
-  const topMaterial = materials.plastico.count >= materials.papel.count ? 'Plástico' : 'Papel'
-  const topPct = topMaterial === 'Plástico' ? materials.plastico.pct : materials.papel.pct
+  const topMaterial =
+    totalReciclajes > 0
+      ? materials.plastico.count >= materials.papel.count && materials.plastico.count >= materials.metal.count
+        ? 'Plástico'
+        : materials.papel.count >= materials.metal.count
+          ? 'Papel'
+          : 'Metal'
+      : '—'
+  const topPct =
+    totalReciclajes > 0
+      ? topMaterial === 'Plástico'
+        ? materials.plastico.pct
+        : topMaterial === 'Papel'
+          ? materials.papel.pct
+          : materials.metal.pct
+      : 0
 
   const recentEvents = station.events || []
 
@@ -138,15 +153,17 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
         <div className="glass-card" style={{ padding: 22 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Precisión Promedio del Modelo</span>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 30, fontWeight: 800, color: '#22d3ee', textShadow: '0 0 16px rgba(34,211,238,0.4)', marginTop: 8 }}>
-            {accuracy}%
+            {accuracy !== null ? `${accuracy}%` : '—'}
           </div>
-          <div style={{ fontSize: 11.5, color: 'rgba(240,253,244,0.45)', marginTop: 4 }}>Nivel de confianza en detección</div>
+          <div style={{ fontSize: 11.5, color: 'rgba(240,253,244,0.45)', marginTop: 4 }}>
+            {accuracy !== null ? 'Nivel de confianza en detección' : loadingDetail ? 'Cargando datos reales del backend…' : 'Sin clasificaciones registradas'}
+          </div>
         </div>
 
         <div className="glass-card" style={{ padding: 22 }}>
           <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(240,253,244,0.4)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Material Predominante</span>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 26, fontWeight: 800, color: '#a78bfa', textShadow: '0 0 16px rgba(167,139,250,0.4)', marginTop: 8 }}>
-            {topMaterial} <span style={{ fontSize: 16, color: '#f0fdf4' }}>({topPct}%)</span>
+            {topMaterial} {totalReciclajes > 0 && <span style={{ fontSize: 16, color: '#f0fdf4' }}>({topPct}%)</span>}
           </div>
           <div style={{ fontSize: 11.5, color: 'rgba(240,253,244,0.45)', marginTop: 4 }}>Categoría con mayor volumen reciclado</div>
         </div>
@@ -184,8 +201,8 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
             ))}
           </div>
 
-          {/* Feed de Clasificaciones Recientes de la Estación */}
-          {recentEvents.length > 0 && (
+          {/* Feed de Clasificaciones Recientes de la Estación (solo datos reales del backend) */}
+          {recentEvents.length > 0 ? (
             <div style={{ marginTop: 8, borderTop: '1px solid rgba(99,231,182,0.08)', paddingTop: 16 }}>
               <span style={{ fontSize: 10.5, fontWeight: 700, color: 'rgba(240,253,244,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Últimas Detecciones en esta Estación
@@ -202,6 +219,10 @@ export function StationDetailPage({ station: initialStation, onClose, onRevoke, 
                   )
                 })}
               </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 8, borderTop: '1px solid rgba(99,231,182,0.08)', paddingTop: 16, fontSize: 12, color: 'rgba(240,253,244,0.45)' }}>
+              {loadingDetail ? 'Cargando detecciones…' : 'Sin detecciones registradas en esta estación.'}
             </div>
           )}
         </div>
